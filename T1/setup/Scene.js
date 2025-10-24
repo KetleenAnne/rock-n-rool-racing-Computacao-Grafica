@@ -2,7 +2,6 @@ import * as THREE from "three";
 import {
   initDefaultBasicLight,
   createGroundPlaneXZ,
-  onWindowResize,
 } from "../../libs/util/util.js";
 import { setDefaultMaterial } from "../../libs/util/util.js";
 
