@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import * as THREE from "three";
 import { initRenderer } from "../../libs/util/util.js";
 import { setupScene } from "./setup/Scene.js";
@@ -40,4 +38,3 @@ console.log("Controles adicionados");
 
 startLoop(renderer, scene, camera);
 console.log("Loop iniciado");
->>>>>>> Stashed changes

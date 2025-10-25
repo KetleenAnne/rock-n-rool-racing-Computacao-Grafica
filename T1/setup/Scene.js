@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import * as THREE from "three";
 import {
   initDefaultBasicLight,
@@ -47,4 +45,3 @@ export function defineAxes(scene, pista = 1) {
   
   scene.add(axesHelper);
 }
->>>>>>> Stashed changes

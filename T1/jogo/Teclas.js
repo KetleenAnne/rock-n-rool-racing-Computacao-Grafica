@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import { OrbitControls } from "../../build/jsm/controls/OrbitControls.js";
 import { onWindowResize, InfoBox } from "../../libs/util/util.js";
 import { criarPista1, criarPista2 } from "./Pista.js";
@@ -73,4 +71,3 @@ function resetarVeiculo(veiculo, posicao) {
 export function getPistaAtual() {
   return pistaAtualNum;
 }
->>>>>>> Stashed changes

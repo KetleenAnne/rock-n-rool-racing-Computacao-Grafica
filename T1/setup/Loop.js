@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 export function startLoop(renderer, scene, camera) {
   render();
   function render() {
@@ -7,4 +5,3 @@ export function startLoop(renderer, scene, camera) {
     renderer.render(scene, camera);
   }
 }
->>>>>>> Stashed changes

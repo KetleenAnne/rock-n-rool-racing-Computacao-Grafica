@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 import * as THREE from "three";
 import { initCamera } from "../../libs/util/util.js";
 
@@ -9,4 +7,3 @@ export function setupCamera() {
   camera.lookAt(69, 0, 67);
   return camera;
 }
->>>>>>> Stashed changes

@@ -5,7 +5,7 @@ const ALTURA_MURETA = 0.8;
 const ESPESSURA_MURETA = 0.3;
 const TAMANHO_QUADRADO = 0.4;
 
-// Criar segmentos de muretas com padrão xadrez
+// Criar segmentos de muretas com padrÃ£o xadrez
 export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizontal') {
   const group = new THREE.Group();
   
@@ -14,17 +14,17 @@ export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizo
   // Calcular comprimento total do segmento
   const comprimento = posicoes.length * tamanhoBloco;
   
-  // Determinar dimensões baseado na orientação
+  // Determinar dimensÃµes baseado na orientaÃ§Ã£o
   const largura = orientacao === 'horizontal' ? comprimento : ESPESSURA_MURETA;
   const profundidade = orientacao === 'horizontal' ? ESPESSURA_MURETA : comprimento;
   
-  // Calcular posição central do segmento
+  // Calcular posiÃ§Ã£o central do segmento
   const primeiraPos = posicoes[0];
   const ultimaPos = posicoes[posicoes.length - 1];
   const centroX = ((primeiraPos.x + ultimaPos.x) / 2) * tamanhoBloco;
   const centroZ = ((primeiraPos.z + ultimaPos.z) / 2) * tamanhoBloco;
   
-  // Criar padrão xadrez
+  // Criar padrÃ£o xadrez
   const numQuadradosComprimento = Math.ceil(
     (orientacao === 'horizontal' ? largura : profundidade) / TAMANHO_QUADRADO
   );
@@ -32,7 +32,7 @@ export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizo
   
   for (let h = 0; h < numQuadradosAltura; h++) {
     for (let c = 0; c < numQuadradosComprimento; c++) {
-      // Padrão xadrez
+      // PadrÃ£o xadrez
       const cor = (h + c) % 2 === 0 ? "red" : "white";
       
       const geometria = new THREE.BoxGeometry(
@@ -80,7 +80,7 @@ export function criarLinhaLargada(x, z, profundidade = 2) {
         tamanhoQuadrado * 0.95
       );
       
-      // Padrão xadrez
+      // PadrÃ£o xadrez
       const cor = (col + lin) % 2 === 0 ? "white" : "black";
       const material = setDefaultMaterial(cor);
       
@@ -129,6 +129,6 @@ export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 0.8) {
       };
     }
   }
-  
+ 
   return { colidiu: false };
 }
