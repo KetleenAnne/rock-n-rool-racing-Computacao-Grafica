@@ -4,17 +4,6 @@ import { setupScene } from "./setup/Scene.js";
 import { setupCamera } from "./setup/Camera.js";
 import { startLoop } from "./setup/Loop.js";
 import { addControls } from "./jogo/Teclas.js";
-<<<<<<< HEAD
-
-let scene = new THREE.Scene();
-
-let renderer = initRenderer();
-let camera = setupCamera();
-
-setupScene(scene);
-addControls(camera, renderer);
-startLoop(renderer, scene, camera);
-=======
 import { criarPista1 } from "./jogo/Pista.js";
 
 console.log("Iniciando aplicaÃ§Ã£o...");
@@ -49,4 +38,3 @@ console.log("Controles adicionados");
 
 startLoop(renderer, scene, camera);
 console.log("Loop iniciado");
->>>>>>> branch-samuel

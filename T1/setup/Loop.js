@@ -4,8 +4,4 @@ export function startLoop(renderer, scene, camera) {
     requestAnimationFrame(render);
     renderer.render(scene, camera);
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> branch-samuel

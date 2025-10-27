@@ -129,6 +129,6 @@ export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 0.8) {
       };
     }
   }
- 
+  
   return { colidiu: false };
 }
