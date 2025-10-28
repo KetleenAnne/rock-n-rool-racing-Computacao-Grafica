@@ -6,7 +6,7 @@ let pistaAtualNum = 1;
 
 export function addControls(camera, renderer, scene, veiculo) {
   const orbit = new OrbitControls(camera, renderer.domElement);
-  
+
   // Centralizar controles na Pista 1 (70x68)
   orbit.target.set(69, 0, 67);
   orbit.update();
@@ -23,28 +23,26 @@ export function addControls(camera, renderer, scene, veiculo) {
       pistaAtualNum = 1;
       const posInicial = criarPista1(scene);
       resetarVeiculo(veiculo, posInicial);
-      
-      // Recentralizar cÃ¢mera na Pista 1
+
+      // Recentralizar camera na Pista 1
       orbit.target.set(69, 0, 67);
       camera.position.set(69, 50, 140);
       orbit.update();
-      
+
       console.log("Pista 1 carregada");
     } else if (event.key === "2" && pistaAtualNum !== 2) {
       pistaAtualNum = 2;
       const posInicial = criarPista2(scene);
       resetarVeiculo(veiculo, posInicial);
-      
-      // Recentralizar cÃ¢mera na Pista 2
+
+      // Recentralizar camera na Pista 2
       orbit.target.set(41, 0, 35);
       camera.position.set(41, 35, 90);
       orbit.update();
-      
-      console.log("Pista 2 carregada");
     }
   });
 
-  // Caixa de informaÃ§Ãµes
+  // Caixa de informações
   const controls = new InfoBox();
   controls.add("Rock'n Roll Racing 3D - T1");
   controls.addParagraph();
@@ -64,7 +62,7 @@ export function addControls(camera, renderer, scene, veiculo) {
 function resetarVeiculo(veiculo, posicao) {
   if (veiculo && veiculo.position) {
     veiculo.position.set(posicao.x, posicao.y, posicao.z);
-    veiculo.rotation.y = 0; // Resetar rotaÃ§Ã£o
+    veiculo.rotation.y = 0; // Resetar rotação
   }
 }
 
