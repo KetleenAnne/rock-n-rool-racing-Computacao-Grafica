@@ -96,19 +96,7 @@ function configuracaoTeclado() {
   });
 }
 
-export function addControls(camera, renderer, scene, veiculo) {
-  const orbit = new OrbitControls(camera, renderer.domElement); // Enable mouse rotation, pan, zoom etc.
-
-  // Centralizar controles na Pista 1 (70x68)
-  orbit.target.set(69, 0, 67);
-  orbit.update();
-
-  window.addEventListener(
-    "resize",
-    () => onWindowResize(camera, renderer),
-    false
-  );
-
+export function addControls(camera, renderer) {
   //  Caixa de informações na tela
   infoBox = new InfoBox();
   infoBox.add("Rock'n Roll Racing 3D - T1");
@@ -130,16 +118,8 @@ export function addControls(camera, renderer, scene, veiculo) {
   infoBox.infoBox.style.color = "black";
   infoBox.infoBox.style.fontWeight = "bold";
   infoBox.infoBox.style.backgroundColor = "white";
+
   configuracaoTeclado();
-
-  return orbit;
-}
-
-function resetarVeiculo(veiculo, posicao) {
-  if (veiculo && veiculo.position) {
-    veiculo.position.set(posicao.x, posicao.y, posicao.z);
-    veiculo.rotation.y = 0; // Resetar rotação
-  }
 }
 
 // configurações de velocidade do veiculo
@@ -148,13 +128,13 @@ const statusVeiculo = {
   direção: 0,
 
   // constantes
-  velocidadeMax: 80.0,
+  velocidadeMax: 50.0,
   velocidadeMaxRe: -20.0,
   aceleracao: 0.5,
   aceleracaoRe: 0.3,
   forcaFrenagem: 0.8,
   anguloVirada: 0.04,
-  atrito: 0.98,
+  atrito: 0.95,
 };
 
 export function atualizaControlesVeiculo() {
@@ -214,4 +194,5 @@ export function atualizaControlesVeiculo() {
     velocidadeExibida.innerHTML =
       "Velocidade: " + (statusVeiculo.velocidade * 3.6).toFixed(1) + " km/h";
   }
+  return statusVeiculo;
 }

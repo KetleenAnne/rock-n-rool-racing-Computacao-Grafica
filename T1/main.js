@@ -20,9 +20,10 @@ scene.add(veiculo);
 // Carregar pista 1 inicialmente
 const posInicial = criarPista1(scene);
 veiculo.position.set(posInicial.x, posInicial.y, posInicial.z);
+veiculo.rotation.y = -posInicial.rot;
 
-addControls(camera, renderer, scene, veicul); // controles - Teclas.js
-startLoop(renderer, scene, camera); // loop de animação - Loop.js
+addControls(camera, renderer); // controles - Teclas.js
+startLoop(renderer, scene, camera, veiculo); // loop de animação - Loop.js
 
 var pistaSelecionada = getPistaSelecionada();
 
