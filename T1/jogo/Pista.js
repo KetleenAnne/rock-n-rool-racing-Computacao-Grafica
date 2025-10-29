@@ -288,7 +288,7 @@ function criarMuretasPista2() {
   return segmentos;
 }
 
-// PosiÃ§Ãµes iniciais NA linha de largada (parte inferior central)
+// Posições iniciais dos veiculos na pista e rotação inicial
 const POSICAO_INICIAL_PISTA_1 = {
   x: 69,
   y: 0.3,
