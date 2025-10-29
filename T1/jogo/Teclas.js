@@ -1,9 +1,6 @@
-import { OrbitControls } from "../../build/jsm/controls/OrbitControls.js";
-import { onWindowResize, InfoBox } from "../../libs/util/util.js";
-import { criarPista1, criarPista2 } from "./Pista.js";
-
 let pistaAtualNum = 1;
 var pistaSelecionada = null;
+var velocidadeExibida;
 
 export function getPistaSelecionada() {
   return pistaSelecionada;
@@ -11,6 +8,10 @@ export function getPistaSelecionada() {
 
 export function getPistaAtual() {
   return pistaAtualNum;
+}
+
+export function setInfoBox(linhaVelocidade) {
+  return (velocidadeExibida = linhaVelocidade);
 }
 
 const keyStates = {
@@ -24,8 +25,20 @@ const keyStates = {
   KeyD: false,
 };
 
-var infoBox;
-var velocidadeExibida;
+// configurações de velocidade do veiculo
+const statusVeiculo = {
+  velocidade: 0,
+  direção: 0,
+
+  // constantes
+  velocidadeMax: 50.0,
+  velocidadeMaxRe: -20.0,
+  aceleracao: 0.5,
+  aceleracaoRe: 0.3,
+  forcaFrenagem: 0.8, //ao apertar a tecla de ré
+  anguloVirada: 0.04, // angulo de virada por frame
+  atrito: 0.95, //desaceleração ao deixar de apertar teclas
+};
 
 function configuracaoTeclado() {
   // Eventos para "keyPressed" e "keyReleased"
@@ -97,45 +110,8 @@ function configuracaoTeclado() {
 }
 
 export function addControls(camera, renderer) {
-  //  Caixa de informações na tela
-  infoBox = new InfoBox();
-  infoBox.add("Rock'n Roll Racing 3D - T1");
-  infoBox.addParagraph();
-  infoBox.add("Use o mouse para interagir:");
-  infoBox.add("* Botão esquerdo: rotaciona");
-  infoBox.add("* Botão direito: movimenta (pan)");
-  infoBox.add("* Scroll: zoom in/out");
-  infoBox.addParagraph();
-  infoBox.add("Teclas de movimento:");
-  infoBox.add("* W/S ou Seta para cima/baixo: mover para frente/para trás");
-  infoBox.add(
-    "* A/D ou Seta para esquerda/direita: virar para esquerda/direita"
-  );
-  infoBox.addParagraph();
-  velocidadeExibida = infoBox.add("Velocidade: 0.0 km/h");
-  infoBox.show();
-  //cor das letras info box
-  infoBox.infoBox.style.color = "black";
-  infoBox.infoBox.style.fontWeight = "bold";
-  infoBox.infoBox.style.backgroundColor = "white";
-
   configuracaoTeclado();
 }
-
-// configurações de velocidade do veiculo
-const statusVeiculo = {
-  velocidade: 0,
-  direção: 0,
-
-  // constantes
-  velocidadeMax: 50.0,
-  velocidadeMaxRe: -20.0,
-  aceleracao: 0.5,
-  aceleracaoRe: 0.3,
-  forcaFrenagem: 0.8,
-  anguloVirada: 0.04,
-  atrito: 0.95,
-};
 
 export function atualizaControlesVeiculo() {
   // ------- Aceleração e Frenagem do veículo -------
@@ -154,24 +130,26 @@ export function atualizaControlesVeiculo() {
       statusVeiculo.velocidade -= statusVeiculo.aceleracaoRe;
     }
   } else {
-    // desacelera naturalmente, nenhuma tecla pressionada
+    // desacelera naturalmente, quando nenhuma tecla pressionada
     statusVeiculo.velocidade *= statusVeiculo.atrito;
   }
 
   // ------- Limites de Velocidade -------
-  // limita para frente
+
+  // limita velocidade aceleração
   statusVeiculo.velocidade = Math.min(
     statusVeiculo.velocidade,
     statusVeiculo.velocidadeMax
   );
-  // limita para ré
+  // limita velocidade de ré
   statusVeiculo.velocidade = Math.max(
     statusVeiculo.velocidade,
     statusVeiculo.velocidadeMaxRe
   );
 
   // ------- Correção de Parada do veículo -------
-  //velocidade muito baixa, para o carro
+
+  // se a velocidade estiver muito baixa, para o carro
   if (Math.abs(statusVeiculo.velocidade) < 0.1) {
     statusVeiculo.velocidade = 0;
   }

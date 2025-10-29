@@ -293,14 +293,14 @@ const POSICAO_INICIAL_PISTA_1 = {
   x: 69,
   y: 0.3,
   z: 128,
-  rot: Math.PI,
+  rot: Math.PI / 2,
 };
 
 const POSICAO_INICIAL_PISTA_2 = {
   x: 27,
   y: 0.3,
   z: 136,
-  rot: Math.PI,
+  rot: Math.PI / 2,
 };
 
 let pistaAtual = null;
