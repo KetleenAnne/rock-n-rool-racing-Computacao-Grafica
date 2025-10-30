@@ -5,6 +5,7 @@ import { setupCamera } from "./setup/Camera.js";
 import { startLoop } from "./setup/Loop.js";
 import { criarPista1 } from "./jogo/Pista.js";
 import { addControls, getPistaSelecionada, setInfoBox } from "./jogo/Teclas.js";
+import { Veiculo } from "./jogo/Veiculo.js";
 
 let scene = new THREE.Scene();
 let renderer = initRenderer();
@@ -14,15 +15,18 @@ addMenu();
 setupScene(scene); // cena - Scene.js
 
 //veiculo auxiliar
-const geometriaVeiculo = new THREE.BoxGeometry(1, 0.5, 1.5);
-const materialVeiculo = new THREE.MeshStandardMaterial({ color: 0xff6600 });
-const veiculo = new THREE.Mesh(geometriaVeiculo, materialVeiculo);
-scene.add(veiculo);
+// const geometriaVeiculo = new THREE.BoxGeometry(1, 0.5, 1.5);
+// const materialVeiculo = new THREE.MeshStandardMaterial({ color: 0xff6600 });
+// const veiculo = new THREE.Mesh(geometriaVeiculo, materialVeiculo);
+// scene.add(veiculo);
+const veiculo = new Veiculo(scene);
 
 // Carregar pista 1 inicialmente
 const posInicial = criarPista1(scene);
-veiculo.position.set(posInicial.x, posInicial.y, posInicial.z);
-veiculo.rotation.y = -posInicial.rot;
+// veiculo.position.set(posInicial.x, posInicial.y, posInicial.z);
+// veiculo.rotation.y = -posInicial.rot;
+//veiculo.reset(posInicial.x, posInicial.y + 1, posInicial.z, posInicial.rot);
+veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
 
 addControls(camera, renderer); // controles - Teclas.js
 startLoop(renderer, scene, camera, veiculo); // loop de animação - Loop.js
