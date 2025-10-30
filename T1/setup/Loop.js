@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { atualizaControlesVeiculo } from "../jogo/Teclas.js";
+import { getMuretas } from "../jogo/Pista.js";
+import { verificarColisao } from "../jogo/Muretas.js";
 
 const offsetCamera = new THREE.Vector3(0, 10, -20);
 const lerp_camera = 0.08;
@@ -15,12 +17,24 @@ export function startLoop(renderer, scene, camera, veiculo) {
   function render() {
     //estado atual veiculo
     const state = atualizaControlesVeiculo();
+    //Salva posição anterior do veiculo
+    const posAnterior = veiculo.group.position.clone()
     // aplica mudanças no veiculo
     if (state.velocidade !== 0) {
       let directionFactor = state.velocidade > 0 ? 1 : -1;
       veiculo.rotateY(state.direção * directionFactor);
     }
     veiculo.translateZ(state.velocidade * 0.05);
+
+    //Verificar colisão depois de mover
+    const muretas = getMuretas();
+    const colisao = verificarColisao(veiculo.position, muretas, 1.2);
+  
+    if (colisao.colidiu) {
+      // Voltar para posição anterior
+      veiculo.group.position.copy(posAnterior);
+      veiculo.position.copy(posAnterior);
+    }
     // rotação lateral da câmera baseado no estado do veículo
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
