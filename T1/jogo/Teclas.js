@@ -47,9 +47,9 @@ const statusVeiculo = {
   // constantes
   velocidadeMax: 50.0,
   velocidadeMaxRe: -20.0,
-  aceleracao: 0.5,
-  aceleracaoRe: 0.3,
-  forcaFrenagem: 0.8, //ao apertar a tecla de ré
+  aceleracao: 25.0,
+  aceleracaoRe: 20.0,
+  forcaFrenagem: 30.0, //ao apertar a tecla de ré
   anguloVirada: 0.04, // angulo de virada por frame
   atrito: 0.95, //desaceleração ao deixar de apertar teclas
 };
@@ -149,25 +149,33 @@ export function addControls(camera, renderer) {
   configuracaoTeclado();
 }
 
-export function atualizaControlesVeiculo() {
+export function atualizaControlesVeiculo(deltaTime) {
   // ------- Aceleração e Frenagem do veículo -------
   if (keyStates.ArrowUp || keyStates.KeyW) {
     // Acelera para frente
     if (statusVeiculo.velocidade < statusVeiculo.velocidadeMax) {
-      statusVeiculo.velocidade += statusVeiculo.aceleracao;
+      statusVeiculo.velocidade += statusVeiculo.aceleracao * deltaTime;
     }
   } else if (keyStates.ArrowDown || keyStates.KeyS) {
     //freia se estiver em movimento para frente
     if (statusVeiculo.velocidade > 0) {
-      statusVeiculo.velocidade -= statusVeiculo.forcaFrenagem;
+      statusVeiculo.velocidade -= statusVeiculo.forcaFrenagem * deltaTime;
     }
     //ré
     else {
-      statusVeiculo.velocidade -= statusVeiculo.aceleracaoRe;
+      statusVeiculo.velocidade -= statusVeiculo.aceleracaoRe * deltaTime;
     }
   } else {
     // desacelera naturalmente, quando nenhuma tecla pressionada
-    statusVeiculo.velocidade *= statusVeiculo.atrito;
+    const atritoComoForca = statusVeiculo.aceleracao * 0.7;
+
+    if (statusVeiculo.velocidade > 0.1) {
+      statusVeiculo.velocidade -= atritoComoForca * deltaTime;
+    } else if (statusVeiculo.velocidade < -0.1) {
+      statusVeiculo.velocidade += atritoComoForca * deltaTime;
+    } else {
+      statusVeiculo.velocidade = 0;
+    }
   }
 
   // ------- Limites de Velocidade -------
@@ -184,11 +192,10 @@ export function atualizaControlesVeiculo() {
   );
 
   // ------- Correção de Parada do veículo -------
-
   // se a velocidade estiver muito baixa, para o carro
-  if (Math.abs(statusVeiculo.velocidade) < 0.1) {
-    statusVeiculo.velocidade = 0;
-  }
+  // if (Math.abs(statusVeiculo.velocidade) < 0.1) {
+  //   statusVeiculo.velocidade = 0;
+  // }
 
   // ------- Direção do veículo -------
   if (statusVeiculo.velocidade !== 0) {
@@ -215,9 +222,9 @@ export function atualizaControlesVeiculo() {
     const limiteVoltas = contadorVoltas.getLimiteVoltas();
     const isUltimaVolta = contadorVoltas.isUltimaVolta();
     const corridaFinalizada = contadorVoltas.isCorridaFinalizada();
-    
+
     let textoVoltas = `Voltas: ${voltasAtuais}/${limiteVoltas}`;
-    
+
     if (corridaFinalizada) {
       voltasExibida.innerHTML = "🏁 CORRIDA FINALIZADA! 🏁";
       voltasExibida.style.color = "lime";
@@ -230,7 +237,8 @@ export function atualizaControlesVeiculo() {
       voltasExibida.style.color = "red";
       voltasExibida.style.fontWeight = "bold";
       voltasExibida.style.fontSize = "18px";
-      voltasExibida.style.textShadow = "0 0 10px rgba(255, 0, 0, 0.8), 2px 2px 4px black";
+      voltasExibida.style.textShadow =
+        "0 0 10px rgba(255, 0, 0, 0.8), 2px 2px 4px black";
       voltasExibida.style.animation = "piscar 0.8s ease-in-out infinite";
     } else {
       voltasExibida.innerHTML = textoVoltas;
@@ -243,4 +251,15 @@ export function atualizaControlesVeiculo() {
   }
 
   return statusVeiculo;
+}
+
+export function setVelocidade(novaVelocidade) {
+  // Limita a velocidade para garantir que não inverta
+  if (statusVeiculo.velocidade > 0 && novaVelocidade < 0) {
+    statusVeiculo.velocidade = 0;
+  } else if (statusVeiculo.velocidade < 0 && novaVelocidade > 0) {
+    statusVeiculo.velocidade = 0;
+  } else {
+    statusVeiculo.velocidade = novaVelocidade;
+  }
 }
