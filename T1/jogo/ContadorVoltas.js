@@ -13,8 +13,8 @@ class ContadorVoltas {
   // Define a área da linha de chegada baseado na pista
   setLinhaChegada(x, z, largura = 10, profundidade = 10) {
     this.linhaBox = new THREE.Box3(
-      new THREE.Vector3(x - largura/2, -1, z - profundidade/2),
-      new THREE.Vector3(x + largura/2, 5, z + profundidade/2)
+      new THREE.Vector3(x - largura / 2, -1, z - profundidade / 2),
+      new THREE.Vector3(x + largura / 2, 5, z + profundidade / 2)
     );
   }
 
@@ -49,14 +49,14 @@ class ContadorVoltas {
       // Conta a volta
       this.voltas++;
       console.log(`Volta ${this.voltas}/${this.limiteVoltas} completada!`);
-      
+
       // Verifica se finalizou a corrida
       if (this.voltas >= this.limiteVoltas) {
         this.corridaFinalizada = true;
         console.log("🏁 CORRIDA FINALIZADA! 🏁");
         return { completouVolta: true, finalizouCorrida: true };
       }
-      
+
       return { completouVolta: true, finalizouCorrida: false };
     }
 

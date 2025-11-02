@@ -1,84 +1,97 @@
 import * as THREE from "three";
 
+// Checa colisão do Carro  vs Muretas
 export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 1.2) {
-  // Verificar colisão com cada mureta
   for (let mureta of muretas) {
-    if (!mureta || !mureta.mesh) continue;
+    if (!mureta || !mureta.mesh) continue; // Pula mureta inválida
 
+    // Pega a 'caixa' da mureta
     const bbox = new THREE.Box3().setFromObject(mureta.mesh);
     const pontoVeiculo = new THREE.Vector3(
       posicaoVeiculo.x,
       posicaoVeiculo.y,
       posicaoVeiculo.z
     );
-    // Encontra o ponto mais próximo dentro da caixa ao veículo
+
+    //acha o ponto na BORDA da caixa mais perto do carro
     const pontoMaisProximo = new THREE.Vector3();
-    bbox.clampPoint(pontoVeiculo, pontoMaisProximo); // Calcula a distância do veículo até esse ponto
+    bbox.clampPoint(pontoVeiculo, pontoMaisProximo);
 
-    const distancia = pontoVeiculo.distanceTo(pontoMaisProximo); //se a distância é menor que o raio do veículo
+    // Mede a distância do carro até esse ponto
+    const distancia = pontoVeiculo.distanceTo(pontoMaisProximo);
 
+    // Se a distância for menor que o raio do carro, BATEU
     if (distancia < raioVeiculo) {
-      //COLIDIU
+      // 'Normal' = direção pra empurrar o carro pra fora
       const normal = new THREE.Vector3();
 
       if (mureta.tipo === "horizontal") {
-        // Se o carro está "acima" da mureta, o normal aponta para "baixo" (-1)
+        // Mureta horizontal -> empurra só no eixo Z
         normal.z = posicaoVeiculo.z > mureta.posicao.z ? 1.0 : -1.0;
-        normal.x = 0; // Garantir que é só Z
       } else if (mureta.tipo === "vertical") {
-        // Mureta vertical. O normal é puramente em X.
+        // Mureta vertical -> empurra só no eixo X
         normal.x = posicaoVeiculo.x > mureta.posicao.x ? 1.0 : -1.0;
-        normal.z = 0; // Garantir que é só X
       } else {
-        // se não tiver tipo, usa a distância, mas pode ser menos preciso
+        // Muretas de canto (sem tipo) -> calcula a normal
         normal.subVectors(pontoVeiculo, pontoMaisProximo).normalize();
       }
 
+      // Retorna as infos da batida
       return {
         colidiu: true,
         mureta: mureta,
-        normal: normal, // normal preciso
-        distanciaPenetracao: raioVeiculo - distancia,
+        normal: normal, // Direção do empurrão
+        distanciaPenetracao: raioVeiculo - distancia, // O quanto o carro "entrou"
       };
     }
   }
 
-  return { colidiu: false }; // Nenhuma colisão
+  return { colidiu: false }; // Sem colisão
 }
 
+// --- Física de "Deslizar" na Parede ---
 export function resolverColisaoDeslizante(veiculo, colisao, state) {
-  if (!colisao.colidiu) return state.velocidade; // Empurra o veículo para fora da mureta, direção do normal //  distanciaPenetracao, diz o quanto "entramos" na parede // pequeno buffer (0.01) para garantir que saia
+  if (!colisao.colidiu) return state.velocidade;
 
-  const forcaRepulsao = colisao.distanciaPenetracao + 0.01;
+  // Empurra o carro pra fora da parede (pra não ficar preso)
+  const forcaRepulsao = colisao.distanciaPenetracao + 0.01; // 0.01 é uma folga
   veiculo.group.position.x += colisao.normal.x * forcaRepulsao;
   veiculo.group.position.z += colisao.normal.z * forcaRepulsao;
-  veiculo.position.copy(veiculo.group.position);
+  veiculo.position.copy(veiculo.group.position); // Atualiza a posição
 
-  if (state.velocidade === 0) return 0; // Vetor para frente do veículo
+  if (state.velocidade === 0) return 0; // Se tá parado, não faz nada
 
+  // --- Lógica de Redução de Velocidade ---
+
+  // Pega o vetor "pra frente" do carro
   const vFrente = new THREE.Vector3(0, 0, 1);
-  vFrente.applyQuaternion(veiculo.quaternion); // Pega a rotação atual do carro
-  vFrente.normalize(); // O normal da mureta já vem de colisao.normal
+  vFrente.applyQuaternion(veiculo.quaternion); // Gira pra direção certa
+  vFrente.normalize();
 
-  const vNormal = colisao.normal; // Calcula cos o ângulo entre frente e normal
+  // 'Normal' da parede
+  const vNormal = colisao.normal;
 
-  const dot = vFrente.dot(vNormal); // Se o ângulo for igual ou menor a 90°, não haverá retardo // se dot >= 0, não há retardo.
+  // Produto Escalar
+  // Isso diz o "ângulo" da batida
+  const dot = vFrente.dot(vNormal);
 
+  // Se dot >= 0, estamos "raspando" ou saindo da parede
   if (dot >= 0) {
-    // se afastando da parede ou andando paralelos.
-    // aplica um leve atrito de "raspão"
-    return state.velocidade * 0.98;
-  } // Se dot < 0, estamos indo CONTRA a parede // dot vai de 0 (90°) a -1 (180°, batida de frente) // fator de redução de 0 (a 90°) a 1 (a 180°)
+    return state.velocidade * 0.98; // Só um atrito leve
+  }
 
-  const fatorReducao = Math.abs(dot); // (1.0 - fatorReducao) é a velocidade que "sobra"
+  // Se dot < 0, estamos indo CONTRA a parede
+  // vai de 0 (raspão) a 1 (batida de frente)
+  const fatorReducao = Math.abs(dot);
 
-  const atritoParede = 0.8; // Um fator de atrito extra
-  let novaVelocidade = state.velocidade * (1.0 - fatorReducao) * atritoParede; // Retornamos a nova velocidade calculada
+  const atritoParede = 0.8; // Atrito extra da batida
+  // Reduz a velocidade baseado no ângulo da batida
+  let novaVelocidade = state.velocidade * (1.0 - fatorReducao) * atritoParede;
 
-  return novaVelocidade;
+  return novaVelocidade; // Retorna a nova velocidade (mais lenta)
 }
 
-// ========== VERIFICAR COLISÃO COM ZONA (linha de chegada, checkpoints, etc) ==========
+// ========== VERIFICAR COLISÃO COM ZONA (linha de chegada) ==========
 export function verificarColisaoZona(posicaoVeiculo, zona, raioVeiculo = 1.2) {
   if (!zona || !zona.mesh) return false;
 
@@ -89,12 +102,15 @@ export function verificarColisaoZona(posicaoVeiculo, zona, raioVeiculo = 1.2) {
     posicaoVeiculo.z
   );
 
+  // "Incha" a caixa da zona (pra facilitar a detecção)
   bbox.expandByScalar(raioVeiculo);
 
+  // Verifica se o PONTO do veículo tá dentro da caixa "inchada"
   return bbox.containsPoint(pontoVeiculo);
 }
 
 // ========== CRIAR ZONA DE DETECÇÃO INVISÍVEL ==========
+// Usamos isso pra checkpoints ou linha de chegada
 export function criarZonaDeteccao(
   x,
   y,
@@ -107,15 +123,17 @@ export function criarZonaDeteccao(
 ) {
   const geometria = new THREE.BoxGeometry(largura, altura, profundidade);
   const material = new THREE.MeshBasicMaterial({
-    color: 0x00ff00,
+    color: 0x00ff00, // Verde (bom pra debug)
     transparent: true,
-    opacity: 0.0,
+    opacity: 0.0, // Fica invisível no jogo
     side: THREE.DoubleSide,
   });
 
   const zona = new THREE.Mesh(geometria, material);
   zona.position.set(x, y, z);
   zona.name = nome;
+
+  // 'userData' guarda infos extras (ex: se já passamos aqui)
   zona.userData = {
     tipo: tipo,
     ativado: false,
@@ -129,7 +147,8 @@ export function criarZonaDeteccao(
   };
 }
 
-// ========== DETECTAR COLISÃO ENTRE DOIS OBJETOS (veículo vs veículo) ==========
+// ========== COLISÃO Carro vs Carro ==========
+// Colisão simples de Círculo vs Círculo (ignora altura)
 export function verificarColisaoEntreObjetos(
   objeto1,
   objeto2,
@@ -139,17 +158,22 @@ export function verificarColisaoEntreObjetos(
   const pos1 = objeto1.position;
   const pos2 = objeto2.position;
 
+  // Distância só no X e Z
   const dx = pos1.x - pos2.x;
   const dz = pos1.z - pos2.z;
+
+  // Pitágoras
   const distancia = Math.sqrt(dx * dx + dz * dz);
 
-  const raioTotal = raio1 + raio2;
+  const raioTotal = raio1 + raio2; // Soma dos raios
 
   if (distancia < raioTotal) {
+    // Se a distância for menor que a soma, bateu
     return {
       colidiu: true,
       distancia: distancia,
       normal: {
+        // Direção da batida
         x: dx / distancia,
         z: dz / distancia,
       },

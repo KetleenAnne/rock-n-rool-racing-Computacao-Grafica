@@ -7,65 +7,74 @@ import {
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
 
-const clock = new THREE.Clock(); //exemples/exampleFirstPerson.js
+const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
 
+// --- Câmera em Terceira Pessoa ---
+// Posição da câmera em relação ao carro (pra cima e pra trás)
 const offsetCamera = new THREE.Vector3(0, 4, -8);
+// Suavização da câmera
 const lerp_camera = 0.08;
+// O quanto a câmera "desliza" pro lado quando vira
 const lateral_camera = 50.0;
-
+// Ponto de foco (um pouco acima do carro)
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
-
+// Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
 export function startLoop(renderer, scene, camera, veiculo) {
-  // Inicializa o ponto de foco para evitar que a câmera comece no (0,0,0)
+  // Foco inicial da câmera (pra não começar no 0,0,0)
   currentLookAt.copy(veiculo.position).add(focoCamera);
 
   function render() {
-    //exemples/exampleFirstPerson.js
-    const deltaTime = clock.getDelta(); // Estado atual veículo
-    const state = atualizaControlesVeiculo(deltaTime); // Aplica mudanças no veículo
+    // Usamos isso pra velocidade do jogo ficar igual em qualquer PC.
+    // exemplo do arquivo exampleFirstPerson.js
+    const deltaTime = clock.getDelta();
 
+    // Pega velocidade e direção do 'Teclas.js'
+    const state = atualizaControlesVeiculo(deltaTime);
+
+    // --- Atualiza Posição do Veículo ---
     if (state.velocidade !== 0) {
-      let directionFactor = state.velocidade > 0 ? 1 : -1;
-      // Aplicando deltaTime na rotação
+      let directionFactor = state.velocidade > 0 ? 1 : -1; // Inverte o controle na ré
       veiculo.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
-    // O movimento é apenas velocidade * tempo
-    veiculo.translateZ(state.velocidade * deltaTime); // Verificar colisão depois de mover
+    // Move o veículo: Distância = Velocidade * Tempo
+    veiculo.translateZ(state.velocidade * deltaTime);
 
+    // --- Colisão ---
     const muretas = getMuretas();
-    const colisao = verificarColisao(veiculo.position, muretas, 0.8); // voltar essa linha para 1.2 no teste de colisão
+    // Raio do carro pra colisão = 0.8
+    const colisao = verificarColisao(veiculo.position, muretas, 0.8);
 
     if (colisao.colidiu) {
+      // Se bateu, chama a função de "deslizar" e frear
       const novaVelocidade = resolverColisaoDeslizante(veiculo, colisao, state);
-      setVelocidade(novaVelocidade);
-    }
-    // Verificar passagem pela linha de chegada
-    const completouVolta = contadorVoltas.verificarPassagem(veiculo.position);
-    if (completouVolta) {
-      console.log(`Total de voltas: ${contadorVoltas.getVoltas()}`);
+      setVelocidade(novaVelocidade); // Atualiza a velocidade (freia)
     }
 
-    // Rotação lateral da câmera baseado no estado do veículo
+    // --- Contador de Voltas ---
+    contadorVoltas.verificarPassagem(veiculo.position);
+
+    // --- Lógica da Câmera ---
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
-    // Rotação da câmera baseada na rotação do veículo
+    // Desliza a câmera pro lado quando vira
     targetCameraPos.x += lateralDrift;
 
-    // Converte a posição relativa da câmera para posição do mundo
+    // Converte a posição local atrás do carro pra posição no mundo
     targetCameraPos.applyQuaternion(veiculo.quaternion);
     targetCameraPos.add(veiculo.position);
 
-    // Foco da camera
+    // Onde a câmera deve OLHAR
     let targetLookAt = veiculo.position.clone().add(focoCamera);
 
+    // Suaviza o movimento da CÂMERA
     camera.position.lerp(targetCameraPos, lerp_camera);
 
-    // Ponto de foco da câmera
+    // Suaviza o movimento do FOCO
     currentLookAt.lerp(targetLookAt, lerp_camera);
-    camera.lookAt(currentLookAt);
+    camera.lookAt(currentLookAt); // Aponta a câmera
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);

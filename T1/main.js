@@ -4,16 +4,24 @@ import { setupScene } from "./setup/Scene.js";
 import { setupCamera } from "./setup/Camera.js";
 import { startLoop } from "./setup/Loop.js";
 import { criarPista1, criarPista2 } from "./jogo/Pista.js";
-import { addControls, getPistaSelecionada, setInfoBox, setLinhaVoltas, setPistaChangeCallback } from "./jogo/Teclas.js";
+import {
+  addControls,
+  getPistaSelecionada,
+  setInfoBox,
+  setLinhaVoltas,
+  setPistaChangeCallback,
+} from "./jogo/Teclas.js";
 import { Veiculo } from "./jogo/Veiculo.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
 
+// Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
 let renderer = initRenderer();
 let camera = setupCamera();
 
-// Adicionar CSS para animação de piscar
-const style = document.createElement('style');
+// CSS pra animação de piscar da "Última Volta"
+// Tivemos que injetar o CSS aqui pra funcionar
+const style = document.createElement("style");
 style.textContent = `
   @keyframes piscar {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -22,56 +30,59 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// Cria o menu (InfoBox) e a cena (luz, fundo)
 addMenu();
-setupScene(scene); // cena - Scene.js
-
+setupScene(scene);
 const veiculo = new Veiculo(scene);
 
-// Carregar pista 1 inicialmente
-let posInicial = criarPista1(scene);
-veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+// --- Lógica das Pistas ---
 
-// Configurar linha de chegada para Pista 1
+// Carrega a Pista 1 por padrão
+let posInicial = criarPista1(scene);
+veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
+
+// Avisa o contador onde fica a linha de chegada da Pista 1
 contadorVoltas.setLinhaChegada(0, 50, 10, 10);
 
-// Função para trocar de pista
+// Função que o 'Teclas.js' vai chamar pra trocar de pista
 function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
-  
-  // Resetar contador de voltas
-  contadorVoltas.reset();
-  
-  // Remover pista atual e criar nova
+
+  contadorVoltas.reset(); // ZERA as voltas
+
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
-    // Configurar linha de chegada para Pista 1
-    contadorVoltas.setLinhaChegada(0, 50, 10, 10);
+    contadorVoltas.setLinhaChegada(0, 50, 10, 10); // Define linha de chegada
   } else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
-    // Configurar linha de chegada para Pista 2
-    contadorVoltas.setLinhaChegada(15, 35, 10, 10);
+    contadorVoltas.setLinhaChegada(15, 35, 10, 10); // Define linha de chegada
   }
-  
-  // Resetar posição do veículo
+
+  // Reseta o carro na posição da nova pista
   veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
 }
 
-// Configurar callback de mudança de pista
+// "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
 setPistaChangeCallback(trocarPista);
 
-addControls(camera, renderer); // controles - Teclas.js
-startLoop(renderer, scene, camera, veiculo); // loop de animação - Loop.js
+// Inicia os controles e o loop principal do jogo
+addControls(camera, renderer);
+startLoop(renderer, scene, camera, veiculo);
 
 var pistaSelecionada = getPistaSelecionada();
 
+// Função pra criar a InfoBox (menu lateral)
 function addMenu() {
   var infoBox = new InfoBox();
 
+  // Textos do menu
   infoBox.add("Rock'n Roll Racing 3D - T1");
   infoBox.addParagraph();
   infoBox.add("Teclas de movimento:");
   infoBox.add("* W/S ou Seta para cima/baixo: mover para frente/para trás");
-  infoBox.add("* A/D ou Seta para esquerda/direita: virar para esquerda/direita");
+  infoBox.add(
+    "* A/D ou Seta para esquerda/direita: virar para esquerda/direita"
+  );
   infoBox.addParagraph();
   infoBox.add("Trocar de pista:");
   infoBox.add("* 1: Pista 1 (Oval)");
@@ -79,12 +90,12 @@ function addMenu() {
   infoBox.addParagraph();
   infoBox.show();
 
-  // Linha de velocidade
+  // Linha de velocidade (criamos um HTML novo)
   const linhaVelocidade = document.createElement("div");
   linhaVelocidade.innerHTML = "Velocidade: 0.0 km/h";
   linhaVelocidade.style.color = "red";
   infoBox.infoBox.appendChild(linhaVelocidade);
-  setInfoBox(linhaVelocidade);
+  setInfoBox(linhaVelocidade); // Manda pro 'Teclas.js' atualizar
 
   // Linha de voltas
   const linhaVoltas = document.createElement("div");
@@ -92,8 +103,9 @@ function addMenu() {
   linhaVoltas.style.color = "yellow";
   linhaVoltas.style.fontWeight = "bold";
   infoBox.infoBox.appendChild(linhaVoltas);
-  setLinhaVoltas(linhaVoltas);
+  setLinhaVoltas(linhaVoltas); // Manda pro 'Teclas.js' atualizar
 
+  // Posiciona a caixa no canto
   infoBox.infoBox.style.top = "10px";
   infoBox.infoBox.style.left = "auto";
   infoBox.infoBox.style.right = "10px";
