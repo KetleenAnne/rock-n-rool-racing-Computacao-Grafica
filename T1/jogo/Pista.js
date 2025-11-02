@@ -4,7 +4,7 @@ import { criarSegmentoMureta, criarLinhaLargada } from "./Muretas.js";
 
 const TAMANHO_BLOCO = 2;
 
-// Verificar se uma posiÃ§Ã£o jÃ¡ estÃ¡ ocupada
+// Verificar se uma posição já está ocupada
 function posicaoOcupada(x, z, ocupadas) {
   return ocupadas.some((pos) => pos.x === x && pos.z === z);
 }
@@ -21,7 +21,7 @@ function criarMuretasPista1() {
   const ilhaInicioZ = 12;
   const ilhaFimZ = 56;
 
-  // BORDA SUPERIOR (z=0, x: 0â†’69)
+  // BORDA SUPERIOR (z=0, x:69)
   const superior = [];
   for (let x = 0; x < largura; x++) {
     if (!posicaoOcupada(x, 0, ocupadas)) {
@@ -33,7 +33,7 @@ function criarMuretasPista1() {
     segmentos.push({ posicoes: superior, orientacao: "horizontal" });
   }
 
-  // BORDA DIREITA (x=69, z: 0â†’67)
+  // BORDA DIREITA (x=69, z: 67)
   const direita = [];
   for (let z = 0; z < altura; z++) {
     if (!posicaoOcupada(largura - 1, z, ocupadas)) {
@@ -45,7 +45,7 @@ function criarMuretasPista1() {
     segmentos.push({ posicoes: direita, orientacao: "vertical" });
   }
 
-  // BORDA INFERIOR (z=67, x: 69â†’0)
+  // BORDA INFERIOR (z=67, x: 69)
   const inferior = [];
   for (let x = largura - 1; x >= 0; x--) {
     if (!posicaoOcupada(x, altura - 1, ocupadas)) {
@@ -57,7 +57,7 @@ function criarMuretasPista1() {
     segmentos.push({ posicoes: inferior, orientacao: "horizontal" });
   }
 
-  // BORDA ESQUERDA (x=0, z: 67â†’0)
+  // BORDA ESQUERDA (x=0, z: 67)
   const esquerda = [];
   for (let z = altura - 1; z >= 0; z--) {
     if (!posicaoOcupada(0, z, ocupadas)) {
@@ -125,11 +125,11 @@ function criarMuretasPista2() {
   const segmentos = [];
   const ocupadas = [];
 
-  // DimensÃµes baseadas na imagem
+  // Dimensões baseadas na imagem
   const larguraTotal = 42;
   const alturaTotal = 70;
   const divisaoX = 28; // Onde termina a parte vertical do L
-  const divisaoZ = 42; // Onde comeÃ§a a extensÃ£o horizontal
+  const divisaoZ = 42; // Onde começa a extensão horizontal
 
   // Ilha interna
   const ilhaInicioX = 7;
@@ -137,9 +137,9 @@ function criarMuretasPista2() {
   const ilhaInicioZ = 7;
   const ilhaFimZ = 63;
   const ilhaDivisaoX = 21; // DivisÃ£o da ilha em L
-  const ilhaDivisaoZ = 48; // Onde comeÃ§a extensÃ£o da ilha
+  const ilhaDivisaoZ = 48; // Onde comeãa extensão da ilha
 
-  // BORDA EXTERNA - PARTE SUPERIOR (z=0, x: 0â†’27)
+  // BORDA EXTERNA - PARTE SUPERIOR (z=0, x: 27)
   const superiorEsq = [];
   for (let x = 0; x <= divisaoX; x++) {
     if (!posicaoOcupada(x, 0, ocupadas)) {
@@ -151,7 +151,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: superiorEsq, orientacao: "horizontal" });
   }
 
-  // BORDA DIREITA DA PARTE VERTICAL (x=27, z: 0â†’41)
+  // BORDA DIREITA DA PARTE VERTICAL (x=27, z: 41)
   const direitaVertical = [];
   for (let z = 0; z <= divisaoZ; z++) {
     if (!posicaoOcupada(divisaoX, z, ocupadas)) {
@@ -163,7 +163,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: direitaVertical, orientacao: "vertical" });
   }
 
-  // CONEXÃƒO HORIZONTAL (z=41, x: 27â†’41)
+  // CONEXÃƒO HORIZONTAL (z=41, x: 27)
   const conexaoHorizontal = [];
   for (let x = divisaoX; x < larguraTotal; x++) {
     if (!posicaoOcupada(x, divisaoZ, ocupadas)) {
@@ -175,7 +175,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: conexaoHorizontal, orientacao: "horizontal" });
   }
 
-  // BORDA DIREITA DA EXTENSÃƒO (x=41, z: 41â†’69)
+  // BORDA DIREITA DA EXTENSÃƒO (x=41, z: 69)
   const direitaExtensao = [];
   for (let z = divisaoZ; z < alturaTotal; z++) {
     if (!posicaoOcupada(larguraTotal - 1, z, ocupadas)) {
@@ -187,7 +187,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: direitaExtensao, orientacao: "vertical" });
   }
 
-  // BORDA INFERIOR (z=69, x: 41â†’0)
+  // BORDA INFERIOR (z=69, x: 0)
   const inferior = [];
   for (let x = larguraTotal - 1; x >= 0; x--) {
     if (!posicaoOcupada(x, alturaTotal - 1, ocupadas)) {
@@ -199,7 +199,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: inferior, orientacao: "horizontal" });
   }
 
-  // BORDA ESQUERDA (x=0, z: 69â†’0)
+  // BORDA ESQUERDA (x=0, z: 69)
   const esquerda = [];
   for (let z = alturaTotal - 1; z >= 0; z--) {
     if (!posicaoOcupada(0, z, ocupadas)) {
@@ -213,7 +213,7 @@ function criarMuretasPista2() {
 
   // ILHA INTERNA EM FORMATO "L"
 
-  // ILHA - SUPERIOR (z=7, x: 7â†’21)
+  // ILHA - SUPERIOR (z=7, x: 21)
   const ilhaSuperior = [];
   for (let x = ilhaInicioX; x <= ilhaDivisaoX; x++) {
     if (!posicaoOcupada(x, ilhaInicioZ, ocupadas)) {
@@ -225,7 +225,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: ilhaSuperior, orientacao: "horizontal" });
   }
 
-  // ILHA - DIREITA DA PARTE VERTICAL (x=21, z: 7â†’47)
+  // ILHA - DIREITA DA PARTE VERTICAL (x=21, z: 47)
   const ilhaDireitaVertical = [];
   for (let z = ilhaInicioZ; z <= ilhaDivisaoZ; z++) {
     if (!posicaoOcupada(ilhaDivisaoX, z, ocupadas)) {
@@ -237,7 +237,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: ilhaDireitaVertical, orientacao: "vertical" });
   }
 
-  // ILHA - CONEXÃƒO HORIZONTAL (z=47, x: 21â†’35)
+  // ILHA - CONEXÃƒO HORIZONTAL (z=47, x: 35)
   const ilhaConexao = [];
   for (let x = ilhaDivisaoX; x <= ilhaFimX; x++) {
     if (!posicaoOcupada(x, ilhaDivisaoZ, ocupadas)) {
@@ -249,7 +249,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: ilhaConexao, orientacao: "horizontal" });
   }
 
-  // ILHA - DIREITA DA EXTENSÃƒO (x=35, z: 47â†’63)
+  // ILHA - DIREITA DA EXTENSÃƒO (x=35, z: 47)
   const ilhaDireitaExtensao = [];
   for (let z = ilhaDivisaoZ; z <= ilhaFimZ; z++) {
     if (!posicaoOcupada(ilhaFimX, z, ocupadas)) {
@@ -261,7 +261,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: ilhaDireitaExtensao, orientacao: "vertical" });
   }
 
-  // ILHA - INFERIOR (z=63, x: 35â†’7)
+  // ILHA - INFERIOR (z=63, x: 7)
   const ilhaInferior = [];
   for (let x = ilhaFimX; x >= ilhaInicioX; x--) {
     if (!posicaoOcupada(x, ilhaFimZ, ocupadas)) {
@@ -273,7 +273,7 @@ function criarMuretasPista2() {
     segmentos.push({ posicoes: ilhaInferior, orientacao: "horizontal" });
   }
 
-  // ILHA - ESQUERDA (x=7, z: 63â†’7)
+  // ILHA - ESQUERDA (x=7, z: 63)
   const ilhaEsquerda = [];
   for (let z = ilhaFimZ; z >= ilhaInicioZ; z--) {
     if (!posicaoOcupada(ilhaInicioX, z, ocupadas)) {
@@ -349,7 +349,7 @@ export function criarPista1(scene) {
     ilha.position.set(ilhaCentroX, 0.05, ilhaCentroZ);
     group.add(ilha);
 
-    // Linha de largada VERTICAL (parte inferior central)
+    // Linha de largada (parte inferior central)
     const linha = criarLinhaLargada(centroX, 118, 32);
     group.add(linha);
 
@@ -383,9 +383,9 @@ export function criarPista2(scene) {
   const group = new THREE.Group();
 
   try {
-    // DimensÃµes do formato L
+    // Dimensões do formato L
     const divisaoX = 28; // Limite da parte vertical
-    const divisaoZ = 42; // InÃ­cio da extensÃ£o horizontal
+    const divisaoZ = 42; // Ini­cio da extensão horizontal
     const larguraTotal = 42;
     const alturaTotal = 70;
 
@@ -411,7 +411,7 @@ export function criarPista2(scene) {
     pistaVertical.position.set(28, 0, 69);
     group.add(pistaVertical);
 
-    // EXTENSÃƒO HORIZONTAL DO "L" (28-41 em X, 42-69 em Z)
+    // EXTENSÃO HORIZONTAL DO "L" (28-41 em X, 42-69 em Z)
     // Centro: x = (28+41)/2*TAMANHO_BLOCO = 69, z = (42+69)/2*TAMANHO_BLOCO = 111
     const pistaHorizontal = new THREE.Mesh(
       new THREE.PlaneGeometry(
@@ -424,7 +424,7 @@ export function criarPista2(scene) {
     pistaHorizontal.position.set(69, 0, 111);
     group.add(pistaHorizontal);
 
-    // ILHA VERDE CENTRAL (formato L tambÃ©m)
+    // ILHA VERDE CENTRAL (formato L)
     // Ilha parte vertical (7-21 em X, 7-63 em Z)
     const ilhaVertical = new THREE.Mesh(
       new THREE.PlaneGeometry(
@@ -437,7 +437,7 @@ export function criarPista2(scene) {
     ilhaVertical.position.set(28, 0.05, 70);
     group.add(ilhaVertical);
 
-    // Ilha extensÃ£o horizontal (21-35 em X, 48-63 em Z)
+    // Ilha extensão horizontal (21-35 em X, 48-63 em Z)
     const ilhaHorizontal = new THREE.Mesh(
       new THREE.PlaneGeometry(
         (35 - 21 + 1) * TAMANHO_BLOCO, // 15 blocos = 30 unidades
@@ -449,7 +449,7 @@ export function criarPista2(scene) {
     ilhaHorizontal.position.set(56, 0.05, 111);
     group.add(ilhaHorizontal);
 
-    // Linha de largada VERTICAL (parte inferior)
+    // Linha de largada (parte inferior)
     const linha = criarLinhaLargada(48, 132, 11);
     group.add(linha);
 

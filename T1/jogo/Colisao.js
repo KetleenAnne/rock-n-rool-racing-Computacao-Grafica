@@ -5,7 +5,7 @@ const ALTURA_MURETA = 0.8;
 const ESPESSURA_MURETA = 0.3;
 const TAMANHO_QUADRADO = 0.4;
 
-// Criar segmentos de muretas com padrÃ£o xadrez
+// Segmentos de muretas
 export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizontal') {
   const group = new THREE.Group();
   
@@ -14,17 +14,17 @@ export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizo
   // Calcular comprimento total do segmento
   const comprimento = posicoes.length * tamanhoBloco;
   
-  // Determinar dimensÃµes baseado na orientaÃ§Ã£o
+  // Determinar dimensões baseado na orientação
   const largura = orientacao === 'horizontal' ? comprimento : ESPESSURA_MURETA;
   const profundidade = orientacao === 'horizontal' ? ESPESSURA_MURETA : comprimento;
   
-  // Calcular posiÃ§Ã£o central do segmento
+  // Calcular posição central do segmento
   const primeiraPos = posicoes[0];
   const ultimaPos = posicoes[posicoes.length - 1];
   const centroX = ((primeiraPos.x + ultimaPos.x) / 2) * tamanhoBloco;
   const centroZ = ((primeiraPos.z + ultimaPos.z) / 2) * tamanhoBloco;
   
-  // Criar padrÃ£o xadrez
+  // Criar padrão xadrez
   const numQuadradosComprimento = Math.ceil(
     (orientacao === 'horizontal' ? largura : profundidade) / TAMANHO_QUADRADO
   );
@@ -32,7 +32,7 @@ export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizo
   
   for (let h = 0; h < numQuadradosAltura; h++) {
     for (let c = 0; c < numQuadradosComprimento; c++) {
-      // PadrÃ£o xadrez
+      // Padrão xadrez
       const cor = (h + c) % 2 === 0 ? "red" : "white";
       
       const geometria = new THREE.BoxGeometry(
@@ -66,7 +66,7 @@ export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizo
   };
 }
 
-// Linha de largada VERTICAL (perpendicular ao sentido da corrida)
+// Linha de largada
 export function criarLinhaLargada(x, z, profundidade = 2) {
   const group = new THREE.Group();
   const tamanhoQuadrado = 1.0;
@@ -87,7 +87,7 @@ export function criarLinhaLargada(x, z, profundidade = 2) {
       const quadrado = new THREE.Mesh(geometria, material);
       quadrado.rotation.x = -Math.PI / 2;
       
-      // Posicionar VERTICALMENTE (linha perpendicular ao movimento)
+      
       // Linha ao longo do eixo X, profundidade no eixo Z
       quadrado.position.set(
         x - (numLinhas * tamanhoQuadrado / 2) + (lin * tamanhoQuadrado) + (tamanhoQuadrado / 2),
