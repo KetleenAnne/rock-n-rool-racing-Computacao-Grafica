@@ -1,117 +1,27 @@
 import * as THREE from "three";
-import { setDefaultMaterial } from "../../libs/util/util.js";
 
-const ALTURA_MURETA = 0.8;
-const ESPESSURA_MURETA = 0.3;
-const TAMANHO_QUADRADO = 0.4;
-
-// Segmentos de muretas
-export function criarSegmentoMureta(posicoes, tamanhoBloco, orientacao = 'horizontal') {
-  const group = new THREE.Group();
-  
-  if (posicoes.length === 0) return group;
-  
-  // Calcular comprimento total do segmento
-  const comprimento = posicoes.length * tamanhoBloco;
-  
-  // Determinar dimensões baseado na orientação
-  const largura = orientacao === 'horizontal' ? comprimento : ESPESSURA_MURETA;
-  const profundidade = orientacao === 'horizontal' ? ESPESSURA_MURETA : comprimento;
-  
-  // Calcular posição central do segmento
-  const primeiraPos = posicoes[0];
-  const ultimaPos = posicoes[posicoes.length - 1];
-  const centroX = ((primeiraPos.x + ultimaPos.x) / 2) * tamanhoBloco;
-  const centroZ = ((primeiraPos.z + ultimaPos.z) / 2) * tamanhoBloco;
-  
-  // Criar padrão xadrez
-  const numQuadradosComprimento = Math.ceil(
-    (orientacao === 'horizontal' ? largura : profundidade) / TAMANHO_QUADRADO
-  );
-  const numQuadradosAltura = Math.ceil(ALTURA_MURETA / TAMANHO_QUADRADO);
-  
-  for (let h = 0; h < numQuadradosAltura; h++) {
-    for (let c = 0; c < numQuadradosComprimento; c++) {
-      // Padrão xadrez
-      const cor = (h + c) % 2 === 0 ? "red" : "white";
-      
-      const geometria = new THREE.BoxGeometry(
-        orientacao === 'horizontal' ? TAMANHO_QUADRADO : ESPESSURA_MURETA,
-        TAMANHO_QUADRADO,
-        orientacao === 'horizontal' ? ESPESSURA_MURETA : TAMANHO_QUADRADO
-      );
-      
-      const material = setDefaultMaterial(cor);
-      const quadrado = new THREE.Mesh(geometria, material);
-      
-      // Posicionar quadrado
-      if (orientacao === 'horizontal') {
-        const posX = (c * TAMANHO_QUADRADO) - (largura / 2) + (TAMANHO_QUADRADO / 2);
-        quadrado.position.set(posX, (h * TAMANHO_QUADRADO) + (TAMANHO_QUADRADO / 2), 0);
-      } else {
-        const posZ = (c * TAMANHO_QUADRADO) - (profundidade / 2) + (TAMANHO_QUADRADO / 2);
-        quadrado.position.set(0, (h * TAMANHO_QUADRADO) + (TAMANHO_QUADRADO / 2), posZ);
-      }
-      
-      group.add(quadrado);
-    }
-  }
-  
-  group.position.set(centroX, 0, centroZ);
-  
-  return {
-    mesh: group,
-    posicoes: posicoes,
-    orientacao: orientacao
-  };
-}
-
-// Linha de largada
-export function criarLinhaLargada(x, z, profundidade = 2) {
-  const group = new THREE.Group();
-  const tamanhoQuadrado = 1.0;
-  const numColunas = profundidade; // Profundidade da linha (ao longo do eixo Z)
-  const numLinhas = 8; // Largura da linha (ao longo do eixo X)
-  
-  for (let col = 0; col < numColunas; col++) {
-    for (let lin = 0; lin < numLinhas; lin++) {
-      const geometria = new THREE.PlaneGeometry(
-        tamanhoQuadrado * 0.95, 
-        tamanhoQuadrado * 0.95
-      );
-      
-      // PadrÃ£o xadrez
-      const cor = (col + lin) % 2 === 0 ? "white" : "black";
-      const material = setDefaultMaterial(cor);
-      
-      const quadrado = new THREE.Mesh(geometria, material);
-      quadrado.rotation.x = -Math.PI / 2;
-      
-      
-      // Linha ao longo do eixo X, profundidade no eixo Z
-      quadrado.position.set(
-        x - (numLinhas * tamanhoQuadrado / 2) + (lin * tamanhoQuadrado) + (tamanhoQuadrado / 2),
-        0.02,
-        z - (profundidade * tamanhoQuadrado / 2) + (col * tamanhoQuadrado) + (tamanhoQuadrado / 2)
-      );
-      
-      group.add(quadrado);
-    }
-  }
-  
-  return group;
-}
-
-export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 0.8) {
+// ========== VERIFICAR COLISÃO COM MURETAS ==========
+export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 1.2) {
+  // Verificar colisão com cada mureta
   for (let mureta of muretas) {
-    if (!mureta.mesh || !mureta.posicoes) continue;
+    if (!mureta || !mureta.mesh) continue;
     
+    // Criar bounding box da mureta
     const bbox = new THREE.Box3().setFromObject(mureta.mesh);
-    const pontoVeiculo = new THREE.Vector3(posicaoVeiculo.x, posicaoVeiculo.y, posicaoVeiculo.z);
     
+    // Criar ponto de posição do veículo
+    const pontoVeiculo = new THREE.Vector3(
+      posicaoVeiculo.x, 
+      posicaoVeiculo.y, 
+      posicaoVeiculo.z
+    );
+    
+    // Expandir bounding box pelo raio do veículo
     bbox.expandByScalar(raioVeiculo);
     
+    // Verificar se o ponto do veículo está dentro da bbox expandida
     if (bbox.containsPoint(pontoVeiculo)) {
+      // Calcular vetor normal de colisão
       const centro = new THREE.Vector3();
       bbox.getCenter(centro);
       
@@ -119,16 +29,126 @@ export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 0.8) {
       const dz = posicaoVeiculo.z - centro.z;
       const dist = Math.sqrt(dx * dx + dz * dz);
       
+      // Retornar informações da colisão
       return {
         colidiu: true,
         mureta: mureta,
         normal: { 
           x: dist > 0 ? dx / dist : 0, 
           z: dist > 0 ? dz / dist : 0 
-        }
+        },
+        distancia: dist,
+        centro: centro
       };
     }
   }
   
+  // Nenhuma colisão detectada
+  return { 
+    colidiu: false,
+    mureta: null,
+    normal: null,
+    distancia: 0
+  };
+}
+
+// ========== RESOLVER COLISÃO (aplicar física de repulsão) ==========
+export function resolverColisao(veiculo, colisao, velocidade) {
+  if (!colisao.colidiu) return velocidade;
+  
+  // Aplicar força de repulsão baseada no normal da colisão
+  const forcaRepulsao = 0.8;
+  
+  veiculo.group.position.x += colisao.normal.x * forcaRepulsao;
+  veiculo.group.position.z += colisao.normal.z * forcaRepulsao;
+  
+  veiculo.position.copy(veiculo.group.position);
+  
+  // Reduzir velocidade ao colidir (efeito de impacto)
+  return velocidade * 0.3;
+}
+
+// ========== VERIFICAR COLISÃO COM ZONA (linha de chegada, checkpoints, etc) ==========
+export function verificarColisaoZona(posicaoVeiculo, zona, raioVeiculo = 1.2) {
+  if (!zona || !zona.mesh) return false;
+  
+  const bbox = new THREE.Box3().setFromObject(zona.mesh);
+  const pontoVeiculo = new THREE.Vector3(
+    posicaoVeiculo.x, 
+    posicaoVeiculo.y, 
+    posicaoVeiculo.z
+  );
+  
+  bbox.expandByScalar(raioVeiculo);
+  
+  return bbox.containsPoint(pontoVeiculo);
+}
+
+// ========== CRIAR ZONA DE DETECÇÃO INVISÍVEL ==========
+export function criarZonaDeteccao(x, y, z, largura, altura, profundidade, nome = "zona", tipo = "geral") {
+  const geometria = new THREE.BoxGeometry(largura, altura, profundidade);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x00FF00,
+    transparent: true,
+    opacity: 0.0,
+    side: THREE.DoubleSide
+  });
+  
+  const zona = new THREE.Mesh(geometria, material);
+  zona.position.set(x, y, z);
+  zona.name = nome;
+  zona.userData = {
+    tipo: tipo,
+    ativado: false,
+    passagens: 0
+  };
+  
+  return {
+    mesh: zona,
+    tipo: tipo,
+    nome: nome
+  };
+}
+
+// ========== DETECTAR COLISÃO ENTRE DOIS OBJETOS (veículo vs veículo) ==========
+export function verificarColisaoEntreObjetos(objeto1, objeto2, raio1 = 1.2, raio2 = 1.2) {
+  const pos1 = objeto1.position;
+  const pos2 = objeto2.position;
+  
+  const dx = pos1.x - pos2.x;
+  const dz = pos1.z - pos2.z;
+  const distancia = Math.sqrt(dx * dx + dz * dz);
+  
+  const raioTotal = raio1 + raio2;
+  
+  if (distancia < raioTotal) {
+    return {
+      colidiu: true,
+      distancia: distancia,
+      normal: {
+        x: dx / distancia,
+        z: dz / distancia
+      }
+    };
+  }
+  
   return { colidiu: false };
+}
+
+// ========== APLICAR EFEITO DE RICOCHETE (bounce) ==========
+export function aplicarRicochete(veiculo, colisao, velocidadeAtual) {
+  if (!colisao.colidiu) return;
+  
+  // Calcular ângulo de incidência
+  const anguloVeiculo = veiculo.rotation.y;
+  const anguloNormal = Math.atan2(colisao.normal.z, colisao.normal.x);
+  
+  // Refletir o ângulo
+  const novoAngulo = 2 * anguloNormal - anguloVeiculo;
+  
+  // Aplicar nova rotação suavemente
+  const fatorSuavizacao = 0.3;
+  veiculo.group.rotation.y += (novoAngulo - anguloVeiculo) * fatorSuavizacao;
+  veiculo.rotation.copy(veiculo.group.rotation);
+  veiculo.quaternion.copy(veiculo.group.quaternion);
 }

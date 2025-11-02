@@ -1,6 +1,16 @@
-let pistaAtualNum = 1;
+import contadorVoltas from "./ContadorVoltas.js";
+
+let pistaAtualNum = 1; // Começa na pista 1
 var pistaSelecionada = null;
 var velocidadeExibida;
+var voltasExibida;
+
+// Callback para mudança de pista
+let onPistaChangeCallback = null;
+
+export function setPistaChangeCallback(callback) {
+  onPistaChangeCallback = callback;
+}
 
 export function getPistaSelecionada() {
   return pistaSelecionada;
@@ -12,6 +22,10 @@ export function getPistaAtual() {
 
 export function setInfoBox(linhaVelocidade) {
   return (velocidadeExibida = linhaVelocidade);
+}
+
+export function setLinhaVoltas(linhaVoltas) {
+  return (voltasExibida = linhaVoltas);
 }
 
 const keyStates = {
@@ -71,6 +85,28 @@ function configuracaoTeclado() {
       case "d":
       case "D":
         keyStates.KeyD = true;
+        break;
+      case "1":
+        // Trocar para Pista 1
+        if (pistaAtualNum !== 1 && onPistaChangeCallback) {
+          pistaAtualNum = 1;
+          // Resetar velocidade ao trocar de pista
+          statusVeiculo.velocidade = 0;
+          statusVeiculo.direção = 0;
+          onPistaChangeCallback(1);
+          console.log("Trocando para Pista 1");
+        }
+        break;
+      case "2":
+        // Trocar para Pista 2
+        if (pistaAtualNum !== 2 && onPistaChangeCallback) {
+          pistaAtualNum = 2;
+          // Resetar velocidade ao trocar de pista
+          statusVeiculo.velocidade = 0;
+          statusVeiculo.direção = 0;
+          onPistaChangeCallback(2);
+          console.log("Trocando para Pista 2");
+        }
         break;
     }
   });
@@ -172,5 +208,39 @@ export function atualizaControlesVeiculo() {
     velocidadeExibida.innerHTML =
       "Velocidade: " + (statusVeiculo.velocidade * 3.6).toFixed(1) + " km/h";
   }
+
+  // Atualiza a exibição de voltas na infoBox
+  if (voltasExibida) {
+    const voltasAtuais = contadorVoltas.getVoltas();
+    const limiteVoltas = contadorVoltas.getLimiteVoltas();
+    const isUltimaVolta = contadorVoltas.isUltimaVolta();
+    const corridaFinalizada = contadorVoltas.isCorridaFinalizada();
+    
+    let textoVoltas = `Voltas: ${voltasAtuais}/${limiteVoltas}`;
+    
+    if (corridaFinalizada) {
+      voltasExibida.innerHTML = "🏁 CORRIDA FINALIZADA! 🏁";
+      voltasExibida.style.color = "lime";
+      voltasExibida.style.fontWeight = "bold";
+      voltasExibida.style.fontSize = "18px";
+      voltasExibida.style.textShadow = "2px 2px 4px black";
+      voltasExibida.style.animation = "none";
+    } else if (isUltimaVolta) {
+      voltasExibida.innerHTML = textoVoltas + " ➤ VOLTA FINAL!";
+      voltasExibida.style.color = "red";
+      voltasExibida.style.fontWeight = "bold";
+      voltasExibida.style.fontSize = "18px";
+      voltasExibida.style.textShadow = "0 0 10px rgba(255, 0, 0, 0.8), 2px 2px 4px black";
+      voltasExibida.style.animation = "piscar 0.8s ease-in-out infinite";
+    } else {
+      voltasExibida.innerHTML = textoVoltas;
+      voltasExibida.style.color = "yellow";
+      voltasExibida.style.fontWeight = "bold";
+      voltasExibida.style.fontSize = "14px";
+      voltasExibida.style.textShadow = "1px 1px 2px black";
+      voltasExibida.style.animation = "none";
+    }
+  }
+
   return statusVeiculo;
 }

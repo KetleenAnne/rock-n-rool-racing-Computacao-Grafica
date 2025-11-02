@@ -14,7 +14,7 @@ export class Veiculo {
     this.quaternion = new THREE.Quaternion();
     
     this.createVeiculo();
-    this.group.scale.set(0.4, 0.4, 0.4); //40%
+    this.group.scale.set(0.2, 0.2, 0.2); //40%
     //this.group.position.y = ;
     this.scene.add(this.group);
     

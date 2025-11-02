@@ -22,7 +22,7 @@ export function setupScene(scene) {
 
   scene.background = new THREE.Color(corCeu);
 
-  // Eixos helper para orientação (Debug) - Inicialmente Pista 1
+  // Eixos helper para orientaÃ§Ã£o (Debug) - Inicialmente Pista 1
   defineAxes(scene, 1);
 }
 
