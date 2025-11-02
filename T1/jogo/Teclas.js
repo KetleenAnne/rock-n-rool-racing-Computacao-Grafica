@@ -45,13 +45,13 @@ const statusVeiculo = {
   direção: 0,
 
   // constantes
-  velocidadeMax: 50.0,
-  velocidadeMaxRe: -20.0,
-  aceleracao: 25.0,
-  aceleracaoRe: 20.0,
-  forcaFrenagem: 30.0, //ao apertar a tecla de ré
-  anguloVirada: 0.04, // angulo de virada por frame
-  atrito: 0.95, //desaceleração ao deixar de apertar teclas
+  velocidadeMax: 28.0,
+  velocidadeMaxRe: -8.0,
+  aceleracao: 4.0,
+  aceleracaoRe: 2.0,
+  forcaFrenagem: 10.0, //ao apertar a tecla de ré
+  anguloVirada: 0.02, // angulo de virada por frame
+  atrito: 1.0, //desaceleração ao deixar de apertar teclas
 };
 
 function configuracaoTeclado() {

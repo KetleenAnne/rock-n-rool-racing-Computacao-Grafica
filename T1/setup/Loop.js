@@ -35,7 +35,7 @@ export function startLoop(renderer, scene, camera, veiculo) {
     veiculo.translateZ(state.velocidade * deltaTime); // Verificar colisão depois de mover
 
     const muretas = getMuretas();
-    const colisao = verificarColisao(veiculo.position, muretas, 1.2); // voltar essa linha para 1.2 no teste de colisão
+    const colisao = verificarColisao(veiculo.position, muretas, 0.8); // voltar essa linha para 1.2 no teste de colisão
 
     if (colisao.colidiu) {
       const novaVelocidade = resolverColisaoDeslizante(veiculo, colisao, state);
