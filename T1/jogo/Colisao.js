@@ -66,27 +66,24 @@ export function resolverColisaoDeslizante(veiculo, colisao, state) {
   // Pega o vetor "pra frente" do carro
   const vFrente = new THREE.Vector3(0, 0, 1);
   vFrente.applyQuaternion(veiculo.quaternion); // Gira pra direção certa
-  vFrente.normalize();
 
   // 'Normal' da parede
   const vNormal = colisao.normal;
 
-  // Produto Escalar
-  // Isso diz o "ângulo" da batida
-  const dot = vFrente.dot(vNormal);
+  // Gira a NORMAL 90 graus para achar a DIREÇÃO da mureta (vMureta)
+  // (x, z) -> (z, -x)
+  const vMureta = new THREE.Vector3(vNormal.z, 0, -vNormal.x);
 
-  // Se dot >= 0, estamos "raspando" ou saindo da parede
-  if (dot >= 0) {
-    return state.velocidade * 0.98; // Só um atrito leve
+  // Produto Escalar (dot) entre a FRENTE do carro e a DIREÇÃO da mureta
+  // Math.abs() porque não importa o lado (tipo: vMureta (0,0,1) ou (0,0,-1))
+  const fatorDeslize = Math.abs(vFrente.dot(vMureta));
+  const atritoParede = 0.999999; //ajustar
+
+  // A nova velocidade é a velocidade antiga * a proporção de deslize * atrito
+  let novaVelocidade = state.velocidade * fatorDeslize * atritoParede;
+  if (state.velocidade < 0 && novaVelocidade > 0) {
+    novaVelocidade = state.velocidade; // Mantém a vel de ré
   }
-
-  // Se dot < 0, estamos indo CONTRA a parede
-  // vai de 0 (raspão) a 1 (batida de frente)
-  const fatorReducao = Math.abs(dot);
-
-  const atritoParede = 0.8; // Atrito extra da batida
-  // Reduz a velocidade baseado no ângulo da batida
-  let novaVelocidade = state.velocidade * (1.0 - fatorReducao) * atritoParede;
 
   return novaVelocidade; // Retorna a nova velocidade (mais lenta)
 }
