@@ -6,6 +6,7 @@ import {
   resolverColisaoDeslizante,
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
+import { atualizarLuz } from "./Luz.js";
 
 const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
 
@@ -24,6 +25,9 @@ let currentLookAt = new THREE.Vector3();
 export function startLoop(renderer, scene, camera, veiculo) {
   // Foco inicial da câmera (pra não começar no 0,0,0)
   currentLookAt.copy(veiculo.position).add(focoCamera);
+
+  // O renderer precisa de sombras ativadas
+  renderer.shadowMap.enabled = true;
 
   function render() {
     // Usamos isso pra velocidade do jogo ficar igual em qualquer PC.
@@ -75,6 +79,9 @@ export function startLoop(renderer, scene, camera, veiculo) {
     // Suaviza o movimento do FOCO
     currentLookAt.lerp(targetLookAt, lerp_camera);
     camera.lookAt(currentLookAt); // Aponta a câmera
+
+    // --- Atualiza a Luz ---
+    atualizarLuz(veiculo); // Atualiza a luz para seguir o veículo
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);

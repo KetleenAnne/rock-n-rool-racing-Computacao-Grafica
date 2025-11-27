@@ -17,6 +17,9 @@ import contadorVoltas from "./jogo/ContadorVoltas.js";
 // Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
 let renderer = initRenderer();
+// Adicione a linha abaixo, se initRenderer não a incluir.
+renderer.shadowMap.enabled = true; // Habilita o processamento de sombras!
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
 let camera = setupCamera();
 
 // CSS pra animação de piscar da "Última Volta"
