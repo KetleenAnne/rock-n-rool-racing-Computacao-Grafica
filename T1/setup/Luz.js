@@ -1,34 +1,45 @@
 import * as THREE from "three";
 
-// A luz principal deve projetar sombra em TODOS os elementos
-const SHADOW_MAP_SIZE = 2048; // Tamanho do mapa de sombra (qualidade e desempenho)
-const SHADOW_CAM_SIZE = 50; // Alcance da câmera de sombra
-const LIGHT_ANGLE_Y = -70 * (Math.PI / 180); // Ângulo para sombra não alongada
+// A luz principal -> projetar sombra em TODOS os elementos
+const SHADOW_MAP_SIZE = 4096; // Tamanho do mapa de sombra (qualidade e desempenho)
+const SHADOW_CAM_SIZE = 80; // Alcance da câmera de sombra
+const LIGHT_ANGLE_Y = -110 * (Math.PI / 180); // Ângulo para sombra não alongada
+const LIGHT_HEIGHT = 30; // Altura da luz
+const LIGHT_INTENSITY = 2.5; // Intensidade
+const LIGHT_COLOR = 0xffffff; //"rgb(255, 255, 255)";
+const AMBIENT_LIGHT_INTENSITY = 0.1; // Intensidade da luz ambiente
+const AMBIENT_LIGHT_COLOR = 0xfcc3cb; //"rgb(252, 227, 203)"; // Cor quente
 
 let luzPrincipal = null;
 let luzSecundaria = null; // Luz ambiente ou direcional oposta
 
 export function criarLuzes(scene) {
   //  DIRECIONAL PRINCIPAL (Com Sombra)
-  luzPrincipal = new THREE.DirectionalLight(0xffffff, 0.8);
+  luzPrincipal = new THREE.DirectionalLight(LIGHT_COLOR, LIGHT_INTENSITY);
 
   // Configurações de sombra
   luzPrincipal.castShadow = true;
   luzPrincipal.shadow.mapSize.width = SHADOW_MAP_SIZE;
   luzPrincipal.shadow.mapSize.height = SHADOW_MAP_SIZE;
 
+  // Ajusta a projeção e o contraste da sombra.
+  // luzPrincipal.shadow.bias = -0.001; // Reduz artefatos (shadow acne) e pode melhorar o contraste
+  // // luzPrincipal.shadow.radius = 2.0;  // Opcional:  sombras mais suaves, mas pode clarear.
+
   // A câmera da sombra (shadow camera) - ortográfica
-  luzPrincipal.shadow.camera.near = 1;
-  luzPrincipal.shadow.camera.far = 100; // Deve ter alcance suficiente
+  luzPrincipal.shadow.camera.near = 0.1;
+  luzPrincipal.shadow.camera.far = 150; // Alcance da sombra
   luzPrincipal.shadow.camera.left = -SHADOW_CAM_SIZE;
   luzPrincipal.shadow.camera.right = SHADOW_CAM_SIZE;
   luzPrincipal.shadow.camera.top = SHADOW_CAM_SIZE;
   luzPrincipal.shadow.camera.bottom = -SHADOW_CAM_SIZE;
 
   // Posição inicial (vai ser atualizada no loop)
-  luzPrincipal.position.set(10, 20, 10);
+  luzPrincipal.position.set(10, LIGHT_HEIGHT, 10);
+  luzPrincipal.target.position.set(0, 0, 0);
 
   scene.add(luzPrincipal);
+  scene.add(luzPrincipal.target);
 
   // para visualizar a câmera de sombra
   // const shadowHelper = new THREE.CameraHelper(luzPrincipal.shadow.camera);
@@ -36,29 +47,27 @@ export function criarLuzes(scene) {
 
   // LUZ SECUNDÁRIA (Ambiente de menor intensidade)
   // A luz ambiente não projeta sombras
-  luzSecundaria = new THREE.AmbientLight(0xffffff, 0.5); // 0.5 é a intensidade
+  luzSecundaria = new THREE.AmbientLight(
+    AMBIENT_LIGHT_COLOR,
+    AMBIENT_LIGHT_INTENSITY
+  ); // Luz ambiente quente
   scene.add(luzSecundaria);
 
-  console.log("Sistema de iluminação do T2 criado.");
+  console.log("Sistema de iluminação.");
 }
 
 // Atualiza a posição e direção da luz principal para seguir o veículo
 export function atualizarLuz(veiculo) {
   if (!luzPrincipal) return;
 
-  // A luz deve transladar (acompanhar a posição) junto ao carro,
-  // mas NÃO deve rotacionar com o carro.
-
   // Translação (Posição)
   // A luz acompanha a posição X e Z do carro.
   // A altura (Y) permanece constante.
-  luzPrincipal.position.x = veiculo.position.x + Math.sin(LIGHT_ANGLE_Y) * 10;
-  luzPrincipal.position.z = veiculo.position.z + Math.cos(LIGHT_ANGLE_Y) * 10;
-  luzPrincipal.position.y = 20; // Altura fixa
+  luzPrincipal.position.x = veiculo.position.x + Math.sin(LIGHT_ANGLE_Y) * 20;
+  luzPrincipal.position.z = veiculo.position.z + Math.cos(LIGHT_ANGLE_Y) * 20;
+  luzPrincipal.position.y = LIGHT_HEIGHT; // Altura fixa
 
   // Rotação/Direção da Sombra
-  // A luz principal deve apontar para o carro (ou para um ponto fixo no chão)
-  // para que a sombra do carro e da pista apontem sempre para a mesma direção.
   luzPrincipal.target.position.set(veiculo.position.x, 0, veiculo.position.z);
   luzPrincipal.target.updateMatrixWorld();
 }

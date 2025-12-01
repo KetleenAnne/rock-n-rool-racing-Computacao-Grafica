@@ -1,6 +1,10 @@
 import * as THREE from "three";
 import { setDefaultMaterial } from "../../libs/util/util.js";
-import { criarMuretasPista1, criarMuretasPista2, criarLinhaLargada } from "./Muretas.js";
+import {
+  criarMuretasPista1,
+  criarMuretasPista2,
+  criarLinhaLargada,
+} from "./Muretas.js";
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
@@ -36,27 +40,26 @@ export function criarPista1(scene) {
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
-    group.add(grama);
+    grama.receiveShadow = true;
+    group.add(grama); // BLOCOS CINZAS DA PISTA (10x10)
 
-    // BLOCOS CINZAS DA PISTA (10x10)
-    const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" });
+    const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" }); // Lambert (fosco) para o chão
     const cubeGeometry = new THREE.BoxGeometry(10, 0.1, 10);
     const altura = 0.0;
     const inicio = -45;
-    const fim = 45;
+    const fim = 45; // Criação do chão da pista
 
-    // Criação do chão da pista
     for (let x = inicio; x <= fim; x += 10) {
       // parte inferior (sul) - pula x=0 para colocar a linha de chegada
       if (x !== 0) {
         let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
         bloco.position.set(x, altura, 50);
+        bloco.receiveShadow = true;
         group.add(bloco);
-      }
-      
-      // parte superior (norte)
+      } // parte superior (norte)
       let blocoTopo = new THREE.Mesh(cubeGeometry, materialBloco);
       blocoTopo.position.set(x, altura, -50);
+      blocoTopo.receiveShadow = true;
       group.add(blocoTopo);
     }
 
@@ -64,19 +67,17 @@ export function criarPista1(scene) {
       // esquerda
       let blocoE = new THREE.Mesh(cubeGeometry, materialBloco);
       blocoE.position.set(-45, altura, z);
-      group.add(blocoE);
-      
-      // direita
+      blocoE.receiveShadow = true;
+      group.add(blocoE); // direita
       let blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
       blocoD.position.set(45, altura, z);
+      blocoD.receiveShadow = true;
       group.add(blocoD);
-    }
+    } // Linha de largada (não precisa de receiveShadow no xadrez)
 
-    // Linha de largada
     const linha = criarLinhaLargada(0, 50);
-    group.add(linha);
+    group.add(linha); // Criar muretas
 
-    // Criar muretas
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
 
@@ -107,11 +108,12 @@ export function criarPista2(scene) {
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
+    grama.receiveShadow = true;
     group.add(grama);
 
     // BLOCOS CINZAS DA PISTA (10x10)
     const cubeGeometry = new THREE.BoxGeometry(10, 0.01, 10);
-    const materialBloco = new THREE.MeshPhongMaterial({ color: "Peru" });
+    const materialBloco = new THREE.MeshPhongMaterial({ color: "Peru" }); // Phong (com brilho) para o chão
     const altura = 0.0;
     const offsetX = -55;
     const offsetZ = 25;
@@ -119,48 +121,52 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - PAREDE SUL (horizontal)
     for (let x = 1; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 10) + offsetX, altura, 10.0 + offsetZ);
+      bloco.position.set(x * 10 + offsetX, altura, 10.0 + offsetZ);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
 
     // BLOCOS CINZAS - PAREDE ESQUERDA (vertical)
     for (let z = 0; z >= -9; z--) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(10.0 + offsetX, altura, (z * 10) + offsetZ);
+      bloco.position.set(10.0 + offsetX, altura, z * 10 + offsetZ);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
 
     // BLOCOS CINZAS - TOPO (horizontal)
     for (let x = 2; x <= 6; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 10) + offsetX, altura, -90.0 + offsetZ);
+      bloco.position.set(x * 10 + offsetX, altura, -90.0 + offsetZ);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
 
     // BLOCOS CINZAS - continuação TOPO (vertical)
     for (let z = -1.5; z >= -5.5; z -= 1) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(5, altura, (z * 10));
+      bloco.position.set(5, altura, z * 10);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
 
     // BLOCOS CINZAS - LESTE (horizontal e vertical)
     for (let x = 6; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 10) + offsetX, altura, -30.0 + offsetZ);
+      bloco.position.set(x * 10 + offsetX, altura, -30.0 + offsetZ);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
 
     for (let z = -3; z <= 0; z++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(100.0 + offsetX, altura, (z * 10) + offsetZ);
+      bloco.position.set(100.0 + offsetX, altura, z * 10 + offsetZ);
+      bloco.receiveShadow = true;
       group.add(bloco);
     }
-
     // Linha de largada
     const linha = criarLinhaLargada(15, 35);
     group.add(linha);
-
     // Criar muretas
     const muretas = criarMuretasPista2(group);
     muretasAtuais = muretas;

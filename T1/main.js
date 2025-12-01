@@ -14,10 +14,9 @@ import {
 import { Veiculo } from "./jogo/Veiculo.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
 
-// Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
 let renderer = initRenderer();
-// Adicione a linha abaixo, se initRenderer não a incluir.
+
 renderer.shadowMap.enabled = true; // Habilita o processamento de sombras!
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
 let camera = setupCamera();
@@ -42,12 +41,11 @@ const veiculo = new Veiculo(scene);
 
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
-veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
+veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
 
 // Avisa o contador onde fica a linha de chegada da Pista 1
 contadorVoltas.setLinhaChegada(0, 50, 10, 10);
 
-// Função que o 'Teclas.js' vai chamar pra trocar de pista
 function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
 
@@ -61,14 +59,12 @@ function trocarPista(numeroPista) {
     contadorVoltas.setLinhaChegada(15, 35, 10, 10); // Define linha de chegada
   }
 
-  // Reseta o carro na posição da nova pista
   veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
 }
 
 // "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
 setPistaChangeCallback(trocarPista);
 
-// Inicia os controles e o loop principal do jogo
 addControls(camera, renderer);
 startLoop(renderer, scene, camera, veiculo);
 
@@ -78,7 +74,6 @@ var pistaSelecionada = getPistaSelecionada();
 function addMenu() {
   var infoBox = new InfoBox();
 
-  // Textos do menu
   infoBox.add("Rock'n Roll Racing 3D - T1");
   infoBox.addParagraph();
   infoBox.add("Teclas de movimento:");
@@ -93,22 +88,19 @@ function addMenu() {
   infoBox.addParagraph();
   infoBox.show();
 
-  // Linha de velocidade (criamos um HTML novo)
   const linhaVelocidade = document.createElement("div");
   linhaVelocidade.innerHTML = "Velocidade: 0.0 km/h";
   linhaVelocidade.style.color = "red";
   infoBox.infoBox.appendChild(linhaVelocidade);
-  setInfoBox(linhaVelocidade); // Manda pro 'Teclas.js' atualizar
+  setInfoBox(linhaVelocidade);
 
-  // Linha de voltas
   const linhaVoltas = document.createElement("div");
   linhaVoltas.innerHTML = "Voltas: 0/4";
   linhaVoltas.style.color = "yellow";
   linhaVoltas.style.fontWeight = "bold";
   infoBox.infoBox.appendChild(linhaVoltas);
-  setLinhaVoltas(linhaVoltas); // Manda pro 'Teclas.js' atualizar
+  setLinhaVoltas(linhaVoltas);
 
-  // Posiciona a caixa no canto
   infoBox.infoBox.style.top = "10px";
   infoBox.infoBox.style.left = "auto";
   infoBox.infoBox.style.right = "10px";
