@@ -433,6 +433,8 @@ export function criarLinhaLargada(x, z) {
       const posX = x - 5 + i * tamanhoQuadrado + tamanhoQuadrado / 2;
       const posZ = z - 5 + j * tamanhoQuadrado + tamanhoQuadrado / 2;
 
+      quadrado.receiveShadow = true;
+
       quadrado.position.set(posX, 0.06, posZ);
       quadrado.name = "linhaChegadaQuadrado";
       group.add(quadrado);
