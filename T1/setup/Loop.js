@@ -7,6 +7,7 @@ import {
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
 import { atualizarLuz } from "./Luz.js";
+import { updateFPS } from "./Fps.js";
 
 const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
 
@@ -28,6 +29,8 @@ export function startLoop(renderer, scene, camera, veiculo) {
 
   function render() {
     const deltaTime = clock.getDelta();
+
+    updateFPS(); // Atualiza o contador de FPS
 
     // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);

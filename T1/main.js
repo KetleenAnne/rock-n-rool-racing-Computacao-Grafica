@@ -13,12 +13,13 @@ import {
 } from "./jogo/Teclas.js";
 import { Veiculo } from "./jogo/Veiculo.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
+import { setupFPSCounter } from "./setup/Fps.js";
 
 let scene = new THREE.Scene();
 let renderer = initRenderer();
 
-renderer.shadowMap.enabled = true; // Habilita o processamento de sombras!
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
+renderer.shadowMap.enabled = true; // Habilita processamento de sombras
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; //sombra mais suave
 let camera = setupCamera();
 
 // CSS pra animação de piscar da "Última Volta"
@@ -35,6 +36,9 @@ document.head.appendChild(style);
 // Cria o menu (InfoBox) e a cena (luz, fundo)
 addMenu();
 setupScene(scene);
+
+setupFPSCounter(); // Adiciona o contador de FPS
+
 const veiculo = new Veiculo(scene);
 
 // --- Lógica das Pistas ---
