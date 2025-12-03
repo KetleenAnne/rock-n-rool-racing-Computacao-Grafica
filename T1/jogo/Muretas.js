@@ -54,8 +54,8 @@ const muretaGeometryLateral = new THREE.BoxGeometry(
 function criarMuretaHorizontal(x, z, material) {
   const mureta = new THREE.Mesh(muretaGeometry, material);
   mureta.position.set(x, 0.1, z);
-  mureta.castShadow = true; // <-- PROJETAR SOMBRA
-  mureta.receiveShadow = true; // <-- RECEBER SOMBRA
+  mureta.castShadow = true;
+  mureta.receiveShadow = true;
 
   return {
     mesh: mureta,
@@ -68,8 +68,8 @@ function criarMuretaHorizontal(x, z, material) {
 function criarMuretaVertical(x, z, material) {
   const mureta = new THREE.Mesh(muretaGeometryLateral, material);
   mureta.position.set(x, 0.1, z);
-  mureta.castShadow = true; // <-- PROJETAR SOMBRA
-  mureta.receiveShadow = true; // <-- RECEBER SOMBRA
+  mureta.castShadow = true;
+  mureta.receiveShadow = true;
 
   return {
     mesh: mureta,
@@ -434,6 +434,7 @@ export function criarLinhaLargada(x, z) {
       const posZ = z - 5 + j * tamanhoQuadrado + tamanhoQuadrado / 2;
 
       quadrado.receiveShadow = true;
+      quadrado.castShadow = true;
 
       quadrado.position.set(posX, 0.06, posZ);
       quadrado.name = "linhaChegadaQuadrado";

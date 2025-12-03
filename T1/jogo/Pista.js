@@ -41,6 +41,7 @@ export function criarPista1(scene) {
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
+    grama.castShadow = true;
     group.add(grama); // BLOCOS CINZAS DA PISTA (10x10)
 
     const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" }); // Lambert (fosco) para o chão
@@ -109,6 +110,7 @@ export function criarPista2(scene) {
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
+    grama.castShadow = true;
     group.add(grama);
 
     // BLOCOS CINZAS DA PISTA (10x10)
@@ -123,6 +125,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(x * 10 + offsetX, altura, 10.0 + offsetZ);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
 
@@ -131,6 +134,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(10.0 + offsetX, altura, z * 10 + offsetZ);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
 
@@ -139,6 +143,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(x * 10 + offsetX, altura, -90.0 + offsetZ);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
 
@@ -147,6 +152,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(5, altura, z * 10);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
 
@@ -155,6 +161,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(x * 10 + offsetX, altura, -30.0 + offsetZ);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
 
@@ -162,6 +169,7 @@ export function criarPista2(scene) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
       bloco.position.set(100.0 + offsetX, altura, z * 10 + offsetZ);
       bloco.receiveShadow = true;
+      bloco.castShadow = true;
       group.add(bloco);
     }
     // Linha de largada
