@@ -13,7 +13,7 @@ import {
 } from "./jogo/Teclas.js";
 import { Veiculo } from "./jogo/Veiculo.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
-import { setupFPSCounter } from "./setup/Fps.js";
+import Stats from "../../build/jsm/libs/stats.module.js";
 
 let scene = new THREE.Scene();
 let renderer = initRenderer();
@@ -21,6 +21,9 @@ let renderer = initRenderer();
 renderer.shadowMap.enabled = true; // Habilita processamento de sombras
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; //sombra mais suave
 let camera = setupCamera();
+
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // CSS pra animação de piscar da "Última Volta"
 // Tivemos que injetar o CSS aqui pra funcionar
@@ -36,8 +39,6 @@ document.head.appendChild(style);
 // Cria o menu (InfoBox) e a cena (luz, fundo)
 addMenu();
 setupScene(scene);
-
-setupFPSCounter(); // Adiciona o contador de FPS
 
 const veiculo = new Veiculo(scene);
 
@@ -70,7 +71,7 @@ function trocarPista(numeroPista) {
 setPistaChangeCallback(trocarPista);
 
 addControls(camera, renderer);
-startLoop(renderer, scene, camera, veiculo);
+startLoop(renderer, scene, camera, veiculo, stats);
 
 var pistaSelecionada = getPistaSelecionada();
 
@@ -78,7 +79,7 @@ var pistaSelecionada = getPistaSelecionada();
 function addMenu() {
   var infoBox = new InfoBox();
 
-  infoBox.add("Rock'n Roll Racing 3D - T1");
+  infoBox.add("Rock'n Roll Racing 3D - T2");
   infoBox.addParagraph();
   infoBox.add("Teclas de movimento:");
   infoBox.add("* W/S ou Seta para cima/baixo: mover para frente/para trás");

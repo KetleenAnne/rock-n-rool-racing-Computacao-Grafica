@@ -7,7 +7,6 @@ import {
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
 import { atualizarLuz } from "./Luz.js";
-import { updateFPS } from "./Fps.js";
 
 const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
 
@@ -20,7 +19,7 @@ let focoCamera = new THREE.Vector3(0, 2.0, 0);
 // Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
-export function startLoop(renderer, scene, camera, veiculo) {
+export function startLoop(renderer, scene, camera, veiculo, stats) {
   currentLookAt.copy(veiculo.position).add(focoCamera);
 
   // O renderer precisa de sombras ativadas
@@ -30,7 +29,7 @@ export function startLoop(renderer, scene, camera, veiculo) {
   function render() {
     const deltaTime = clock.getDelta();
 
-    updateFPS(); // Atualiza o contador de FPS
+    stats.update(); // Atualiza o contador de FPS
 
     // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);
