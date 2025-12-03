@@ -21,6 +21,7 @@ export function updateFPS() {
 
   // Atualiza a cada segundo
   if (time >= prevTime + 1000) {
+    // fps = número de frames em 1 segundo
     const fps = Math.round((frames * 1000) / (time - prevTime));
     fpsElement.innerHTML = "FPS: " + fps;
     prevTime = time;

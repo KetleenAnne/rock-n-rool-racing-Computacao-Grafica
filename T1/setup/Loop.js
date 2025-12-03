@@ -65,7 +65,6 @@ export function startLoop(renderer, scene, camera, veiculo) {
     let targetCameraPos = offsetCamera.clone();
 
     targetCameraPos.x += lateralDrift;
-
     // Converte a posição local atrás do carro pra posição no mundo
     targetCameraPos.applyQuaternion(veiculo.quaternion);
     targetCameraPos.add(veiculo.position);
