@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 // A luz principal -> projetar sombra em TODOS os elementos
-const SHADOW_MAP_SIZE = 4096; // Tamanho do mapa de sombra (qualidade e desempenho)
+const SHADOW_MAP_SIZE = 4096; // Tamanho do mapa de sombra
 const SHADOW_CAM_SIZE = 80; // Alcance da câmera de sombra
 const LIGHT_ANGLE_Y = -110 * (Math.PI / 180); // Ângulo para sombra não alongada
 const LIGHT_HEIGHT = 30; // Altura da luz
@@ -22,10 +22,6 @@ export function criarLuzes(scene) {
   luzPrincipal.shadow.mapSize.width = SHADOW_MAP_SIZE;
   luzPrincipal.shadow.mapSize.height = SHADOW_MAP_SIZE;
 
-  // Ajusta a projeção e o contraste da sombra.
-  // luzPrincipal.shadow.bias = -0.001; // Reduz artefatos (shadow acne) e pode melhorar o contraste
-  // // luzPrincipal.shadow.radius = 2.0;  // Opcional:  sombras mais suaves, mas pode clarear.
-
   // A câmera da sombra (shadow camera) - ortográfica
   luzPrincipal.shadow.camera.near = 0.1;
   luzPrincipal.shadow.camera.far = 150; // Alcance da sombra
@@ -34,7 +30,7 @@ export function criarLuzes(scene) {
   luzPrincipal.shadow.camera.top = SHADOW_CAM_SIZE;
   luzPrincipal.shadow.camera.bottom = -SHADOW_CAM_SIZE;
 
-  // Posição inicial (vai ser atualizada no loop)
+  // Posição inicial (atualizada no loop)
   luzPrincipal.position.set(10, LIGHT_HEIGHT, 10);
   luzPrincipal.target.position.set(0, 0, 0);
 
@@ -45,12 +41,12 @@ export function criarLuzes(scene) {
   // const shadowHelper = new THREE.CameraHelper(luzPrincipal.shadow.camera);
   // scene.add(shadowHelper);
 
-  // LUZ SECUNDÁRIA (Ambiente de menor intensidade)
+  // LUZ SECUNDÁRIA ( meno intensidade)
   // A luz ambiente não projeta sombras
   luzSecundaria = new THREE.AmbientLight(
     AMBIENT_LIGHT_COLOR,
     AMBIENT_LIGHT_INTENSITY
-  ); // Luz ambiente quente
+  );
   scene.add(luzSecundaria);
 
   console.log("Sistema de iluminação.");
