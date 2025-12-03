@@ -6,29 +6,31 @@ import {
   resolverColisaoDeslizante,
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
+import { atualizarLuz } from "./Luz.js";
+import { updateFPS } from "./Fps.js";
 
 const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
 
 // --- Câmera em Terceira Pessoa ---
 // Posição da câmera em relação ao carro (pra cima e pra trás)
 const offsetCamera = new THREE.Vector3(0, 4, -8);
-// Suavização da câmera
 const lerp_camera = 0.08;
-// O quanto a câmera "desliza" pro lado quando vira
 const lateral_camera = 50.0;
-// Ponto de foco (um pouco acima do carro)
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
 // Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
 export function startLoop(renderer, scene, camera, veiculo) {
-  // Foco inicial da câmera (pra não começar no 0,0,0)
   currentLookAt.copy(veiculo.position).add(focoCamera);
 
+  // O renderer precisa de sombras ativadas
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
+
   function render() {
-    // Usamos isso pra velocidade do jogo ficar igual em qualquer PC.
-    // exemplo do arquivo exampleFirstPerson.js
     const deltaTime = clock.getDelta();
+
+    updateFPS(); // Atualiza o contador de FPS
 
     // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);
@@ -55,11 +57,13 @@ export function startLoop(renderer, scene, camera, veiculo) {
     // --- Contador de Voltas ---
     contadorVoltas.verificarPassagem(veiculo.position);
 
+    // --- Atualiza a Luz ---
+    atualizarLuz(veiculo); // Atualiza a luz para seguir o veículo
+
     // --- Lógica da Câmera ---
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
-    // Desliza a câmera pro lado quando vira
     targetCameraPos.x += lateralDrift;
 
     // Converte a posição local atrás do carro pra posição no mundo
