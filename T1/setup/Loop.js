@@ -45,7 +45,7 @@ export function startLoop(renderer, scene, camera, veiculo, stats) {
     // --- Colisão ---
     const muretas = getMuretas();
     // Raio do carro pra colisão = 0.8
-    const colisao = verificarColisao(veiculo.position, muretas, 0.8);
+    const colisao = verificarColisao(veiculo.position, muretas, 0.6);
 
     if (colisao.colidiu) {
       // Se bateu, chama a função de "deslizar" e frear
