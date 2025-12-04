@@ -23,8 +23,8 @@ export function startLoop(renderer, scene, camera, veiculo, stats) {
   currentLookAt.copy(veiculo.position).add(focoCamera);
 
   // O renderer precisa de sombras ativadas
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
+  // renderer.shadowMap.enabled = true;
+  // renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
 
   function render() {
     const deltaTime = clock.getDelta();
