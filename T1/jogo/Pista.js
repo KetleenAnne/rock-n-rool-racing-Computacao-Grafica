@@ -1,23 +1,26 @@
 import * as THREE from "three";
 import { setDefaultMaterial } from "../../libs/util/util.js";
-import {
-  criarMuretasPista1,
-  criarMuretasPista2,
-  criarLinhaLargada,
-} from "./Muretas.js";
+import { criarMuretasPista1, criarMuretasPista2, criarMuretasPista3, criarLinhaLargada } from "./Muretas.js";
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
   x: 0,
   y: 0.3,
-  z: 50,
+  z: 100,
   rot: -Math.PI / 2,
 };
 
 const POSICAO_INICIAL_PISTA_2 = {
-  x: 15,
+  x: 30,
   y: 0.3,
-  z: 35,
+  z: 70,
+  rot: -Math.PI / 2,
+};
+
+const POSICAO_INICIAL_PISTA_3 = {
+  x: 0,
+  y: 0.3,
+  z: 100,
   rot: -Math.PI / 2,
 };
 
@@ -35,50 +38,58 @@ export function criarPista1(scene) {
     // GRAMA DE FUNDO
     const corPista = "green";
     const grama = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
+      new THREE.PlaneGeometry(400, 400),
       setDefaultMaterial(corPista)
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
     grama.castShadow = true;
-    group.add(grama); // BLOCOS CINZAS DA PISTA (10x10)
+    group.add(grama);
 
-    const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" }); // Lambert (fosco) para o chão
-    const cubeGeometry = new THREE.BoxGeometry(10, 0.1, 10);
+    // BLOCOS CINZAS DA PISTA (20x20)
+    const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" });
+    const cubeGeometry = new THREE.BoxGeometry(20, 0.1, 20);
     const altura = 0.0;
-    const inicio = -45;
-    const fim = 45; // Criação do chão da pista
+    const inicio = -90;
+    const fim = 90;
 
-    for (let x = inicio; x <= fim; x += 10) {
+    // Criação do chão da pista
+    for (let x = inicio; x <= fim; x += 20) {
       // parte inferior (sul) - pula x=0 para colocar a linha de chegada
       if (x !== 0) {
         let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-        bloco.position.set(x, altura, 50);
+        bloco.position.set(x, altura, 100);
         bloco.receiveShadow = true;
         group.add(bloco);
-      } // parte superior (norte)
+      }
+      
+      // parte superior (norte)
       let blocoTopo = new THREE.Mesh(cubeGeometry, materialBloco);
-      blocoTopo.position.set(x, altura, -50);
+      blocoTopo.position.set(x, altura, -100);
       blocoTopo.receiveShadow = true;
       group.add(blocoTopo);
     }
 
-    for (let z = -40; z <= 40; z += 10) {
+    for (let z = -80; z <= 80; z += 20) {
       // esquerda
       let blocoE = new THREE.Mesh(cubeGeometry, materialBloco);
-      blocoE.position.set(-45, altura, z);
+      blocoE.position.set(-90, altura, z);
       blocoE.receiveShadow = true;
-      group.add(blocoE); // direita
+      group.add(blocoE);
+      
+      // direita
       let blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
-      blocoD.position.set(45, altura, z);
+      blocoD.position.set(90, altura, z);
       blocoD.receiveShadow = true;
       group.add(blocoD);
-    } // Linha de largada (não precisa de receiveShadow no xadrez)
+    }
 
-    const linha = criarLinhaLargada(0, 50);
-    group.add(linha); // Criar muretas
+    // Linha de largada
+    const linha = criarLinhaLargada(0, 100);
+    group.add(linha);
 
+    // Criar muretas
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
 
@@ -104,7 +115,7 @@ export function criarPista2(scene) {
     // GRAMA DE FUNDO
     const corPista = "green";
     const grama = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
+      new THREE.PlaneGeometry(400, 400),
       setDefaultMaterial(corPista)
     );
     grama.rotation.x = -Math.PI / 2;
@@ -113,17 +124,17 @@ export function criarPista2(scene) {
     grama.castShadow = true;
     group.add(grama);
 
-    // BLOCOS CINZAS DA PISTA (10x10)
-    const cubeGeometry = new THREE.BoxGeometry(10, 0.01, 10);
-    const materialBloco = new THREE.MeshPhongMaterial({ color: "Peru" }); // Phong (com brilho) para o chão
+    // BLOCOS CINZAS DA PISTA (20x20)
+    const cubeGeometry = new THREE.BoxGeometry(20, 0.01, 20);
+    const materialBloco = new THREE.MeshPhongMaterial({ color: "Peru" });
     const altura = 0.0;
-    const offsetX = -55;
-    const offsetZ = 25;
+    const offsetX = -110;
+    const offsetZ = 50;
 
     // BLOCOS CINZAS - PAREDE SUL (horizontal)
     for (let x = 1; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(x * 10 + offsetX, altura, 10.0 + offsetZ);
+      bloco.position.set((x * 20) + offsetX, altura, 20.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -132,7 +143,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - PAREDE ESQUERDA (vertical)
     for (let z = 0; z >= -9; z--) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(10.0 + offsetX, altura, z * 10 + offsetZ);
+      bloco.position.set(20.0 + offsetX, altura, (z * 20) + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -141,7 +152,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - TOPO (horizontal)
     for (let x = 2; x <= 6; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(x * 10 + offsetX, altura, -90.0 + offsetZ);
+      bloco.position.set((x * 20) + offsetX, altura, -180.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -150,7 +161,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - continuação TOPO (vertical)
     for (let z = -1.5; z >= -5.5; z -= 1) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(5, altura, z * 10);
+      bloco.position.set(10, altura, (z * 20));
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -159,7 +170,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - LESTE (horizontal e vertical)
     for (let x = 6; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(x * 10 + offsetX, altura, -30.0 + offsetZ);
+      bloco.position.set((x * 20) + offsetX, altura, -60.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -167,14 +178,16 @@ export function criarPista2(scene) {
 
     for (let z = -3; z <= 0; z++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(100.0 + offsetX, altura, z * 10 + offsetZ);
+      bloco.position.set(200.0 + offsetX, altura, (z * 20) + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
     }
+
     // Linha de largada
-    const linha = criarLinhaLargada(15, 35);
+    const linha = criarLinhaLargada(30, 70);
     group.add(linha);
+
     // Criar muretas
     const muretas = criarMuretasPista2(group);
     muretasAtuais = muretas;
@@ -187,6 +200,46 @@ export function criarPista2(scene) {
   } catch (error) {
     console.error("Erro ao criar Pista 2:", error);
     return POSICAO_INICIAL_PISTA_2;
+  }
+}
+
+// ========== PISTA 3 ==========
+export function criarPista3(scene) {
+  console.log("Criando Pista 3...");
+  limparPistaAtual(scene);
+
+  const group = new THREE.Group();
+
+  try {
+    // GRAMA
+    const grama = new THREE.Mesh(
+      new THREE.PlaneGeometry(1000, 1000),
+      setDefaultMaterial("green")
+    );
+    grama.rotation.x = -Math.PI / 2;
+    grama.position.set(0, -0.1, 0);
+    grama.receiveShadow = true;
+    grama.castShadow = true;
+    group.add(grama);
+
+    // Linha de largada
+    const linha = criarLinhaLargada(0, 100);
+    group.add(linha);
+
+    // Criar blocos, muretas e túnel (vem do arquivo Muretas.js)
+    const elementosPista3 = criarMuretasPista3(group);
+    
+ 
+    muretasAtuais = elementosPista3;
+
+    scene.add(group);
+    pistaAtual = group;
+
+    console.log("Pista 3 criada com sucesso!");
+    return POSICAO_INICIAL_PISTA_3;
+  } catch (error) {
+    console.error("Erro ao criar Pista 3:", error);
+    return POSICAO_INICIAL_PISTA_3;
   }
 }
 

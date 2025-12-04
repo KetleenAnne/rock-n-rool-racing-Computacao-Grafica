@@ -3,7 +3,7 @@ import { initRenderer, InfoBox } from "../../libs/util/util.js";
 import { setupScene } from "./setup/Scene.js";
 import { setupCamera } from "./setup/Camera.js";
 import { startLoop } from "./setup/Loop.js";
-import { criarPista1, criarPista2 } from "./jogo/Pista.js";
+import { criarPista1, criarPista2, criarPista3 } from "./jogo/Pista.js";
 import {
   addControls,
   getPistaSelecionada,
@@ -58,10 +58,13 @@ function trocarPista(numeroPista) {
 
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
-    contadorVoltas.setLinhaChegada(0, 50, 10, 10); // Define linha de chegada
+    contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
   } else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
-    contadorVoltas.setLinhaChegada(15, 35, 10, 10); // Define linha de chegada
+    contadorVoltas.setLinhaChegada(30, 70, 20, 20); // Define linha de chegada
+  } else if (numeroPista === 3) {
+    posInicial = criarPista3(scene);
+    contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
   }
 
   veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
@@ -90,6 +93,7 @@ function addMenu() {
   infoBox.add("Trocar de pista:");
   infoBox.add("* 1: Pista 1 (Oval)");
   infoBox.add("* 2: Pista 2 (Formato L)");
+  infoBox.add("* 3: Pista 3 (Formato 8)");
   infoBox.addParagraph();
   infoBox.show();
 
