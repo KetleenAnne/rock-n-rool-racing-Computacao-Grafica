@@ -101,9 +101,11 @@ export class VeiculoBase {
     
     this.penalizado = true;
     this.tempoPenalizacao = 3.0; // 3 segundos
-    this.velocidadeAtual *= 0.3; // Cai para 30%
     
-    console.log("Veículo atingido! Velocidade reduzida por 3 segundos.");
+    // Reduz velocidade para 30%
+    this.velocidadeAtual *= 0.3;
+    
+    console.log("Veículo atingido! Velocidade reduzida para 30% por 3 segundos.");
   }
 
   atualizarPenalizacao(deltaTime) {
