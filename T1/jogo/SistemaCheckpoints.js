@@ -9,7 +9,6 @@ class SistemaCheckpoints {
     this.grupoCheckpoints = new THREE.Group();
   }
 
-  // Criar checkpoint visual (portal com número) baseado em dois postes
   criarCheckpointVisual(poste1Pos, poste2Pos, numero) {
     const group = new THREE.Group();
 
@@ -38,15 +37,16 @@ class SistemaCheckpoints {
     const poste1 = new THREE.Mesh(posteGeo, posteMat);
     poste1.position.set(poste1Pos.x, 4, poste1Pos.z);
     poste1.castShadow = true;
+    poste1.receiveShadow = true;
 
     const poste2 = new THREE.Mesh(posteGeo, posteMat);
     poste2.position.set(poste2Pos.x, 4, poste2Pos.z);
     poste2.castShadow = true;
+    poste2.receiveShadow = true;
 
     group.add(poste1, poste2);
 
     // ========== BARRA SUPERIOR ==========
-    // A barra deve seguir a direção entre os postes
     const barraGeo = new THREE.BoxGeometry(largura, 0.5, 0.5);
     const barraMat = new THREE.MeshPhongMaterial({
       color: 0x00ff00,
@@ -57,6 +57,7 @@ class SistemaCheckpoints {
     barra.position.set(centroX, 8, centroZ);
     barra.rotation.y = angulo;
     barra.castShadow = true;
+    barra.receiveShadow = true;
     group.add(barra);
 
     // ========== ZONA DE DETECÇÃO - LINHA ENTRE OS POSTES ==========
