@@ -139,6 +139,7 @@ class SistemaCheckpoints {
 
       // Completou todos os checkpoints?
       if (this.checkpointAtual >= this.checkpoints.length) {
+        this.atualizarVisibilidade();
         this.todosCheckpointsColetados = true;
         console.log("✓ Todos os checkpoints coletados!");
         return { completo: true, ultimo: true };
