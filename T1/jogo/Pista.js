@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { setDefaultMaterial } from "../../libs/util/util.js";
 import { criarMuretasPista1, criarMuretasPista2, criarMuretasPista3, criarLinhaLargada } from "./Muretas.js";
+import { criarArvoresPista1, criarArvoresPista2, criarArvoresPista3 } from "./Arvores.js";
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
@@ -92,6 +93,9 @@ export function criarPista1(scene) {
     // Criar muretas
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
+    
+   //Cria Arvores
+   criarArvoresPista1(group); 
 
     scene.add(group);
     pistaAtual = group;
@@ -192,6 +196,9 @@ export function criarPista2(scene) {
     const muretas = criarMuretasPista2(group);
     muretasAtuais = muretas;
 
+    //Cria Arvores
+   criarArvoresPista2(group);
+
     scene.add(group);
     pistaAtual = group;
 
@@ -231,6 +238,9 @@ export function criarPista3(scene) {
     
  
     muretasAtuais = elementosPista3;
+
+   //Cria Arvores
+   criarArvoresPista3(group);
 
     scene.add(group);
     pistaAtual = group;
