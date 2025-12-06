@@ -38,7 +38,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // --- Colisão ---
     const muretas = getMuretas();
-    const colisao = verificarColisao(jogador.position, muretas, 0.8);
+    const colisao = verificarColisao(jogador.position, muretas, 0.4);
 
     if (colisao.colidiu) {
       const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
