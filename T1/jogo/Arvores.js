@@ -191,7 +191,7 @@ const POSICOES_ARVORES_PISTA3 = {
     { x: 60, z: -40 },
     { x: 60, z: -80 },
     // Segundo quadrado - interno
-    { x: -180, z: -110 },
+    { x: -180, z: -120 },
     { x: -110, z: -200 },
     { x: -180, z: -200 },
     { x: -180, z: -260 },

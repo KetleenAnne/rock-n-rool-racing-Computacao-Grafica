@@ -6,9 +6,10 @@ import {
   resolverColisaoDeslizante,
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
+import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
 import { atualizarLuz } from "./Luz.js";
 
-const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
+const clock = new THREE.Clock();
 
 // --- Câmera em Terceira Pessoa ---
 // Posição da câmera em relação ao carro (pra cima e pra trás)
@@ -21,10 +22,6 @@ let currentLookAt = new THREE.Vector3();
 
 export function startLoop(renderer, scene, camera, veiculo, stats) {
   currentLookAt.copy(veiculo.position).add(focoCamera);
-
-  // O renderer precisa de sombras ativadas
-  // renderer.shadowMap.enabled = true;
-  // renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
 
   function render() {
     const deltaTime = clock.getDelta();
@@ -44,7 +41,7 @@ export function startLoop(renderer, scene, camera, veiculo, stats) {
 
     // --- Colisão ---
     const muretas = getMuretas();
-    // Raio do carro pra colisão = 0.8
+    // Raio do carro pra colisão = 0.6
     const colisao = verificarColisao(veiculo.position, muretas, 0.6);
 
     if (colisao.colidiu) {
@@ -53,8 +50,30 @@ export function startLoop(renderer, scene, camera, veiculo, stats) {
       setVelocidade(novaVelocidade); // Atualiza a velocidade (freia)
     }
 
+    // ========== VERIFICAR CHECKPOINTS ==========
+    sistemaCheckpoints.verificarPassagem(veiculo.position);
+    
+    // Atualizar display de checkpoints
+    if (window.linhaCheckpoints) {
+      const progresso = sistemaCheckpoints.getProgresso();
+      window.linhaCheckpoints.innerHTML = `Checkpoints: ${progresso.atual}/${progresso.total}`;
+      
+      if (progresso.completo) {
+        window.linhaCheckpoints.style.color = "lime";
+        window.linhaCheckpoints.innerHTML += " ✓";
+      } else {
+        window.linhaCheckpoints.style.color = "cyan";
+      }
+    }
+    // ==========================================
+
     // --- Contador de Voltas ---
-    contadorVoltas.verificarPassagem(veiculo.position);
+    const resultadoVolta = contadorVoltas.verificarPassagem(veiculo.position);
+    
+    // Mostrar mensagem se tentou fazer volta sem checkpoints
+    if (resultadoVolta && resultadoVolta.voltaInvalida) {
+      console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
+    }
 
     // --- Atualiza a Luz ---
     atualizarLuz(veiculo); // Atualiza a luz para seguir o veículo
