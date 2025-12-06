@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import sistemaCheckpoints from "./SistemaCheckpoints.js";
 
 class ContadorVoltas {
   constructor() {
@@ -46,9 +47,23 @@ class ContadorVoltas {
         return false;
       }
 
+      // ========== VERIFICAR CHECKPOINTS ==========
+      const progressoCP = sistemaCheckpoints.getProgresso();
+      
+      if (!progressoCP.completo) {
+        console.log(`❌ Volta inválida! Faltam ${progressoCP.total - progressoCP.atual} checkpoints!`);
+        return { 
+          voltaInvalida: true, 
+          checkpointsFaltando: progressoCP.total - progressoCP.atual 
+        };
+      }
+      // ==========================================
+
       // Conta a volta
       this.voltas++;
       console.log(`Volta ${this.voltas}/${this.limiteVoltas} completada!`);
+      
+      
 
       // Verifica se finalizou a corrida
       if (this.voltas >= this.limiteVoltas) {
@@ -56,6 +71,9 @@ class ContadorVoltas {
         console.log("🏁 CORRIDA FINALIZADA! 🏁");
         return { completouVolta: true, finalizouCorrida: true };
       }
+      
+      // Resetar checkpoints para próxima volta
+      sistemaCheckpoints.reset();
 
       return { completouVolta: true, finalizouCorrida: false };
     }
@@ -89,6 +107,7 @@ class ContadorVoltas {
     this.naLinha = false;
     this.primeiraPassagem = true;
     this.corridaFinalizada = false;
+    sistemaCheckpoints.reset(); // Resetar checkpoints também
   }
 }
 

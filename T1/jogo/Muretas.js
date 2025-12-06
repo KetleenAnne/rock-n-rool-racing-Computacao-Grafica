@@ -14,8 +14,8 @@ const CORES_MURETAS_PISTA2 = {
 
 // ========== CONFIGURAÇÕES DE DIMENSÕES ==========
 const ALTURA_MURETA = 1.5;
-const ESPESSURA_MURETA_HORIZONTAL = 0.5;
-const ESPESSURA_MURETA_VERTICAL = 0.25;
+const ESPESSURA_MURETA_HORIZONTAL = 0.3;
+const ESPESSURA_MURETA_VERTICAL = 0.1;
 
 // ========== MATERIAIS PISTA 1 ==========
 const materialMuretaVermelha = new THREE.MeshLambertMaterial({

@@ -13,13 +13,20 @@ import {
 } from "./jogo/Teclas.js";
 import { Veiculo } from "./jogo/Veiculo.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
+import sistemaCheckpoints from "./jogo/SistemaCheckpoints.js";
+import { 
+  CHECKPOINTS_PISTA1, 
+  CHECKPOINTS_PISTA2, 
+  CHECKPOINTS_PISTA3 
+} from "./jogo/ConfigCheckpoints.js";
 import Stats from "../../build/jsm/libs/stats.module.js";
 
+// Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
 let renderer = initRenderer();
 
 renderer.shadowMap.enabled = true; // Habilita processamento de sombras
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; //sombra mais suave
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Sombra mais suave
 let camera = setupCamera();
 
 const stats = new Stats();
@@ -40,17 +47,25 @@ document.head.appendChild(style);
 addMenu();
 setupScene(scene);
 
+// Inicializar o sistema de checkpoints com a cena
+sistemaCheckpoints.scene = scene;
+
 const veiculo = new Veiculo(scene);
 
 // --- Lógica das Pistas ---
 
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
-veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
 
 // Avisa o contador onde fica a linha de chegada da Pista 1
-contadorVoltas.setLinhaChegada(0, 50, 10, 10);
+contadorVoltas.setLinhaChegada(0, 100, 20, 20);
+contadorVoltas.reset(); // Reseta o contador ao iniciar
 
+// Configurar checkpoints da Pista 1
+sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
+
+// Função que o 'Teclas.js' vai chamar pra trocar de pista
 function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
 
@@ -59,20 +74,25 @@ function trocarPista(numeroPista) {
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1); // Define checkpoints
   } else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
     contadorVoltas.setLinhaChegada(30, 70, 20, 20); // Define linha de chegada
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2); // Define checkpoints
   } else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3); // Define checkpoints
   }
 
+  // Reseta o carro na posição da nova pista
   veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
 }
 
 // "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
 setPistaChangeCallback(trocarPista);
 
+// Inicia os controles e o loop principal do jogo
 addControls(camera, renderer);
 startLoop(renderer, scene, camera, veiculo, stats);
 
@@ -82,6 +102,7 @@ var pistaSelecionada = getPistaSelecionada();
 function addMenu() {
   var infoBox = new InfoBox();
 
+  // Textos do menu
   infoBox.add("Rock'n Roll Racing 3D - T2");
   infoBox.addParagraph();
   infoBox.add("Teclas de movimento:");
@@ -97,19 +118,30 @@ function addMenu() {
   infoBox.addParagraph();
   infoBox.show();
 
+  // Linha de velocidade (criamos um HTML novo)
   const linhaVelocidade = document.createElement("div");
   linhaVelocidade.innerHTML = "Velocidade: 0.0 km/h";
   linhaVelocidade.style.color = "red";
   infoBox.infoBox.appendChild(linhaVelocidade);
-  setInfoBox(linhaVelocidade);
+  setInfoBox(linhaVelocidade); // Manda pro 'Teclas.js' atualizar
 
+  // Linha de voltas
   const linhaVoltas = document.createElement("div");
   linhaVoltas.innerHTML = "Voltas: 0/4";
   linhaVoltas.style.color = "yellow";
   linhaVoltas.style.fontWeight = "bold";
   infoBox.infoBox.appendChild(linhaVoltas);
-  setLinhaVoltas(linhaVoltas);
+  setLinhaVoltas(linhaVoltas); // Manda pro 'Teclas.js' atualizar
 
+  // Linha de checkpoints
+  const linhaCheckpoints = document.createElement("div");
+  linhaCheckpoints.innerHTML = "Checkpoints: 0/4";
+  linhaCheckpoints.style.color = "cyan";
+  linhaCheckpoints.style.fontWeight = "bold";
+  infoBox.infoBox.appendChild(linhaCheckpoints);
+  window.linhaCheckpoints = linhaCheckpoints; // Exportar globalmente
+
+  // Posiciona a caixa no canto
   infoBox.infoBox.style.top = "10px";
   infoBox.infoBox.style.left = "auto";
   infoBox.infoBox.style.right = "10px";
