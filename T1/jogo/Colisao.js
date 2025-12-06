@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 // Checa colisão do Carro  vs Muretas
-export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 1.2) {
+export function verificarColisao(posicaoVeiculo, muretas, raioVeiculo = 0.6) {
   for (let mureta of muretas) {
     if (!mureta || !mureta.mesh) continue; // Pula mureta inválida
 
@@ -89,7 +89,7 @@ export function resolverColisaoDeslizante(veiculo, colisao, state) {
 }
 
 // ========== VERIFICAR COLISÃO COM ZONA (linha de chegada) ==========
-export function verificarColisaoZona(posicaoVeiculo, zona, raioVeiculo = 1.2) {
+export function verificarColisaoZona(posicaoVeiculo, zona, raioVeiculo = 0.6) {
   if (!zona || !zona.mesh) return false;
 
   const bbox = new THREE.Box3().setFromObject(zona.mesh);
@@ -149,8 +149,8 @@ export function criarZonaDeteccao(
 export function verificarColisaoEntreObjetos(
   objeto1,
   objeto2,
-  raio1 = 1.2,
-  raio2 = 1.2
+  raio1 = 0.6,
+  raio2 = 0.6
 ) {
   const pos1 = objeto1.position;
   const pos2 = objeto2.position;

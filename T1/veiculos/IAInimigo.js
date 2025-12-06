@@ -6,68 +6,49 @@ export class IAInimigo {
     this.veiculo = veiculo;
     this.pista = pista;
     
-    // Waypoints da pista
+    // Waypoints da pista (você vai definir baseado na pista)
     this.waypoints = this.gerarWaypoints();
     this.waypointAtual = 0;
     
     // Parâmetros de movimento
-    this.velocidadeCruzeiro = 40.0;
-    this.distanciaMinima = 8.0; // Distância para considerar waypoint alcançado
-    this.aceleracao = 0.8;
-    this.desaceleracao = 0.97;
+    this.velocidadeCruzeiro = 35.0;
+    this.distanciaMinima = 3.0; // Distância para considerar waypoint alcançado
     
     // Controle de disparo
     this.tempoUltimoDisparo = 0;
-    this.intervaloDisparo = 2.5; // 2.5 segundos entre disparos
-    
-    console.log(`IA criada para pista ${pista} com ${this.waypoints.length} waypoints`);
+    this.intervaloDisparo = 2.0; // 2 segundos entre disparos
   }
 
   gerarWaypoints() {
-    // PISTA 1 (OVAL) - Começa indo PARA FRENTE (Z negativo)
+    // PISTA 1 (OVAL) - Waypoints ao longo do circuito
     if (this.pista === 1) {
       return [
-        new THREE.Vector3(0, 0, 30),     // Próximo waypoint à frente
-        new THREE.Vector3(0, 0, 0),      // Centro
-        new THREE.Vector3(0, 0, -30),    // Indo para o fundo
-        new THREE.Vector3(30, 0, -40),   // Curva direita inferior
-        new THREE.Vector3(43, 0, -20),   // Lateral direita
-        new THREE.Vector3(43, 0, 0),     // Lateral direita meio
-        new THREE.Vector3(43, 0, 20),    // Lateral direita superior
-        new THREE.Vector3(30, 0, 40),    // Curva direita superior
-        new THREE.Vector3(0, 0, 48),     // Topo (linha de chegada)
-        new THREE.Vector3(-30, 0, 40),   // Curva esquerda superior
-        new THREE.Vector3(-43, 0, 20),   // Lateral esquerda
-        new THREE.Vector3(-43, 0, 0),    // Lateral esquerda meio
-        new THREE.Vector3(-43, 0, -20),  // Lateral esquerda inferior
-        new THREE.Vector3(-30, 0, -40),  // Curva esquerda inferior
-        new THREE.Vector3(0, 0, -48),    // Fundo
+        new THREE.Vector3(0, 0, 50),    // Linha de largada
+        new THREE.Vector3(40, 0, 40),   // Curva direita superior
+        new THREE.Vector3(45, 0, 0),    // Lateral direita
+        new THREE.Vector3(40, 0, -40),  // Curva direita inferior
+        new THREE.Vector3(0, 0, -50),   // Topo
+        new THREE.Vector3(-40, 0, -40), // Curva esquerda inferior
+        new THREE.Vector3(-45, 0, 0),   // Lateral esquerda
+        new THREE.Vector3(-40, 0, 40),  // Curva esquerda superior
       ];
     }
     
-    // PISTA 2 (L) - Formato L
+    // PISTA 2 (L) - Adapte conforme necessário
     return [
-      new THREE.Vector3(15, 0, 28),    // À frente da largada
-      new THREE.Vector3(15, 0, 10),    
-      new THREE.Vector3(15, 0, -10),   
-      new THREE.Vector3(15, 0, -30),   
-      new THREE.Vector3(20, 0, -38),   // Entrada da curva
-      new THREE.Vector3(28, 0, -40),   
-      new THREE.Vector3(38, 0, -40),   
-      new THREE.Vector3(40, 0, -30),   
-      new THREE.Vector3(40, 0, -10),   
-      new THREE.Vector3(40, 0, 10),    
-      new THREE.Vector3(40, 0, 28),    
-      new THREE.Vector3(35, 0, 33),    // Volta para largada
-      new THREE.Vector3(25, 0, 33),    
-      new THREE.Vector3(18, 0, 33),    
+      new THREE.Vector3(15, 0, 35),
+      new THREE.Vector3(15, 0, 0),
+      new THREE.Vector3(15, 0, -40),
+      new THREE.Vector3(40, 0, -40),
+      new THREE.Vector3(40, 0, 0),
+      new THREE.Vector3(40, 0, 35),
     ];
   }
 
   atualizar(deltaTime, jogador) {
-    // Se está penalizado, não acelera e desacelera gradualmente
+    // Se está penalizado, não faz nada
     if (this.veiculo.penalizado) {
-      this.veiculo.velocidadeAtual *= 0.95;
+      this.veiculo.velocidadeAtual *= 0.95; // Desacelera
       return;
     }
     
@@ -98,7 +79,7 @@ export class IAInimigo {
     const dot = direcaoVeiculo.dot(direcaoAlvo);
     
     // Virar em direção ao waypoint
-    const anguloVirada = 0.04 * deltaTime * 60;
+    const anguloVirada = 0.03 * deltaTime * 60;
     
     if (cross.y > 0.1) {
       this.veiculo.rotateY(anguloVirada); // Vira esquerda
@@ -106,25 +87,15 @@ export class IAInimigo {
       this.veiculo.rotateY(-anguloVirada); // Vira direita
     }
     
-    // Acelerar/desacelerar baseado no alinhamento
-    if (dot > 0.7) {
-      // Bem alinhado com waypoint - acelera
+    // Acelerar/desacelerar
+    if (dot > 0.8) {
+      // Alinhado com waypoint - acelera
       if (this.veiculo.velocidadeAtual < this.velocidadeCruzeiro) {
-        this.veiculo.velocidadeAtual += this.aceleracao * deltaTime * 60;
-      }
-    } else if (dot > 0.3) {
-      // Parcialmente alinhado - mantém velocidade
-      if (this.veiculo.velocidadeAtual < this.velocidadeCruzeiro * 0.7) {
-        this.veiculo.velocidadeAtual += this.aceleracao * 0.5 * deltaTime * 60;
+        this.veiculo.velocidadeAtual += 0.5 * deltaTime * 60;
       }
     } else {
-      // Muito desalinhado - desacelera
-      this.veiculo.velocidadeAtual *= this.desaceleracao;
-    }
-    
-    // Garantir velocidade mínima (evita parar completamente)
-    if (this.veiculo.velocidadeAtual < 5.0 && !this.veiculo.penalizado) {
-      this.veiculo.velocidadeAtual = 5.0;
+      // Desalinhado - desacelera um pouco
+      this.veiculo.velocidadeAtual *= 0.98;
     }
     
     // Mover veículo
@@ -135,15 +106,13 @@ export class IAInimigo {
     if (distancia < this.distanciaMinima) {
       // Avança para próximo waypoint
       this.waypointAtual = (this.waypointAtual + 1) % this.waypoints.length;
-      console.log(`IA alcançou waypoint, próximo: ${this.waypointAtual}`);
     }
   }
 
   tentarDisparar(deltaTime, jogador) {
-    // Atualizar cooldown
     this.tempoUltimoDisparo += deltaTime;
     
-    // Cooldown de disparo não passou
+    // Cooldown de disparo
     if (this.tempoUltimoDisparo < this.intervaloDisparo) {
       return;
     }
@@ -153,14 +122,12 @@ export class IAInimigo {
       return;
     }
     
-    // Verifica se jogador está À FRENTE e em alcance
+    // Verifica se jogador está À FRENTE
     if (this.jogadorEstaAFrente(jogador)) {
-      // Verifica se tem sistema de disparos
-      if (window.sistemaDisparos) {
-        window.sistemaDisparos.criarDisparo(this.veiculo);
-        this.tempoUltimoDisparo = 0;
-        console.log("IA disparou!");
-      }
+      // DISPARAR!
+      window.sistemaDisparos.criarDisparo(this.veiculo);
+      this.tempoUltimoDisparo = 0;
+      console.log("IA disparou!");
     }
   }
 
@@ -174,15 +141,13 @@ export class IAInimigo {
     // Direção que a IA está olhando
     const direcaoIA = this.veiculo.getDirecaoFrente();
     
-    // Produto escalar (dot product)
+    // Produto escalar
     const dot = direcaoIA.dot(direcaoJogador);
     
-    // Distância até o jogador
+    // Se dot > 0.5, jogador está na frente (ângulo < 60°)
+    // E verifica distância (não dispara se muito longe)
     const distancia = this.veiculo.position.distanceTo(jogador.position);
     
-    // Jogador está na frente se:
-    // - dot > 0.6 (ângulo menor que ~53°)
-    // - distância entre 10 e 60 unidades
-    return dot > 0.6 && distancia > 10 && distancia < 60;
+    return dot > 0.5 && distancia < 50;
   }
 }

@@ -108,6 +108,17 @@ function configuracaoTeclado() {
           console.log("Trocando para Pista 2");
         }
         break;
+      case "3":
+        // Trocar para Pista 3
+        if (pistaAtualNum !== 3 && onPistaChangeCallback) {
+          pistaAtualNum = 3;
+          // Resetar velocidade ao trocar de pista
+          statusVeiculo.velocidade = 0;
+          statusVeiculo.direção = 0;
+          onPistaChangeCallback(3);
+          console.log("Trocando para Pista 3");
+        }
+        break;
     }
   });
 
@@ -190,12 +201,6 @@ export function atualizaControlesVeiculo(deltaTime) {
     statusVeiculo.velocidade,
     statusVeiculo.velocidadeMaxRe
   );
-
-  // ------- Correção de Parada do veículo -------
-  // se a velocidade estiver muito baixa, para o carro
-  // if (Math.abs(statusVeiculo.velocidade) < 0.1) {
-  //   statusVeiculo.velocidade = 0;
-  // }
 
   // ------- Direção do veículo -------
   if (statusVeiculo.velocidade !== 0) {
