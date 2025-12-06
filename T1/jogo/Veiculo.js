@@ -11,7 +11,7 @@ export class Veiculo {
     this.rotation = new THREE.Euler(0, 0, 0);
     this.quaternion = new THREE.Quaternion();
     this.createVeiculo();
-    this.group.scale.set(0.25, 0.25, 0.25);
+    this.group.scale.set(0.2, 0.2, 0.2);
     //40%
     //this.group.position.y = ;
     this.scene.add(this.group);
