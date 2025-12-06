@@ -50,6 +50,21 @@ let adversario = new VeiculoIA(scene, 1);
 const sistemaDisparos = new SistemaDisparos(scene);
 window.sistemaDisparos = sistemaDisparos; // IA precisa acessar
 
+// ========== DEBUG VISUAL DOS WAYPOINTS ==========
+function mostrarWaypoints() {
+  const waypoints = adversario.ia.waypoints;
+  waypoints.forEach((wp, i) => {
+    const geo = new THREE.SphereGeometry(1, 8, 8);
+    const mat = new THREE.MeshBasicMaterial({ 
+      color: i === 0 ? 0x00FF00 : 0xFF0000 
+    });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.copy(wp);
+    scene.add(sphere);
+  });
+}
+mostrarWaypoints();
+
 // --- Lógica das Pistas ---
 
 // Carrega a Pista 1 por padrão
