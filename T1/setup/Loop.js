@@ -26,6 +26,9 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     const state = atualizaControlesVeiculo(deltaTime);
 
+    // --- Referência dinâmica do adversário ---
+    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+
     // --- Atualização de Penalização ---
     jogador.atualizarPenalizacao(deltaTime);
 
@@ -77,8 +80,36 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
       console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
     }
 
-    // --- Referência dinâmica do adversário ---
-    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+    // Contador de voltas da IA
+    if (adv) {
+      if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
+      
+      const linhaChegadaZ = 100; 
+      const distLinha = Math.abs(adv.position.z - linhaChegadaZ);
+      
+      if (!adv.passouLinha && distLinha < 10 && Math.abs(adv.position.x) < 20) {
+        adv.voltasCompletadas++;
+        adv.passouLinha = true;
+        adv.recarregarDisparos();
+        console.log(`IA completou volta ${adv.voltasCompletadas}`);
+      } else if (distLinha > 20) {
+        adv.passouLinha = false;
+      }
+    }
+
+    // Verificar fim de jogo (4 voltas)
+    if (voltasDepois >= 4 && window.divResultado) {
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#00FF00";
+      window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
+    }
+
+    // Se IA completou 4 voltas primeiro
+    if (adv && adv.voltasCompletadas >= 4 && window.divResultado) {
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#FF0000";
+      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
+    }
 
     // --- IA ---
     if (adv && adv.atualizar) {
@@ -119,6 +150,13 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     // --- Sistema de Disparos ---
     if (sistemaDisparos) {
       sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
+    }
+
+    // Atualizar UI de disparos
+    if (window.linhaDisparos) {
+      const icones = "🔴".repeat(jogador.disparosDisponiveis) + 
+                    "⚪".repeat(4 - jogador.disparosDisponiveis);
+      window.linhaDisparos.innerHTML = `Disparos: ${icones} (${jogador.disparosDisponiveis}/4)`;
     }
 
     // --- Luz ---

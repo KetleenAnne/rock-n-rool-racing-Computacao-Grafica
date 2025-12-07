@@ -172,4 +172,30 @@ function addMenu() {
   infoBox.infoBox.style.right = "10px";
   infoBox.infoBox.style.bottom = "auto";
   infoBox.infoBox.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+
+  // Linha de disparos
+  const linhaDisparos = document.createElement("div");
+  linhaDisparos.innerHTML = "Disparos: 🔴🔴🔴🔴 (4/4)";
+  linhaDisparos.style.color = "#FF6B6B";
+  linhaDisparos.style.fontWeight = "bold";
+  infoBox.infoBox.appendChild(linhaDisparos);
+  window.linhaDisparos = linhaDisparos;
 }
+
+  // Criar div de resultado
+  const divResultado = document.createElement("div");
+  divResultado.id = "resultado-final";
+  divResultado.style.cssText = `
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 60px; font-weight: bold;
+    text-align: center; display: none;
+    z-index: 9999;
+    background: rgba(0,0,0,0.9);
+    padding: 40px 80px;
+    border-radius: 20px;
+    border: 5px solid white;
+    text-shadow: 3px 3px 8px black;
+  `;
+  document.body.appendChild(divResultado);
+  window.divResultado = divResultado;
