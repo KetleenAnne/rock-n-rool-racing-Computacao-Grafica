@@ -153,7 +153,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     // --- Colisão entre veículos ---
     if (adv) {
       const distancia = jogador.position.distanceTo(adv.position);
-      if (distancia < 2.0) {
+      if (distancia < 1.0) {
         const separacao = new THREE.Vector3()
           .subVectors(jogador.position, adv.position)
           .normalize()
