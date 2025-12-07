@@ -119,6 +119,13 @@ function configuracaoTeclado() {
           console.log("Trocando para Pista 3");
         }
         break;
+      case " ": // Espaço
+      event.preventDefault(); // Evita scroll da página
+        if (window.sistemaDisparos && window.jogador && window.jogador.podeDisparar()) {
+          window.sistemaDisparos.criarDisparo(window.jogador);
+        }
+        break;
+  
     }
   });
 

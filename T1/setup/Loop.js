@@ -11,53 +11,50 @@ import { atualizarLuz } from "./Luz.js";
 
 const clock = new THREE.Clock();
 
-// --- Câmera em Terceira Pessoa ---
-// Posição da câmera em relação ao carro (pra cima e pra trás)
 const offsetCamera = new THREE.Vector3(0, 4, -8);
 const lerp_camera = 0.08;
 const lateral_camera = 50.0;
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
-// Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
-export function startLoop(renderer, scene, camera, veiculo, stats) {
-  currentLookAt.copy(veiculo.position).add(focoCamera);
+export function startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats) {
+  currentLookAt.copy(jogador.position).add(focoCamera);
 
   function render() {
     const deltaTime = clock.getDelta();
+    stats.update();
 
-    stats.update(); // Atualiza o contador de FPS
-
-    // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // --- Atualiza Posição do Veículo ---
+    // --- Atualização de Penalização ---
+    jogador.atualizarPenalizacao(deltaTime);
+
+    // --- Rotação ---
     if (state.velocidade !== 0) {
-      let directionFactor = state.velocidade > 0 ? 1 : -1; // Inverte o controle na ré
-      veiculo.rotateY(state.direção * directionFactor * deltaTime * 60);
+      let directionFactor = state.velocidade > 0 ? 1 : -1;
+      jogador.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
-    // Move o veículo: Distância = Velocidade * Tempo
-    veiculo.translateZ(state.velocidade * deltaTime);
+
+    // --- Movimento com penalização aplicada ---
+    const velJog = jogador.penalizado ? jogador.velocidadeAtual : state.velocidade;
+    jogador.translateZ(velJog * deltaTime);
 
     // --- Colisão ---
     const muretas = getMuretas();
-    // Raio do carro pra colisão = 0.6
-    const colisao = verificarColisao(veiculo.position, muretas, 0.6);
+    const colisao = verificarColisao(jogador.position, muretas, 0.6);
 
     if (colisao.colidiu) {
-      // Se bateu, chama a função de "deslizar" e frear
-      const novaVelocidade = resolverColisaoDeslizante(veiculo, colisao, state);
-      setVelocidade(novaVelocidade); // Atualiza a velocidade (freia)
+      const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
+      setVelocidade(novaVelocidade);
     }
 
-    // ========== VERIFICAR CHECKPOINTS ==========
-    sistemaCheckpoints.verificarPassagem(veiculo.position);
-    
-    // Atualizar display de checkpoints
+    // ========== CHECKPOINTS ==========
+    sistemaCheckpoints.verificarPassagem(jogador.position);
+
     if (window.linhaCheckpoints) {
       const progresso = sistemaCheckpoints.getProgresso();
       window.linhaCheckpoints.innerHTML = `Checkpoints: ${progresso.atual}/${progresso.total}`;
-      
+
       if (progresso.completo) {
         window.linhaCheckpoints.style.color = "lime";
         window.linhaCheckpoints.innerHTML += " ✓";
@@ -65,37 +62,81 @@ export function startLoop(renderer, scene, camera, veiculo, stats) {
         window.linhaCheckpoints.style.color = "cyan";
       }
     }
-    // ==========================================
 
-    // --- Contador de Voltas ---
-    const resultadoVolta = contadorVoltas.verificarPassagem(veiculo.position);
-    
-    // Mostrar mensagem se tentou fazer volta sem checkpoints
+    // --- Contador de Voltas + Recarga ---
+    const voltasAntes = contadorVoltas.voltas;
+    const resultadoVolta = contadorVoltas.verificarPassagem(jogador.position);
+    const voltasDepois = contadorVoltas.voltas;
+
+    if (voltasDepois > voltasAntes) {
+      jogador.recarregarDisparos();
+      console.log("Volta completa! Munição recarregada!");
+    }
+
     if (resultadoVolta && resultadoVolta.voltaInvalida) {
       console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
     }
 
-    // --- Atualiza a Luz ---
-    atualizarLuz(veiculo); // Atualiza a luz para seguir o veículo
+    // --- Referência dinâmica do adversário ---
+    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
 
-    // --- Lógica da Câmera ---
+    // --- IA ---
+    if (adv && adv.atualizar) {
+      adv.atualizar(deltaTime, jogador);
+    }
+
+    // --- Colisão IA com muretas ---
+    if (adv) {
+      const colisaoIA = verificarColisao(adv.position, muretas, 0.6);
+      if (colisaoIA.colidiu) {
+        adv.velocidadeAtual *= 0.5;
+        const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
+        if (adv.group) adv.group.position.add(normal);
+        if (adv.position && adv.group) adv.position.copy(adv.group.position);
+      }
+    }
+
+    // --- Colisão entre veículos ---
+    if (adv) {
+      const distancia = jogador.position.distanceTo(adv.position);
+      if (distancia < 2.0) {
+        const separacao = new THREE.Vector3()
+          .subVectors(jogador.position, adv.position)
+          .normalize()
+          .multiplyScalar(0.2);
+
+        if (jogador.group) jogador.group.position.add(separacao);
+        if (jogador.group) jogador.position.copy(jogador.group.position);
+
+        if (adv.group) adv.group.position.sub(separacao);
+        if (adv.group && adv.position) adv.position.copy(adv.group.position);
+
+        jogador.velocidadeAtual *= 0.8;
+        adv.velocidadeAtual *= 0.8;
+      }
+    }
+
+    // --- Sistema de Disparos ---
+    if (sistemaDisparos) {
+      sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
+    }
+
+    // --- Luz ---
+    atualizarLuz(jogador);
+
+    // --- Câmera ---
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
     targetCameraPos.x += lateralDrift;
-    // Converte a posição local atrás do carro pra posição no mundo
-    targetCameraPos.applyQuaternion(veiculo.quaternion);
-    targetCameraPos.add(veiculo.position);
+    targetCameraPos.applyQuaternion(jogador.quaternion);
+    targetCameraPos.add(jogador.position);
 
-    // Onde a câmera deve OLHAR
-    let targetLookAt = veiculo.position.clone().add(focoCamera);
+    let targetLookAt = jogador.position.clone().add(focoCamera);
 
-    // Suaviza o movimento da CÂMERA
     camera.position.lerp(targetCameraPos, lerp_camera);
-
-    // Suaviza o movimento do FOCO
     currentLookAt.lerp(targetLookAt, lerp_camera);
-    camera.lookAt(currentLookAt); // Aponta a câmera
+    camera.lookAt(currentLookAt);
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);
