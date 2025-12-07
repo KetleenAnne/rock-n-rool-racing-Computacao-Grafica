@@ -29,18 +29,30 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     // --- Referência dinâmica do adversário ---
     const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
 
-    // --- Atualização de Penalização ---
+    // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
     jogador.atualizarPenalizacao(deltaTime);
 
-    // --- Rotação ---
+    // ========== ROTAÇÃO ==========
     if (state.velocidade !== 0) {
       let directionFactor = state.velocidade > 0 ? 1 : -1;
       jogador.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
 
-    // --- Movimento com penalização aplicada ---
-    const velJog = jogador.penalizado ? jogador.velocidadeAtual : state.velocidade;
-    jogador.translateZ(velJog * deltaTime);
+    // ========== MOVIMENTO COM PENALIZAÇÃO - CORRIGIDO ==========
+    // CORREÇÃO: Durante penalização, usa a velocidadeAtual (já limitada a 30%)
+    // Fora da penalização, usa a velocidade das teclas normalmente
+    let velocidadeMovimento;
+    
+    if (jogador.penalizado) {
+      // Durante penalização: usa velocidadeAtual (já está em 30%)
+      velocidadeMovimento = jogador.velocidadeAtual;
+    } else {
+      // Fora de penalização: usa velocidade normal das teclas
+      velocidadeMovimento = state.velocidade;
+      jogador.velocidadeAtual = state.velocidade; // Sincroniza
+    }
+    
+    jogador.translateZ(velocidadeMovimento * deltaTime);
 
     // --- Colisão ---
     const muretas = getMuretas();
@@ -73,7 +85,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     if (voltasDepois > voltasAntes) {
       jogador.recarregarDisparos();
-      console.log("Volta completa! Munição recarregada!");
+      console.log("🏁 Volta completa! Munição recarregada!");
     }
 
     if (resultadoVolta && resultadoVolta.voltaInvalida) {
@@ -91,7 +103,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
         adv.voltasCompletadas++;
         adv.passouLinha = true;
         adv.recarregarDisparos();
-        console.log(`IA completou volta ${adv.voltasCompletadas}`);
+        console.log(`🤖 IA completou volta ${adv.voltasCompletadas}`);
       } else if (distLinha > 20) {
         adv.passouLinha = false;
       }
@@ -111,7 +123,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
       window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
     }
 
-    // --- IA ---
+    // ========== IA - ATUALIZAÇÃO ==========
     if (adv && adv.atualizar) {
       adv.atualizar(deltaTime, jogador);
     }
@@ -152,11 +164,22 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
       sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
     }
 
-    // Atualizar UI de disparos
+    // ========== UI DE DISPAROS ==========
     if (window.linhaDisparos) {
       const icones = "🔴".repeat(jogador.disparosDisponiveis) + 
                     "⚪".repeat(4 - jogador.disparosDisponiveis);
       window.linhaDisparos.innerHTML = `Disparos: ${icones} (${jogador.disparosDisponiveis}/4)`;
+    }
+
+    // ========== UI DE PENALIZAÇÃO (OPCIONAL) ==========
+    if (window.linhaPenalizacao) {
+      if (jogador.penalizado) {
+        window.linhaPenalizacao.style.display = "block";
+        window.linhaPenalizacao.style.color = "#FF3333";
+        window.linhaPenalizacao.innerHTML = `⚠️ ATINGIDO! Velocidade: ${(jogador.velocidadeAtual).toFixed(1)} (${jogador.tempoPenalizacao.toFixed(1)}s)`;
+      } else {
+        window.linhaPenalizacao.style.display = "none";
+      }
     }
 
     // --- Luz ---

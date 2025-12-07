@@ -4,19 +4,19 @@ import { IAInimigo } from "./IAInimigo.js";
 
 export class VeiculoIA extends VeiculoBase {
   constructor(scene, pista) {
-    // Cores da IA (materiais LAMBERT - fosco)
-// IA: Base Lambert + Cabine Phong (destaque)
+    // IA: Cinza/Azul
+    // Lambert (fosco): Base inferior, propulsor
+    // Phong (brilho): Base superior, cabine, hélice
     const cores = {
       baseInferior: 0x1C1C1C,     // Cinza escuro (LAMBERT - fosco)
-      baseSuperior: 0x00008B,     // Azul escuro (LAMBERT - fosco)
-      cabine: 0x4169E1,           // Azul royal (PHONG - brilho DESTACA!)
-      propulsor: 0x00008B,        // Azul escuro (LAMBERT)
-      usarPhongCabine: true       // Apenas cabine com brilho
+      baseSuperior: 0x00008B,     // Azul escuro (PHONG - brilho médio)
+      cabine: 0x4169E1,           // Azul royal (PHONG - brilho ALTO!)
+      propulsor: 0x00008B         // Azul escuro (LAMBERT - fosco)
     };
     
     super(scene, cores, "ia");
     this.ia = new IAInimigo(this, pista);
-    console.log("Veículo da IA criado (Lambert + Phong na cabine)");
+    console.log("🤖 Veículo da IA criado (Azul - Lambert + Phong)");
   }
 
   atualizar(deltaTime, jogador) {
