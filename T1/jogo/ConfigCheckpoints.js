@@ -17,7 +17,7 @@ export const CHECKPOINTS_PISTA2 = [ //(30,70)
   { poste1: { x: -78, z: 82 }, poste2: { x: -78, z: 58 } },          // CP1 - Curva Sul esquerda inferior - Saida da Largada
   { poste1: { x: -102, z: -117 }, poste2: { x: -78, z: -117 } },     // CP2 - Curva Esquerda Superior
   { poste1: { x: -3, z: -142 }, poste2: { x: -3, z: -117 } },        // CP3 - Curva Entrando no L 
-  { poste1: { x: -3, z: -40 }, poste2: { x: 23, z: -40 } },          // CP4 - Antes Curva L
+  { poste1: { x: -3, z: -22 }, poste2: { x: 23, z: -22 } },          // CP4 - Antes Curva L
   { poste1: { x: 80, z: -22 }, poste2: { x: 79, z: 3 } },            // CP5 - Fim Curva L
   { poste1: { x: 102, z: 57 }, poste2: { x: 79, z: 57 } },           // CP6 - Antes Curva Final
   { poste1: { x: 70, z: 83 }, poste2: { x: 70, z: 57 } },            // CP7 - Antes Linha de Chegada
