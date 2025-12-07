@@ -56,7 +56,7 @@ export class VeiculoBase {
   translateZ(distance) {
     this.group.translateZ(distance);
     this.position.copy(this.group.position);
-    
+
     // Animar hélice
     if (this.helice && Math.abs(distance) > 0.001) {
       this.helice.rotation.z += distance * 60;
@@ -97,22 +97,28 @@ export class VeiculoBase {
   // ========== SISTEMA DE DANO ==========
   
   aplicarDano() {
-    if (this.penalizado) return; // Já está penalizado
-    
+    if (this.penalizado) return;
+
     this.penalizado = true;
     this.tempoPenalizacao = 3.0; // 3 segundos
-    this.velocidadeAtual *= 0.3; // Cai para 30%
-    
+
+    // Reduz velocidade para 30%, mas garante no mínimo um valor para não parar totalmente
+    this.velocidadeAtual = Math.max(this.velocidadeAtual * 0.3, 2);
+
     console.log("Veículo atingido! Velocidade reduzida por 3 segundos.");
   }
 
   atualizarPenalizacao(deltaTime) {
     if (this.penalizado) {
       this.tempoPenalizacao -= deltaTime;
-      
+
       if (this.tempoPenalizacao <= 0) {
         this.penalizado = false;
         this.tempoPenalizacao = 0;
+
+        // IMPORTANTE: limpa a velocidade penalizada
+        this.velocidadeAtual = 0;
+
         console.log("Penalização finalizada! Pode acelerar novamente.");
       }
     }

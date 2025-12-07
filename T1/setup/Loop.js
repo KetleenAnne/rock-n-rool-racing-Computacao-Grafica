@@ -11,13 +11,10 @@ import { atualizarLuz } from "./Luz.js";
 
 const clock = new THREE.Clock();
 
-// --- Câmera em Terceira Pessoa ---
-// Posição da câmera em relação ao carro (pra cima e pra trás)
 const offsetCamera = new THREE.Vector3(0, 4, -8);
 const lerp_camera = 0.08;
 const lateral_camera = 50.0;
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
-// Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
 export function startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats) {
@@ -25,39 +22,39 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
   function render() {
     const deltaTime = clock.getDelta();
+    stats.update();
 
-    stats.update(); // Atualiza o contador de FPS
-
-    // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // --- Atualiza Posição do Veículo ---
+    // --- Atualização de Penalização ---
+    jogador.atualizarPenalizacao(deltaTime);
+
+    // --- Rotação ---
     if (state.velocidade !== 0) {
-      let directionFactor = state.velocidade > 0 ? 1 : -1; // Inverte o controle na ré
+      let directionFactor = state.velocidade > 0 ? 1 : -1;
       jogador.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
-    // Move o veículo: Distância = Velocidade * Tempo
-    jogador.translateZ(state.velocidade * deltaTime);
+
+    // --- Movimento com penalização aplicada ---
+    const velJog = jogador.penalizado ? jogador.velocidadeAtual : state.velocidade;
+    jogador.translateZ(velJog * deltaTime);
 
     // --- Colisão ---
     const muretas = getMuretas();
-    // Raio do carro pra colisão = 0.6
     const colisao = verificarColisao(jogador.position, muretas, 0.6);
 
     if (colisao.colidiu) {
-      // Se bateu, chama a função de "deslizar" e frear
       const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
-      setVelocidade(novaVelocidade); // Atualiza a velocidade (freia)
+      setVelocidade(novaVelocidade);
     }
 
-    // ========== VERIFICAR CHECKPOINTS ==========
+    // ========== CHECKPOINTS ==========
     sistemaCheckpoints.verificarPassagem(jogador.position);
-    
-    // Atualizar display de checkpoints
+
     if (window.linhaCheckpoints) {
       const progresso = sistemaCheckpoints.getProgresso();
       window.linhaCheckpoints.innerHTML = `Checkpoints: ${progresso.atual}/${progresso.total}`;
-      
+
       if (progresso.completo) {
         window.linhaCheckpoints.style.color = "lime";
         window.linhaCheckpoints.innerHTML += " ✓";
@@ -65,9 +62,8 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
         window.linhaCheckpoints.style.color = "cyan";
       }
     }
-    // ==========================================
 
-    // --- Contador de Voltas COM RECARGA ---
+    // --- Contador de Voltas + Recarga ---
     const voltasAntes = contadorVoltas.voltas;
     const resultadoVolta = contadorVoltas.verificarPassagem(jogador.position);
     const voltasDepois = contadorVoltas.voltas;
@@ -84,7 +80,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     // --- Referência dinâmica do adversário ---
     const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
 
-    // --- Atualiza IA ---
+    // --- IA ---
     if (adv && adv.atualizar) {
       adv.atualizar(deltaTime, jogador);
     }
@@ -108,13 +104,13 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
           .subVectors(jogador.position, adv.position)
           .normalize()
           .multiplyScalar(0.2);
-        
+
         if (jogador.group) jogador.group.position.add(separacao);
         if (jogador.group) jogador.position.copy(jogador.group.position);
-        
+
         if (adv.group) adv.group.position.sub(separacao);
         if (adv.group && adv.position) adv.position.copy(adv.group.position);
-        
+
         jogador.velocidadeAtual *= 0.8;
         adv.velocidadeAtual *= 0.8;
       }
@@ -122,30 +118,25 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // --- Sistema de Disparos ---
     if (sistemaDisparos) {
-      sistemaDisparos.atualizar(deltaTime, [jogador, adv], muretas);
+      sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
     }
 
-    // --- Atualiza a Luz ---
-    atualizarLuz(jogador); // Atualiza a luz para seguir o veículo
+    // --- Luz ---
+    atualizarLuz(jogador);
 
-    // --- Lógica da Câmera ---
+    // --- Câmera ---
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
     targetCameraPos.x += lateralDrift;
-    // Converte a posição local atrás do carro pra posição no mundo
     targetCameraPos.applyQuaternion(jogador.quaternion);
     targetCameraPos.add(jogador.position);
 
-    // Onde a câmera deve OLHAR
     let targetLookAt = jogador.position.clone().add(focoCamera);
 
-    // Suaviza o movimento da CÂMERA
     camera.position.lerp(targetCameraPos, lerp_camera);
-
-    // Suaviza o movimento do FOCO
     currentLookAt.lerp(targetLookAt, lerp_camera);
-    camera.lookAt(currentLookAt); // Aponta a câmera
+    camera.lookAt(currentLookAt);
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);
