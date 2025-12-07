@@ -31,6 +31,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
     jogador.atualizarPenalizacao(deltaTime);
+    adv.atualizarPenalizacao(deltaTime)
 
     // ========== ROTAÇÃO ==========
     if (state.velocidade !== 0) {
@@ -51,6 +52,21 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
     
     jogador.translateZ(velocidadeMovimento * deltaTime);
+
+    // ========== MOVIMENTO DA IA COM PENALIZAÇÃO ==========
+    if (adv) {
+      let velocidadeAIMov;
+
+      if (adv.penalizado) {
+        // IA penalizada — usa velocidadeAtual já reduzida a 30%
+        velocidadeAIMov = adv.velocidadeAtual;
+      } else {
+        // Sem penalização — usa velocidadeAtual normal (aceleração da IA)
+        velocidadeAIMov = adv.velocidadeAtual;
+      }
+
+      adv.translateZ(velocidadeAIMov * deltaTime);
+    }
 
     // --- Colisão ---
     const muretas = getMuretas();
@@ -153,7 +169,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     // --- Colisão entre veículos ---
     if (adv) {
       const distancia = jogador.position.distanceTo(adv.position);
-      if (distancia < 1.0) {
+      if (distancia < 1.3) {
         const separacao = new THREE.Vector3()
           .subVectors(jogador.position, adv.position)
           .normalize()
