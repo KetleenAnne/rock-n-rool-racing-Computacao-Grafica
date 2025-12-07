@@ -149,8 +149,8 @@ export function criarZonaDeteccao(
 export function verificarColisaoEntreObjetos(
   objeto1,
   objeto2,
-  raio1 = 0.6,
-  raio2 = 0.6
+  raio1 = 0.55,
+  raio2 = 0.55
 ) {
   const pos1 = objeto1.position;
   const pos2 = objeto2.position;

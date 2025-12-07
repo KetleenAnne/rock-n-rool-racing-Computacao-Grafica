@@ -88,7 +88,7 @@ function trocarPista(numeroPista) {
     scene.remove(adversario.group);
   }
 
-  // ========== RESETAR MENSAGEM DE VITÓRIA/DERROTA ========== [NOVO]
+  // ========== RESETAR MENSAGEM DE VITÓRIA/DERROTA ==========
   if (window.divResultado) {
     window.divResultado.style.display = "none";
     window.divResultado.innerHTML = "";
@@ -152,7 +152,7 @@ function addMenu() {
   infoBox.addParagraph();
   infoBox.show();
 
-  // Linha de velocidade (criamos um HTML novo)
+  // Linha de velocidade
   const linhaVelocidade = document.createElement("div");
   linhaVelocidade.innerHTML = "Velocidade: 0.0 km/h";
   linhaVelocidade.style.color = "red";
