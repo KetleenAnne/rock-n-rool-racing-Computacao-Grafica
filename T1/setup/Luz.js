@@ -3,7 +3,7 @@ import * as THREE from "three";
 // A luz principal -> projetar sombra em TODOS os elementos
 // Quanto maior, melhor a qualidade da sombra, mas mais pesado o processamento
 const SHADOW_MAP_SIZE = 4096;
-const SHADOW_CAM_SIZE = 100; // Alcance da câmera de sombra
+const SHADOW_CAM_SIZE = 60; // Alcance da câmera de sombra
 const LIGHT_ANGLE_Y = -30 * (Math.PI / 180); // Ângulo para sombra não alongada
 const LIGHT_HEIGHT = 40; // Altura da luz
 const LIGHT_INTENSITY = 2.5; // Intensidade
@@ -17,9 +17,8 @@ let luzSecundaria = null; // Luz ambiente para iluminar áreas de sombra
 export function criarLuzes(scene) {
   //  DIRECIONAL PRINCIPAL (Com Sombra)
   luzPrincipal = new THREE.DirectionalLight(LIGHT_COLOR, LIGHT_INTENSITY);
-
-  // Configurações de sombra
   luzPrincipal.castShadow = true;
+  // Configurações de sombra
   luzPrincipal.shadow.mapSize.width = SHADOW_MAP_SIZE;
   luzPrincipal.shadow.mapSize.height = SHADOW_MAP_SIZE;
 
@@ -32,7 +31,7 @@ export function criarLuzes(scene) {
   luzPrincipal.shadow.camera.bottom = -SHADOW_CAM_SIZE;
 
   //bias para evitar sombras pixeladas
-  luzPrincipal.shadow.bias = -0.0006;
+  luzPrincipal.shadow.bias = -0.0001;
 
   // Posição inicial (atualizada no loop)
   luzPrincipal.position.set(10, LIGHT_HEIGHT, 10);
