@@ -3,7 +3,6 @@ import { VeiculoBase } from "./VeiculoBase.js";
 
 export class VeiculoJogador extends VeiculoBase {
   constructor(scene) {
-    // JOGADOR: Base Lambert + Cabine Phong (destaque)
     const cores = {
       baseInferior: 0x8B0000,     // Vermelho escuro (LAMBERT - fosco)
       baseSuperior: 0xB22222,     // Vermelho (LAMBERT - fosco)

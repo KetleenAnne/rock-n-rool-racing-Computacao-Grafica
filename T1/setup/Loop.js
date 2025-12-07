@@ -39,12 +39,10 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
 
     // ========== MOVIMENTO COM PENALIZAÇÃO ==========
-    // CORREÇÃO: Durante penalização, usa a velocidadeAtual (já limitada a 30%)
-    // Fora da penalização, usa a velocidade das teclas normalmente
     let velocidadeMovimento;
     
     if (jogador.penalizado) {
-      // Durante penalização: usa velocidadeAtual (já está em 30%)
+      // Durante penalização: usa velocidadeAtual 
       velocidadeMovimento = jogador.velocidadeAtual;
     } else {
       // Fora de penalização: usa velocidade normal das teclas
