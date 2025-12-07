@@ -3,10 +3,11 @@ import * as THREE from "three";
 import { criarModeloHavac } from "./modelos/Havac.js";
 
 export class VeiculoBase {
-  constructor(scene, cores, usarPhong = false) {
+  constructor(scene, cores, tipo = "base") {
     this.scene = scene;
     this.group = new THREE.Group();
     this.helice = null;
+    this.tipo = tipo; // "jogador" ou "ia"
     
     // Posição e rotação
     this.position = new THREE.Vector3(0, 0, 0);
@@ -31,8 +32,8 @@ export class VeiculoBase {
       propulsor: 0x3D4A2E
     };
     
-    // Criar modelo
-    criarModeloHavac(this.group, this.cores, usarPhong);
+    // Criar modelo com tipo para identificação
+    criarModeloHavac(this.group, this.cores, this.tipo);
     this.group.scale.set(0.2, 0.2, 0.2);
     
     // Encontrar hélice no grupo
@@ -56,7 +57,7 @@ export class VeiculoBase {
   translateZ(distance) {
     this.group.translateZ(distance);
     this.position.copy(this.group.position);
-    
+
     // Animar hélice
     if (this.helice && Math.abs(distance) > 0.001) {
       this.helice.rotation.z += distance * 60;
@@ -94,30 +95,58 @@ export class VeiculoBase {
     console.log("Munição recarregada!");
   }
 
-  // ========== SISTEMA DE DANO ==========
+  // ========== SISTEMA DE DANO - CORRIGIDO ==========
   
   aplicarDano() {
-    if (this.penalizado) return; // Já está penalizado
-    
+    if (this.penalizado) return;
+
     this.penalizado = true;
-    this.tempoPenalizacao = 3.0; // 3 segundos
-    this.velocidadeAtual *= 0.3; // Cai para 30%
+    this.tempoPenalizacao = 3.0;
     
-    console.log("Veículo atingido! Velocidade reduzida por 3 segundos.");
+    // CORREÇÃO: Guarda velocidade NO MOMENTO DO IMPACTO
+    this.velocidadeAntesDano = this.velocidadeAtual;
+    this.velocidadeMinima = this.velocidadeAntesDano * 0.3; // 30% da velocidade atual
+    
+    console.log(`⚠️ ${this.tipo.toUpperCase()} atingido! Velocidade ${this.velocidadeAntesDano.toFixed(1)} → ${this.velocidadeMinima.toFixed(1)} (30%)`);
   }
 
   atualizarPenalizacao(deltaTime) {
     if (this.penalizado) {
-      this.tempoPenalizacao -= deltaTime;
+      // CORREÇÃO: Redução GRADUAL até 30% da velocidade original
+      const velocidadeAlvo = this.velocidadeMinima;
       
+      // Só reduz se estiver acima dos 30%
+      if (this.velocidadeAtual > velocidadeAlvo) {
+        // Interpolação suave para 30%
+        this.velocidadeAtual = THREE.MathUtils.lerp(
+          this.velocidadeAtual, 
+          velocidadeAlvo, 
+          0.08 // Taxa de redução gradual
+        );
+        
+        // Garante que não caia abaixo dos 30%
+        if (this.velocidadeAtual < velocidadeAlvo) {
+          this.velocidadeAtual = velocidadeAlvo;
+        }
+      } else {
+        // Mantém nos 30% durante a penalização
+        this.velocidadeAtual = velocidadeAlvo;
+      }
+      
+      // Conta o tempo de penalização
+      this.tempoPenalizacao -= deltaTime;
+
+      // Fim da penalização após 3 segundos
       if (this.tempoPenalizacao <= 0) {
         this.penalizado = false;
         this.tempoPenalizacao = 0;
-        console.log("Penalização finalizada! Pode acelerar novamente.");
+        delete this.velocidadeAntesDano;
+        delete this.velocidadeMinima;
+        console.log(`✅ ${this.tipo.toUpperCase()} recuperado! Pode acelerar novamente.`);
       }
     }
   }
-
+  
   // ========== GETTERS ==========
   
   getDirecaoFrente() {

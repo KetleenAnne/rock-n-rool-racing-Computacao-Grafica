@@ -6,77 +6,198 @@ import {
   resolverColisaoDeslizante,
 } from "../jogo/Colisao.js";
 import contadorVoltas from "../jogo/ContadorVoltas.js";
+import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
 import { atualizarLuz } from "./Luz.js";
 
-const clock = new THREE.Clock(); //exemplo do arquivo exampleFirstPerson.js
+const clock = new THREE.Clock();
 
-// --- Câmera em Terceira Pessoa ---
-// Posição da câmera em relação ao carro (pra cima e pra trás)
 const offsetCamera = new THREE.Vector3(0, 4, -8);
 const lerp_camera = 0.08;
 const lateral_camera = 50.0;
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
-// Guarda o foco atual (pro LERP)
 let currentLookAt = new THREE.Vector3();
 
-export function startLoop(renderer, scene, camera, veiculo, stats) {
-  currentLookAt.copy(veiculo.position).add(focoCamera);
-
-  // O renderer precisa de sombras ativadas
-  // renderer.shadowMap.enabled = true;
-  // renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Deixa a sombra mais suave
+export function startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats) {
+  currentLookAt.copy(jogador.position).add(focoCamera);
 
   function render() {
     const deltaTime = clock.getDelta();
+    stats.update();
 
-    stats.update(); // Atualiza o contador de FPS
-
-    // Pega velocidade e direção do 'Teclas.js'
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // --- Atualiza Posição do Veículo ---
+    // --- Referência dinâmica do adversário ---
+    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+
+    // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
+    jogador.atualizarPenalizacao(deltaTime);
+
+    // ========== ROTAÇÃO ==========
     if (state.velocidade !== 0) {
-      let directionFactor = state.velocidade > 0 ? 1 : -1; // Inverte o controle na ré
-      veiculo.rotateY(state.direção * directionFactor * deltaTime * 60);
+      let directionFactor = state.velocidade > 0 ? 1 : -1;
+      jogador.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
-    // Move o veículo: Distância = Velocidade * Tempo
-    veiculo.translateZ(state.velocidade * deltaTime);
+
+    // ========== MOVIMENTO COM PENALIZAÇÃO - CORRIGIDO ==========
+    // CORREÇÃO: Durante penalização, usa a velocidadeAtual (já limitada a 30%)
+    // Fora da penalização, usa a velocidade das teclas normalmente
+    let velocidadeMovimento;
+    
+    if (jogador.penalizado) {
+      // Durante penalização: usa velocidadeAtual (já está em 30%)
+      velocidadeMovimento = jogador.velocidadeAtual;
+    } else {
+      // Fora de penalização: usa velocidade normal das teclas
+      velocidadeMovimento = state.velocidade;
+      jogador.velocidadeAtual = state.velocidade; // Sincroniza
+    }
+    
+    jogador.translateZ(velocidadeMovimento * deltaTime);
 
     // --- Colisão ---
     const muretas = getMuretas();
-    // Raio do carro pra colisão = 0.8
-    const colisao = verificarColisao(veiculo.position, muretas, 0.6);
+    const colisao = verificarColisao(jogador.position, muretas, 0.6);
 
     if (colisao.colidiu) {
-      // Se bateu, chama a função de "deslizar" e frear
-      const novaVelocidade = resolverColisaoDeslizante(veiculo, colisao, state);
-      setVelocidade(novaVelocidade); // Atualiza a velocidade (freia)
+      const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
+      setVelocidade(novaVelocidade);
     }
 
-    // --- Contador de Voltas ---
-    contadorVoltas.verificarPassagem(veiculo.position);
+    // ========== CHECKPOINTS ==========
+    sistemaCheckpoints.verificarPassagem(jogador.position);
 
-    // --- Atualiza a Luz ---
-    atualizarLuz(veiculo); // Atualiza a luz para seguir o veículo
+    if (window.linhaCheckpoints) {
+      const progresso = sistemaCheckpoints.getProgresso();
+      window.linhaCheckpoints.innerHTML = `Checkpoints: ${progresso.atual}/${progresso.total}`;
 
-    // --- Lógica da Câmera ---
+      if (progresso.completo) {
+        window.linhaCheckpoints.style.color = "lime";
+        window.linhaCheckpoints.innerHTML += " ✓";
+      } else {
+        window.linhaCheckpoints.style.color = "cyan";
+      }
+    }
+
+    // --- Contador de Voltas + Recarga ---
+    const voltasAntes = contadorVoltas.voltas;
+    const resultadoVolta = contadorVoltas.verificarPassagem(jogador.position);
+    const voltasDepois = contadorVoltas.voltas;
+
+    if (voltasDepois > voltasAntes) {
+      jogador.recarregarDisparos();
+      console.log("🏁 Volta completa! Munição recarregada!");
+    }
+
+    if (resultadoVolta && resultadoVolta.voltaInvalida) {
+      console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
+    }
+
+    // Contador de voltas da IA
+    if (adv) {
+      if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
+      
+      const linhaChegadaZ = 100; 
+      const distLinha = Math.abs(adv.position.z - linhaChegadaZ);
+      
+      if (!adv.passouLinha && distLinha < 10 && Math.abs(adv.position.x) < 20) {
+        adv.voltasCompletadas++;
+        adv.passouLinha = true;
+        adv.recarregarDisparos();
+        console.log(`🤖 IA completou volta ${adv.voltasCompletadas}`);
+      } else if (distLinha > 20) {
+        adv.passouLinha = false;
+      }
+    }
+
+    // Verificar fim de jogo (4 voltas)
+    if (voltasDepois >= 4 && window.divResultado) {
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#00FF00";
+      window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
+    }
+
+    // Se IA completou 4 voltas primeiro
+    if (adv && adv.voltasCompletadas >= 4 && window.divResultado) {
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#FF0000";
+      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
+    }
+
+    // ========== IA - ATUALIZAÇÃO ==========
+    if (adv && adv.atualizar) {
+      adv.atualizar(deltaTime, jogador);
+    }
+
+    // --- Colisão IA com muretas ---
+    if (adv) {
+      const colisaoIA = verificarColisao(adv.position, muretas, 0.6);
+      if (colisaoIA.colidiu) {
+        adv.velocidadeAtual *= 0.5;
+        const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
+        if (adv.group) adv.group.position.add(normal);
+        if (adv.position && adv.group) adv.position.copy(adv.group.position);
+      }
+    }
+
+    // --- Colisão entre veículos ---
+    if (adv) {
+      const distancia = jogador.position.distanceTo(adv.position);
+      if (distancia < 2.0) {
+        const separacao = new THREE.Vector3()
+          .subVectors(jogador.position, adv.position)
+          .normalize()
+          .multiplyScalar(0.2);
+
+        if (jogador.group) jogador.group.position.add(separacao);
+        if (jogador.group) jogador.position.copy(jogador.group.position);
+
+        if (adv.group) adv.group.position.sub(separacao);
+        if (adv.group && adv.position) adv.position.copy(adv.group.position);
+
+        jogador.velocidadeAtual *= 0.8;
+        adv.velocidadeAtual *= 0.8;
+      }
+    }
+
+    // --- Sistema de Disparos ---
+    if (sistemaDisparos) {
+      sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
+    }
+
+    // ========== UI DE DISPAROS ==========
+    if (window.linhaDisparos) {
+      const icones = "🔴".repeat(jogador.disparosDisponiveis) + 
+                    "⚪".repeat(4 - jogador.disparosDisponiveis);
+      window.linhaDisparos.innerHTML = `Disparos: ${icones} (${jogador.disparosDisponiveis}/4)`;
+    }
+
+    // ========== UI DE PENALIZAÇÃO (OPCIONAL) ==========
+    if (window.linhaPenalizacao) {
+      if (jogador.penalizado) {
+        window.linhaPenalizacao.style.display = "block";
+        window.linhaPenalizacao.style.color = "#FF3333";
+        window.linhaPenalizacao.innerHTML = `⚠️ ATINGIDO! Velocidade: ${(jogador.velocidadeAtual).toFixed(1)} (${jogador.tempoPenalizacao.toFixed(1)}s)`;
+      } else {
+        window.linhaPenalizacao.style.display = "none";
+      }
+    }
+
+    // --- Luz ---
+    atualizarLuz(jogador);
+
+    // --- Câmera ---
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
     targetCameraPos.x += lateralDrift;
-    // Converte a posição local atrás do carro pra posição no mundo
-    targetCameraPos.applyQuaternion(veiculo.quaternion);
-    targetCameraPos.add(veiculo.position);
+    targetCameraPos.applyQuaternion(jogador.quaternion);
+    targetCameraPos.add(jogador.position);
 
-    // Onde a câmera deve OLHAR
-    let targetLookAt = veiculo.position.clone().add(focoCamera);
+    let targetLookAt = jogador.position.clone().add(focoCamera);
 
-    // Suaviza o movimento da CÂMERA
     camera.position.lerp(targetCameraPos, lerp_camera);
-
-    // Suaviza o movimento do FOCO
     currentLookAt.lerp(targetLookAt, lerp_camera);
-    camera.lookAt(currentLookAt); // Aponta a câmera
+    camera.lookAt(currentLookAt);
 
     renderer.render(scene, camera);
     requestAnimationFrame(render);
