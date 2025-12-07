@@ -103,7 +103,6 @@ export class VeiculoBase {
     this.penalizado = true;
     this.tempoPenalizacao = 3.0;
     
-    // CORREÇÃO: Guarda velocidade NO MOMENTO DO IMPACTO
     this.velocidadeAntesDano = this.velocidadeAtual;
     this.velocidadeMinima = this.velocidadeAntesDano * 0.3; // 30% da velocidade atual
     

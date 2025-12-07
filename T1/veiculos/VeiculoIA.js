@@ -4,7 +4,6 @@ import { IAInimigo } from "./IAInimigo.js";
 
 export class VeiculoIA extends VeiculoBase {
   constructor(scene, pista) {
-    // IA: Cinza/Azul
     // Lambert (fosco): Base inferior, propulsor
     // Phong (brilho): Base superior, cabine, hélice
     const cores = {
@@ -16,7 +15,7 @@ export class VeiculoIA extends VeiculoBase {
     
     super(scene, cores, "ia");
     this.ia = new IAInimigo(this, pista);
-    console.log("🤖 Veículo da IA criado (Azul - Lambert + Phong)");
+    console.log("Veículo da IA criado (Azul - Lambert + Phong)");
   }
 
   atualizar(deltaTime, jogador) {
