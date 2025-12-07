@@ -61,31 +61,60 @@ export class SistemaDisparos {
         .multiplyScalar(this.velocidadeProjetil * deltaTime);
       proj.mesh.position.add(movimento);
 
+      let colidiu = false;
+
       // Verificar colisão com veículos
       for (let veiculo of veiculos) {
-        if (veiculo === proj.dono) continue; // Não acerta próprio dono
+        if (veiculo === proj.dono) continue;
 
         const distancia = proj.mesh.position.distanceTo(veiculo.position);
         if (distancia < 1.5) {
-          // ACERTOU!
           veiculo.aplicarDano();
           this.removerProjetil(i);
+          colidiu = true;
           break;
         }
       }
 
-      // Verificar colisão com muretas
+      if (colidiu) continue;
+
+      // ========== VERIFICAÇÃO DE COLISÃO MELHORADA ==========
       if (proj.ativo) {
+        const posProj = proj.mesh.position;
+        
         for (let mureta of muretas) {
-          const bbox =
-            mureta.boundingBox || new THREE.Box3().setFromObject(mureta.mesh);
-          if (bbox.containsPoint(proj.mesh.position)) {
-            // Acertou mureta
+          if (!mureta || !mureta.mesh) continue;
+          
+          // MÉTODO 1: BoundingBox expandida
+          if (!mureta.boundingBox) {
+            mureta.boundingBox = new THREE.Box3().setFromObject(mureta.mesh);
+            mureta.boundingBox.expandByScalar(0.8); // Aumentei para 0.8
+          }
+          
+          if (mureta.boundingBox.containsPoint(posProj)) {
             this.removerProjetil(i);
+            colidiu = true;
             break;
+          }
+          
+          // MÉTODO 2: Distância do centro (fallback para pontas)
+          if (!colidiu && mureta.posicao) {
+            const distMureta = Math.sqrt(
+              Math.pow(posProj.x - mureta.posicao.x, 2) + 
+              Math.pow(posProj.z - mureta.posicao.z, 2)
+            );
+            
+            // Se muito perto do centro da mureta, remove
+            if (distMureta < 2.0) { // Raio de 2 unidades
+              this.removerProjetil(i);
+              colidiu = true;
+              break;
+            }
           }
         }
       }
+
+      if (colidiu) continue;
 
       // Remover se muito longe
       if (proj.ativo && proj.mesh.position.length() > 200) {
