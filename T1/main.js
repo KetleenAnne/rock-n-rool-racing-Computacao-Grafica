@@ -68,8 +68,8 @@ window.adversario = adversario;
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
 //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
-jogador.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
-adversario.reset(posInicial.x - 5, 0, posInicial.z, posInicial.rot);
+jogador.reset(posInicial.x, 0, posInicial.z -5, posInicial.rot);
+adversario.reset(posInicial.x , 0, posInicial.z, posInicial.rot);
 
 // Avisa o contador onde fica a linha de chegada da Pista 1
 contadorVoltas.setLinhaChegada(0, 100, 20, 20);
@@ -88,27 +88,36 @@ function trocarPista(numeroPista) {
     scene.remove(adversario.group);
   }
 
+  // ========== RESETAR MENSAGEM DE VITÓRIA/DERROTA ========== [NOVO]
+  if (window.divResultado) {
+    window.divResultado.style.display = "none";
+    window.divResultado.innerHTML = "";
+  } 
+
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
     adversario = new VeiculoIA(scene, 1);
+    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1); // Define checkpoints
   } else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
     contadorVoltas.setLinhaChegada(30, 70, 20, 20); // Define linha de chegada
     adversario = new VeiculoIA(scene, 2);
+    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2); // Define checkpoints
   } else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
     adversario = new VeiculoIA(scene, 3);
+    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3); // Define checkpoints
   }
 
   // Reseta o carro na posição da nova pista
   //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
-  jogador.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
-  adversario.reset(posInicial.x - 5, 0, posInicial.z, posInicial.rot);
+  jogador.reset(posInicial.x, 0, posInicial.z - 5, posInicial.rot);
+  adversario.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
   window.adversario = adversario;
 }
 
