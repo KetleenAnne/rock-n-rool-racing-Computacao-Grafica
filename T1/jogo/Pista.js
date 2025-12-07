@@ -1,7 +1,16 @@
 import * as THREE from "three";
 import { setDefaultMaterial } from "../../libs/util/util.js";
-import { criarMuretasPista1, criarMuretasPista2, criarMuretasPista3, criarLinhaLargada } from "./Muretas.js";
-import { criarArvoresPista1, criarArvoresPista2, criarArvoresPista3 } from "./Arvores.js";
+import {
+  criarMuretasPista1,
+  criarMuretasPista2,
+  criarMuretasPista3,
+  criarLinhaLargada,
+} from "./Muretas.js";
+import {
+  criarArvoresPista1,
+  criarArvoresPista2,
+  criarArvoresPista3,
+} from "./Arvores.js";
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
@@ -45,7 +54,6 @@ export function criarPista1(scene) {
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
-    grama.castShadow = true;
     group.add(grama);
 
     // BLOCOS CINZAS DA PISTA (20x20)
@@ -64,7 +72,7 @@ export function criarPista1(scene) {
         bloco.receiveShadow = true;
         group.add(bloco);
       }
-      
+
       // parte superior (norte)
       let blocoTopo = new THREE.Mesh(cubeGeometry, materialBloco);
       blocoTopo.position.set(x, altura, -100);
@@ -78,7 +86,7 @@ export function criarPista1(scene) {
       blocoE.position.set(-90, altura, z);
       blocoE.receiveShadow = true;
       group.add(blocoE);
-      
+
       // direita
       let blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
       blocoD.position.set(90, altura, z);
@@ -93,9 +101,9 @@ export function criarPista1(scene) {
     // Criar muretas
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
-    
-   //Cria Arvores
-   criarArvoresPista1(group); 
+
+    //Cria Arvores
+    criarArvoresPista1(group);
 
     scene.add(group);
     pistaAtual = group;
@@ -125,7 +133,6 @@ export function criarPista2(scene) {
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
-    grama.castShadow = true;
     group.add(grama);
 
     // BLOCOS CINZAS DA PISTA (20x20)
@@ -138,7 +145,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - PAREDE SUL (horizontal)
     for (let x = 1; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 20) + offsetX, altura, 20.0 + offsetZ);
+      bloco.position.set(x * 20 + offsetX, altura, 20.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -147,7 +154,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - PAREDE ESQUERDA (vertical)
     for (let z = 0; z >= -9; z--) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(20.0 + offsetX, altura, (z * 20) + offsetZ);
+      bloco.position.set(20.0 + offsetX, altura, z * 20 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -156,7 +163,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - TOPO (horizontal)
     for (let x = 2; x <= 6; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 20) + offsetX, altura, -180.0 + offsetZ);
+      bloco.position.set(x * 20 + offsetX, altura, -180.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -165,7 +172,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - continuação TOPO (vertical)
     for (let z = -1.5; z >= -5.5; z -= 1) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(10, altura, (z * 20));
+      bloco.position.set(10, altura, z * 20);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -174,7 +181,7 @@ export function criarPista2(scene) {
     // BLOCOS CINZAS - LESTE (horizontal e vertical)
     for (let x = 6; x <= 10; x++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set((x * 20) + offsetX, altura, -60.0 + offsetZ);
+      bloco.position.set(x * 20 + offsetX, altura, -60.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -182,7 +189,7 @@ export function criarPista2(scene) {
 
     for (let z = -3; z <= 0; z++) {
       let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
-      bloco.position.set(200.0 + offsetX, altura, (z * 20) + offsetZ);
+      bloco.position.set(200.0 + offsetX, altura, z * 20 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
       group.add(bloco);
@@ -197,7 +204,7 @@ export function criarPista2(scene) {
     muretasAtuais = muretas;
 
     //Cria Arvores
-   criarArvoresPista2(group);
+    criarArvoresPista2(group);
 
     scene.add(group);
     pistaAtual = group;
@@ -226,7 +233,6 @@ export function criarPista3(scene) {
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -0.1, 0);
     grama.receiveShadow = true;
-    grama.castShadow = true;
     group.add(grama);
 
     // Linha de largada
@@ -235,12 +241,11 @@ export function criarPista3(scene) {
 
     // Criar blocos, muretas e túnel (vem do arquivo Muretas.js)
     const elementosPista3 = criarMuretasPista3(group);
-    
- 
+
     muretasAtuais = elementosPista3;
 
-   //Cria Arvores
-   criarArvoresPista3(group);
+    //Cria Arvores
+    criarArvoresPista3(group);
 
     scene.add(group);
     pistaAtual = group;
