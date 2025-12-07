@@ -100,30 +100,36 @@ export class VeiculoBase {
     if (this.penalizado) return;
 
     this.penalizado = true;
-    this.tempoPenalizacao = 3.0; // 3 segundos
-
-    // Reduz velocidade para 30%, mas garante no mínimo um valor para não parar totalmente
-    this.velocidadeAtual = Math.max(this.velocidadeAtual * 0.3, 2);
-
-    console.log("Veículo atingido! Velocidade reduzida por 3 segundos.");
+    this.tempoPenalizacao = 3.0;
+    
+    // Guarda velocidade original para reduzir gradualmente
+    this.velocidadeAntesDano = this.velocidadeAtual;
+    this.velocidadeAlvo = this.velocidadeAtual * 0.3; // 30% da velocidade
+    
+    console.log(`Veículo atingido! Velocidade vai reduzir de ${this.velocidadeAntesDano.toFixed(1)} para ${this.velocidadeAlvo.toFixed(1)}`);
   }
 
   atualizarPenalizacao(deltaTime) {
     if (this.penalizado) {
+      // Redução GRADUAL da velocidade
+      if (this.velocidadeAtual > this.velocidadeAlvo) {
+        this.velocidadeAtual = THREE.MathUtils.lerp(this.velocidadeAtual, this.velocidadeAlvo, 0.05); // Reduz gradualmente
+        if (this.velocidadeAtual < this.velocidadeAlvo) {
+          this.velocidadeAtual = this.velocidadeAlvo;
+        }
+      }
+      
       this.tempoPenalizacao -= deltaTime;
 
       if (this.tempoPenalizacao <= 0) {
         this.penalizado = false;
         this.tempoPenalizacao = 0;
-
-        // IMPORTANTE: limpa a velocidade penalizada
-        this.velocidadeAtual = 0;
-
+        delete this.velocidadeAntesDano;
+        delete this.velocidadeAlvo;
         console.log("Penalização finalizada! Pode acelerar novamente.");
       }
     }
   }
-
   // ========== GETTERS ==========
   
   getDirecaoFrente() {
