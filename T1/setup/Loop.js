@@ -81,45 +81,48 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
       console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
     }
 
+    // --- Referência dinâmica do adversário ---
+    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+
     // --- Atualiza IA ---
-    if (adversario && adversario.atualizar) {
-      adversario.atualizar(deltaTime, jogador);
+    if (adv && adv.atualizar) {
+      adv.atualizar(deltaTime, jogador);
     }
 
     // --- Colisão IA com muretas ---
-    if (adversario) {
-      const colisaoIA = verificarColisao(adversario.position, muretas, 0.6);
+    if (adv) {
+      const colisaoIA = verificarColisao(adv.position, muretas, 0.6);
       if (colisaoIA.colidiu) {
-        adversario.velocidadeAtual *= 0.5;
+        adv.velocidadeAtual *= 0.5;
         const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
-        adversario.group.position.add(normal);
-        adversario.position.copy(adversario.group.position);
+        if (adv.group) adv.group.position.add(normal);
+        if (adv.position && adv.group) adv.position.copy(adv.group.position);
       }
     }
 
     // --- Colisão entre veículos ---
-    if (adversario) {
-      const distancia = jogador.position.distanceTo(adversario.position);
+    if (adv) {
+      const distancia = jogador.position.distanceTo(adv.position);
       if (distancia < 2.0) {
         const separacao = new THREE.Vector3()
-          .subVectors(jogador.position, adversario.position)
+          .subVectors(jogador.position, adv.position)
           .normalize()
           .multiplyScalar(0.2);
         
-        jogador.group.position.add(separacao);
-        jogador.position.copy(jogador.group.position);
+        if (jogador.group) jogador.group.position.add(separacao);
+        if (jogador.group) jogador.position.copy(jogador.group.position);
         
-        adversario.group.position.sub(separacao);
-        adversario.position.copy(adversario.group.position);
+        if (adv.group) adv.group.position.sub(separacao);
+        if (adv.group && adv.position) adv.position.copy(adv.group.position);
         
         jogador.velocidadeAtual *= 0.8;
-        adversario.velocidadeAtual *= 0.8;
+        adv.velocidadeAtual *= 0.8;
       }
     }
 
     // --- Sistema de Disparos ---
     if (sistemaDisparos) {
-      sistemaDisparos.atualizar(deltaTime, [jogador, adversario], muretas);
+      sistemaDisparos.atualizar(deltaTime, [jogador, adv], muretas);
     }
 
     // --- Atualiza a Luz ---
