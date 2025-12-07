@@ -11,7 +11,10 @@ import {
   setLinhaVoltas,
   setPistaChangeCallback,
 } from "./jogo/Teclas.js";
-import { Veiculo } from "./jogo/Veiculo.js";
+//import { Veiculo } from "./jogo/Veiculo.js";
+import { VeiculoJogador } from "./veiculos/VeiculoJogador.js";
+import { VeiculoIA } from "./veiculos/VeiculoIA.js";
+import { SistemaDisparos } from "./jogo/SistemaDisparos.js";
 import contadorVoltas from "./jogo/ContadorVoltas.js";
 import sistemaCheckpoints from "./jogo/SistemaCheckpoints.js";
 import { 
@@ -50,13 +53,23 @@ setupScene(scene);
 // Inicializar o sistema de checkpoints com a cena
 sistemaCheckpoints.scene = scene;
 
-const veiculo = new Veiculo(scene);
+//const veiculo = new Veiculo(scene);
+const jogador = new VeiculoJogador(scene);
+let adversario = new VeiculoIA(scene, 1);
+
+const sistemaDisparos = new SistemaDisparos(scene);
+window.sistemaDisparos = sistemaDisparos;
+
+window.jogador = jogador;
+window.adversario = adversario;
 
 // --- Lógica das Pistas ---
 
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
-veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
+//veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
+jogador.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+adversario.reset(posInicial.x - 5, 0, posInicial.z, posInicial.rot);
 
 // Avisa o contador onde fica a linha de chegada da Pista 1
 contadorVoltas.setLinhaChegada(0, 100, 20, 20);
@@ -70,23 +83,33 @@ function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
 
   contadorVoltas.reset(); // ZERA as voltas
+  sistemaDisparos.limparTodos();
+  if (adversario && adversario.group) {
+    scene.remove(adversario.group);
+  }
 
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
+    adversario = new VeiculoIA(scene, 1);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1); // Define checkpoints
   } else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
     contadorVoltas.setLinhaChegada(30, 70, 20, 20); // Define linha de chegada
+    adversario = new VeiculoIA(scene, 2);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2); // Define checkpoints
   } else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
+    adversario = new VeiculoIA(scene, 3);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3); // Define checkpoints
   }
 
   // Reseta o carro na posição da nova pista
-  veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+  //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+  jogador.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
+  adversario.reset(posInicial.x - 5, 0, posInicial.z, posInicial.rot);
+  window.adversario = adversario;
 }
 
 // "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
@@ -94,7 +117,9 @@ setPistaChangeCallback(trocarPista);
 
 // Inicia os controles e o loop principal do jogo
 addControls(camera, renderer);
-startLoop(renderer, scene, camera, veiculo, stats);
+//startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats);
+startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats);
+
 
 var pistaSelecionada = getPistaSelecionada();
 

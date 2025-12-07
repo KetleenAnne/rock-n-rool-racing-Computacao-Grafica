@@ -1,153 +1,130 @@
 // veiculos/IAInimigo.js
 import * as THREE from "three";
+import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
+import { 
+  CHECKPOINTS_PISTA1, 
+  CHECKPOINTS_PISTA2, 
+  CHECKPOINTS_PISTA3 
+} from "../jogo/ConfigCheckpoints.js";
 
 export class IAInimigo {
   constructor(veiculo, pista) {
     this.veiculo = veiculo;
     this.pista = pista;
     
-    // Waypoints da pista (você vai definir baseado na pista)
-    this.waypoints = this.gerarWaypoints();
-    this.waypointAtual = 0;
+    // Pega os checkpoints do sistema
+    this.checkpoints = this.obterCheckpointsPista();
+    this.checkpointAtual = 0;
     
-    // Parâmetros de movimento
-    this.velocidadeCruzeiro = 35.0;
-    this.distanciaMinima = 3.0; // Distância para considerar waypoint alcançado
+    // Parâmetros
+    this.velocidadeCruzeiro = 10.0;
+    this.distanciaCheckpoint = 0.5;
+    this.aceleracao = 0.7;
     
-    // Controle de disparo
+    // Disparo
     this.tempoUltimoDisparo = 0;
-    this.intervaloDisparo = 2.0; // 2 segundos entre disparos
+    this.intervaloDisparo = 2.5;
+    
+    console.log(`IA criada com ${this.checkpoints.length} checkpoints`);
   }
 
-  gerarWaypoints() {
-    // PISTA 1 (OVAL) - Waypoints ao longo do circuito
+  obterCheckpointsPista() {
+    let checkpointsConfig;
+    
     if (this.pista === 1) {
-      return [
-        new THREE.Vector3(0, 0, 50),    // Linha de largada
-        new THREE.Vector3(40, 0, 40),   // Curva direita superior
-        new THREE.Vector3(45, 0, 0),    // Lateral direita
-        new THREE.Vector3(40, 0, -40),  // Curva direita inferior
-        new THREE.Vector3(0, 0, -50),   // Topo
-        new THREE.Vector3(-40, 0, -40), // Curva esquerda inferior
-        new THREE.Vector3(-45, 0, 0),   // Lateral esquerda
-        new THREE.Vector3(-40, 0, 40),  // Curva esquerda superior
-      ];
+      checkpointsConfig = CHECKPOINTS_PISTA1;
+    } else if (this.pista === 2) {
+      checkpointsConfig = CHECKPOINTS_PISTA2;
+    } else if (this.pista === 3) {
+      checkpointsConfig = CHECKPOINTS_PISTA3;
+    } else {
+      // Fallback
+      return [new THREE.Vector3(0, 0, 100)];
     }
     
-    // PISTA 2 (L) - Adapte conforme necessário
-    return [
-      new THREE.Vector3(15, 0, 35),
-      new THREE.Vector3(15, 0, 0),
-      new THREE.Vector3(15, 0, -40),
-      new THREE.Vector3(40, 0, -40),
-      new THREE.Vector3(40, 0, 0),
-      new THREE.Vector3(40, 0, 35),
-    ];
+    // Converter checkpoints (meio entre os postes) em waypoints
+    return checkpointsConfig.map(cp => {
+      const centroX = (cp.poste1.x + cp.poste2.x) / 2;
+      const centroZ = (cp.poste1.z + cp.poste2.z) / 2;
+      return new THREE.Vector3(centroX, 0, centroZ);
+    });
   }
 
   atualizar(deltaTime, jogador) {
-    // Se está penalizado, não faz nada
     if (this.veiculo.penalizado) {
-      this.veiculo.velocidadeAtual *= 0.95; // Desacelera
+      this.veiculo.velocidadeAtual *= 0.95;
       return;
     }
     
-    // 1. SEGUIR WAYPOINT
-    this.seguirWaypoint(deltaTime);
-    
-    // 2. TENTAR DISPARAR NO JOGADOR
+    this.seguirCheckpoint(deltaTime);
     this.tentarDisparar(deltaTime, jogador);
   }
 
-  seguirWaypoint(deltaTime) {
-    const alvo = this.waypoints[this.waypointAtual];
+  seguirCheckpoint(deltaTime) {
+    const alvo = this.checkpoints[this.checkpointAtual];
     const posicao = this.veiculo.position.clone();
     
-    // Vetor do veículo até o waypoint
     const direcaoAlvo = new THREE.Vector3()
       .subVectors(alvo, posicao)
-      .setY(0)
-      .normalize();
+      .setY(0);
     
-    // Direção atual do veículo
+    const distancia = direcaoAlvo.length();
+    direcaoAlvo.normalize();
+    
     const direcaoVeiculo = this.veiculo.getDirecaoFrente();
-    
-    // Calcular ângulo de virada (produto vetorial)
-    const cross = new THREE.Vector3()
-      .crossVectors(direcaoVeiculo, direcaoAlvo);
-    
+    const cross = new THREE.Vector3().crossVectors(direcaoVeiculo, direcaoAlvo);
     const dot = direcaoVeiculo.dot(direcaoAlvo);
     
-    // Virar em direção ao waypoint
-    const anguloVirada = 0.03 * deltaTime * 60;
-    
-    if (cross.y > 0.1) {
-      this.veiculo.rotateY(anguloVirada); // Vira esquerda
-    } else if (cross.y < -0.1) {
-      this.veiculo.rotateY(-anguloVirada); // Vira direita
+    // Virar
+    const anguloVirada = 0.06 * deltaTime * 60;
+    if (cross.y > 0.05) {
+      this.veiculo.rotateY(anguloVirada);
+    } else if (cross.y < -0.05) {
+      this.veiculo.rotateY(-anguloVirada);
     }
     
-    // Acelerar/desacelerar
-    if (dot > 0.8) {
-      // Alinhado com waypoint - acelera
+    // Acelerar
+    if (dot > 0.85) {
       if (this.veiculo.velocidadeAtual < this.velocidadeCruzeiro) {
-        this.veiculo.velocidadeAtual += 0.5 * deltaTime * 60;
+        this.veiculo.velocidadeAtual += this.aceleracao * deltaTime * 60;
       }
     } else {
-      // Desalinhado - desacelera um pouco
-      this.veiculo.velocidadeAtual *= 0.98;
+      this.veiculo.velocidadeAtual *= 0.96;
     }
     
-    // Mover veículo
+    // Velocidade mínima
+    if (this.veiculo.velocidadeAtual < 8.0) {
+      this.veiculo.velocidadeAtual = 8.0;
+    }
+    
     this.veiculo.translateZ(this.veiculo.velocidadeAtual * deltaTime);
     
-    // Verificar se alcançou waypoint
-    const distancia = posicao.distanceTo(alvo);
-    if (distancia < this.distanciaMinima) {
-      // Avança para próximo waypoint
-      this.waypointAtual = (this.waypointAtual + 1) % this.waypoints.length;
+    // Próximo checkpoint
+    if (distancia < this.distanciaCheckpoint) {
+      this.checkpointAtual = (this.checkpointAtual + 1) % this.checkpoints.length;
     }
   }
 
   tentarDisparar(deltaTime, jogador) {
     this.tempoUltimoDisparo += deltaTime;
     
-    // Cooldown de disparo
-    if (this.tempoUltimoDisparo < this.intervaloDisparo) {
-      return;
-    }
+    if (this.tempoUltimoDisparo < this.intervaloDisparo) return;
+    if (!this.veiculo.podeDisparar()) return;
     
-    // Verifica se pode disparar
-    if (!this.veiculo.podeDisparar()) {
-      return;
-    }
-    
-    // Verifica se jogador está À FRENTE
-    if (this.jogadorEstaAFrente(jogador)) {
-      // DISPARAR!
-      window.sistemaDisparos.criarDisparo(this.veiculo);
-      this.tempoUltimoDisparo = 0;
-      console.log("IA disparou!");
-    }
-  }
-
-  jogadorEstaAFrente(jogador) {
-    // Vetor do veículo IA até o jogador
     const direcaoJogador = new THREE.Vector3()
       .subVectors(jogador.position, this.veiculo.position)
       .setY(0)
       .normalize();
     
-    // Direção que a IA está olhando
     const direcaoIA = this.veiculo.getDirecaoFrente();
-    
-    // Produto escalar
     const dot = direcaoIA.dot(direcaoJogador);
-    
-    // Se dot > 0.5, jogador está na frente (ângulo < 60°)
-    // E verifica distância (não dispara se muito longe)
     const distancia = this.veiculo.position.distanceTo(jogador.position);
     
-    return dot > 0.5 && distancia < 50;
+    if (dot > 0.6 && distancia > 10 && distancia < 60) {
+      if (window.sistemaDisparos) {
+        window.sistemaDisparos.criarDisparo(this.veiculo);
+        this.tempoUltimoDisparo = 0;
+      }
+    }
   }
 }
