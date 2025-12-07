@@ -70,13 +70,13 @@ export class IAInimigo {
     const sentido = cross.y >= 0 ? 1 : -1;
 
     // Rotação proporcional ao ângulo, suavizando curvas
-    const maxAnguloPorFrame = 0.06 * deltaTime * 60; // mesma lógica do jogador
+    const maxAnguloPorFrame = 0.06 * deltaTime * 30; // mesma lógica do jogador
     const rotacao = Math.min(angulo, maxAnguloPorFrame) * sentido;
     this.veiculo.rotateY(rotacao);
     // ----------------------------------------------
 
     // --------- ACELERAÇÃO IGUAL AO JOGADOR ---------
-    const aceleracao = 4.0; // mesma do jogador
+    const aceleracao = 3.0; // mesma do jogador
     this.veiculo.velocidadeAtual += aceleracao * deltaTime;
 
     // Limites de velocidade

@@ -38,7 +38,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
       jogador.rotateY(state.direção * directionFactor * deltaTime * 60);
     }
 
-    // ========== MOVIMENTO COM PENALIZAÇÃO - CORRIGIDO ==========
+    // ========== MOVIMENTO COM PENALIZAÇÃO ==========
     // CORREÇÃO: Durante penalização, usa a velocidadeAtual (já limitada a 30%)
     // Fora da penalização, usa a velocidade das teclas normalmente
     let velocidadeMovimento;
@@ -56,7 +56,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // --- Colisão ---
     const muretas = getMuretas();
-    const colisao = verificarColisao(jogador.position, muretas, 0.6);
+    const colisao = verificarColisao(jogador.position, muretas, 0.55);
 
     if (colisao.colidiu) {
       const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
@@ -85,38 +85,51 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     if (voltasDepois > voltasAntes) {
       jogador.recarregarDisparos();
-      console.log("🏁 Volta completa! Munição recarregada!");
+      console.log("🔄 Volta completa! Munição recarregada!");
     }
 
     if (resultadoVolta && resultadoVolta.voltaInvalida) {
       console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
     }
 
-    // Contador de voltas da IA
+    // ========== CONTADOR DE VOLTAS DA IA  ==========
     if (adv) {
       if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
+      if (adv.primeiraPassagemIA === undefined) adv.primeiraPassagemIA = true;
       
-      const linhaChegadaZ = 100; 
-      const distLinha = Math.abs(adv.position.z - linhaChegadaZ);
+      // OBTER LINHA DE CHEGADA CORRETA PARA CADA PISTA
+      const linhaChegada = contadorVoltas.linhaBox;
       
-      if (!adv.passouLinha && distLinha < 10 && Math.abs(adv.position.x) < 20) {
-        adv.voltasCompletadas++;
-        adv.passouLinha = true;
-        adv.recarregarDisparos();
-        console.log(`🤖 IA completou volta ${adv.voltasCompletadas}`);
-      } else if (distLinha > 20) {
-        adv.passouLinha = false;
+      if (linhaChegada) {
+        const pontoIA = new THREE.Vector3(adv.position.x, adv.position.y, adv.position.z);
+        const dentroLinha = linhaChegada.containsPoint(pontoIA);
+        
+        if (dentroLinha && !adv.passouLinha) {
+          adv.passouLinha = true;
+          
+          // Ignora a primeira passagem (posição inicial)
+          if (adv.primeiraPassagemIA) {
+            adv.primeiraPassagemIA = false;
+            console.log("🤖 IA - Posição inicial - não conta como volta");
+          } else {
+            adv.voltasCompletadas++;
+            adv.recarregarDisparos();
+            console.log(`🤖 IA completou volta ${adv.voltasCompletadas}`);
+          }
+        } else if (!dentroLinha && adv.passouLinha) {
+          adv.passouLinha = false;
+        }
       }
     }
 
-    // Verificar fim de jogo (4 voltas)
+    // Verificar fim de jogo (4 voltas) - JOGADOR
     if (voltasDepois >= 4 && window.divResultado) {
       window.divResultado.style.display = "block";
       window.divResultado.style.color = "#00FF00";
       window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
     }
 
-    // Se IA completou 4 voltas primeiro
+    // Se IA completou 4 voltas primeiro - DERROTA
     if (adv && adv.voltasCompletadas >= 4 && window.divResultado) {
       window.divResultado.style.display = "block";
       window.divResultado.style.color = "#FF0000";
@@ -130,7 +143,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // --- Colisão IA com muretas ---
     if (adv) {
-      const colisaoIA = verificarColisao(adv.position, muretas, 0.6);
+      const colisaoIA = verificarColisao(adv.position, muretas, 0.55);
       if (colisaoIA.colidiu) {
         adv.velocidadeAtual *= 0.5;
         const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
