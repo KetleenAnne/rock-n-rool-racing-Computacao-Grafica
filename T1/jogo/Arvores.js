@@ -48,7 +48,7 @@ function criarArvoreCone(x, z) {
   return tree;
 }
 
-// ========== FUNÇÃO: CRIAR ÁRVORE TIPO ESFERA (ARREDONDADA) ==========
+// ========== FUNÇÃO: CRIAR ÁRVORE ARREDONDADA ==========
 function criarArvoreEsfera(x, z) {
   const tree = new THREE.Group();
 

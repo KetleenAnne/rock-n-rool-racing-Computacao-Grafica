@@ -95,7 +95,7 @@ export class VeiculoBase {
     console.log("Munição recarregada!");
   }
 
-  // ========== SISTEMA DE DANO - CORRIGIDO ==========
+  // ========== SISTEMA DE DANO ==========
   
   aplicarDano() {
     if (this.penalizado) return;
