@@ -62,6 +62,7 @@ window.sistemaDisparos = sistemaDisparos;
 
 window.jogador = jogador;
 window.adversario = adversario;
+window.jogoFinalizado = false; // Flag global de controle
 
 // --- Lógica das Pistas ---
 
@@ -84,6 +85,7 @@ function trocarPista(numeroPista) {
 
   contadorVoltas.reset(); // ZERA as voltas
   sistemaDisparos.limparTodos();
+  window.jogoFinalizado = false; // Resetar flag de jogo finalizado
   if (adversario && adversario.group) {
     scene.remove(adversario.group);
   }
@@ -108,7 +110,7 @@ function trocarPista(numeroPista) {
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2); // Define checkpoints
   } else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
-    contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
+    contadorVoltas.setLinhaChegada(0, 60, 20, 20); // Define linha de chegada
     adversario = new VeiculoIA(scene, 3);
     adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3); // Define checkpoints
