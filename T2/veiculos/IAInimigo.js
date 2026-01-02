@@ -1,10 +1,10 @@
 // veiculos/IAInimigo.js
 import * as THREE from "three";
 import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
-import { 
-  CHECKPOINTS_PISTA1, 
-  CHECKPOINTS_PISTA2, 
-  CHECKPOINTS_PISTA3 
+import {
+  CHECKPOINTS_PISTA1,
+  CHECKPOINTS_PISTA2,
+  CHECKPOINTS_PISTA3,
 } from "../jogo/ConfigCheckpoints.js";
 
 export class IAInimigo {
@@ -33,7 +33,7 @@ export class IAInimigo {
     else if (this.pista === 3) checkpointsConfig = CHECKPOINTS_PISTA3;
     else return [new THREE.Vector3(0, 0, 100)];
 
-    return checkpointsConfig.map(cp => {
+    return checkpointsConfig.map((cp) => {
       const centroX = (cp.poste1.x + cp.poste2.x) / 2;
       const centroZ = (cp.poste1.z + cp.poste2.z) / 2;
       return new THREE.Vector3(centroX, 0, centroZ);
@@ -70,17 +70,20 @@ export class IAInimigo {
     const sentido = cross.y >= 0 ? 1 : -1;
 
     // Rotação proporcional ao ângulo, suavizando curvas
-    const maxAnguloPorFrame = 0.06 * deltaTime * 30; 
+    const maxAnguloPorFrame = 0.06 * deltaTime * 30;
     const rotacao = Math.min(angulo, maxAnguloPorFrame) * sentido;
     this.veiculo.rotateY(rotacao);
     // ----------------------------------------------
 
     // --------- ACELERAÇÃO---------
-    const aceleracao = 3.0; 
+    const aceleracao = 1.8;
     this.veiculo.velocidadeAtual += aceleracao * deltaTime;
 
     // Limites de velocidade
-    this.veiculo.velocidadeAtual = Math.min(this.veiculo.velocidadeAtual, this.veiculo.velocidadeMaxima);
+    this.veiculo.velocidadeAtual = Math.min(
+      this.veiculo.velocidadeAtual,
+      this.veiculo.velocidadeMaxima
+    );
     this.veiculo.velocidadeAtual = Math.max(this.veiculo.velocidadeAtual, -8.0);
 
     this.veiculo.translateZ(this.veiculo.velocidadeAtual * deltaTime);
@@ -89,7 +92,8 @@ export class IAInimigo {
     // Próximo checkpoint
     const distancia = alvo.distanceTo(pos);
     if (distancia < this.distanciaCheckpoint) {
-      this.checkpointAtual = (this.checkpointAtual + 1) % this.checkpoints.length;
+      this.checkpointAtual =
+        (this.checkpointAtual + 1) % this.checkpoints.length;
     }
   }
 
