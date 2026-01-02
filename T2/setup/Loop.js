@@ -54,7 +54,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     jogador.translateZ(velocidadeMovimento * deltaTime);
 
     // ========== MOVIMENTO DA IA COM PENALIZAÇÃO ==========
-    if (adv) {
+    if (adv && !adv.corridaFinalizada) {
       let velocidadeAIMov;
 
       if (adv.penalizado) {
@@ -107,7 +107,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
 
     // ========== CONTADOR DE VOLTAS DA IA  ==========
-    if (adv) {
+    if (adv && !contadorVoltas.isCorridaFinalizada()) {
       if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
       if (adv.primeiraPassagemIA === undefined) adv.primeiraPassagemIA = true;
       
@@ -137,21 +137,34 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
 
     // Verificar fim de jogo (4 voltas) - JOGADOR
-    if (voltasDepois >= 4 && window.divResultado) {
-      window.divResultado.style.display = "block";
-      window.divResultado.style.color = "#00FF00";
-      window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
-    }
+if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
+  window.jogoFinalizado = true;
+  window.divResultado.style.display = "block";
+  window.divResultado.style.color = "#00FF00";
+  window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
+  // Parar IA
+  if (adv) {
+    adv.corridaFinalizada = true;
+    adv.velocidadeAtual = 0;
+  }
+}
 
-    // Se IA completou 4 voltas primeiro - DERROTA
-    if (adv && adv.voltasCompletadas >= 4 && window.divResultado) {
-      window.divResultado.style.display = "block";
-      window.divResultado.style.color = "#FF0000";
-      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
-    }
+// Se IA completou 4 voltas primeiro - DERROTA
+if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFinalizado) {
+  window.jogoFinalizado = true;
+  contadorVoltas.corridaFinalizada = true; // Parar contador do jogador
+  window.divResultado.style.display = "block";
+  window.divResultado.style.color = "#FF0000";
+  window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
+  // Parar IA na linha de chegada
+  if (adv) {
+    adv.corridaFinalizada = true;
+    adv.velocidadeAtual = 0;
+  }
+}
 
     // ========== IA - ATUALIZAÇÃO ==========
-    if (adv && adv.atualizar) {
+    if (adv && adv.atualizar && !adv.corridaFinalizada) {
       adv.atualizar(deltaTime, jogador);
     }
 

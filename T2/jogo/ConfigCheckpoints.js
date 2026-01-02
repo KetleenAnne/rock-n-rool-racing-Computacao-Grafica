@@ -26,12 +26,12 @@ export const CHECKPOINTS_PISTA2 = [ //(30,70)
 // ========== PISTA 3 - DOIS QUADRADOS ==========
 // 4 checkpoints distribuídos pelos dois quadrados
 export const CHECKPOINTS_PISTA3 = [
-  { poste1: { x: -75, z: 111 }, poste2: { x: -75, z: 89 } },             // CP1 - Curva Sul esquerda inferior - Saida da Largada
-  { poste1: { x: -102, z: -285 }, poste2: { x: -78, z: -285 } },         // CP2 - Direita Superior do segundo quadrado
-  { poste1: { x: -257, z: -285 }, poste2: { x: -257, z: -312 } },        // CP3 - Esquerda Superior do segundo quadrado
-  { poste1: { x: -257, z: -120 }, poste2: { x: -283, z: -120 } },        // CP4 - Esquerda Inferior do segundo quadrado
-  { poste1: { x: 77, z: -112 }, poste2: { x: 77, z: -88 } },             // CP5 - Volta pro primeiro
-  { poste1: { x: 105, z: 88 }, poste2: { x: 77, z: 88 } },               // CP6 - Curva Final
+  { poste1: { x: -38, z: 71 }, poste2: { x: -38, z: 49 } },          // CP1 - Curva Sul esquerda inferior - Saida da Largada
+  { poste1: { x: -62, z: -155 }, poste2: { x: -37, z: -155 } },      // CP2 - Direita Superior do segundo quadrado
+  { poste1: { x: -132, z: -167 }, poste2: { x: -132, z: -192 } },    // CP3 - Esquerda Superior do segundo quadrado
+  { poste1: { x: -137, z: -72 }, poste2: { x: -164, z: -72 } },      // CP4 - Esquerda Inferior do segundo quadrado
+  { poste1: { x: 32, z: -71 }, poste2: { x: 32, z: -47 } },          // CP5 - Volta pro primeiro
+  { poste1: { x: 62, z: 48 }, poste2: { x: 38, z: 48 } },            // CP6 - Curva Final
 ];
 
 // Função helper para adicionar checkpoints facilmente

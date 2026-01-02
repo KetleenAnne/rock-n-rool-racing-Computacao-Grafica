@@ -159,43 +159,45 @@ const POSICOES_ARVORES_PISTA3 = {
   // Árvores CONE - Distribuídas (15 árvores)
   cones: [
     // Primeiro quadrado - externo
-    { x: -120, z: 100 },
-    { x: -120, z: 50 },
-    { x: -180, z: -320 },     //(-120,-50) 
-    { x: -150, z: -80 },  //(-120,-50)
-    { x: -110, z: -80 }, // (-120.-100)
-    { x: 120, z: 100 },
-    { x: 120, z: 50 },
-    { x: 120, z: 0 },
-    { x: 120, z: -50 },
-    { x: 120, z: -100 },
+    { x: -50, z: 80 },   // Sul Ext
+    { x: -70, z: 60 },   // Esquerda Ext
+    { x: -10, z: 80 },  // Oeste Ext
+    { x: -90, z: -45 },  // Norte Ext Esq
+    { x: 70, z: 60 },    // Sul Ext Dir
+    { x: 70, z: 30 },    // Leste Ext
+    { x: 70, z: 0 },     // Leste Ext
+    { x: 70, z: -30 },   // Leste Ext
+    { x: 70, z: -60 },   // Norte Ext Dir
+    
     // Segundo quadrado - externo
-    { x: -300, z: -120 },
-    { x: -300, z: -180 },
-    { x: -300, z: -240 },
-    { x: -300, z: -280 },
-    { x: -60, z: -120 }
+    { x: -180, z: -80 },  // Sul Ext Esq Segundo
+    { x: -180, z: -110 }, // Oeste Ext Segundo
+    { x: -180, z: -140 }, // Oeste Ext Segundo
+    { x: -180, z: -160 }, // Norte Ext Esq Segundo
+    { x: -30, z: -80 },   // Sul Ext Dir Segundo
+    { x: -30, z: -175 },  // Norte Ext Dir Segundo
   ],
   
   // Árvores ESFERA - Ilhas internas (15 árvores)
   esferas: [
     // Primeiro quadrado - interno
-    { x: -60, z: 80 },
-    { x: 20, z: 80 },      //(-60,40)
-    { x: 0, z: -60 },       //(-60,0)
-    { x: -20, z: 80 },      //(-60,0)
-    { x: -60, z: -80 },
-    { x: 60, z: 80 },
-    { x: 60, z: 40 },
-    { x: 60, z: 0 },  
-    { x: 60, z: -40 },
-    { x: 60, z: -80 },
+    { x: -20, z: 40 },   // Sul Int Esq
+    { x: 10, z: 40 },    // Sul Int Centro
+    { x: 0, z: -30 },    // Norte Int Centro
+    { x: -10, z: 40 },   // Sul Int
+    { x: -20, z: -40 },  // Norte Int Esq
+    { x: 30, z: 40 },    // Sul Int Dir
+    { x: 30, z: 20 },    // Leste Int
+    { x: 30, z: 0 },     // Leste Int
+    { x: 30, z: -20 },   // Leste Int
+    { x: 30, z: -40 },   // Norte Int Dir
+    
     // Segundo quadrado - interno
-    { x: -180, z: -120 },
-    { x: -110, z: -200 },
-    { x: -180, z: -200 },
-    { x: -180, z: -260 },
-    { x: -240, z: -180 }
+    { x: -110, z: -80 },  // Sul Int Esq Segundo
+    { x: -90, z: -120 },  // Centro Int Segundo
+    { x: -110, z: -120 }, // Oeste Int Segundo
+    { x: -110, z: -150 }, // Norte Int Esq Segundo
+    { x: -130, z: -110 }, // Centro Oeste Int Segundo
   ]
 };
 
