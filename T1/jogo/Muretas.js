@@ -959,26 +959,26 @@ export function criarMuretasPista3(scene) {
   // ========== PONTAS (CANTOS) ==========
   const pontas = [
     // Primeiro Quadrado
-    { x: 39.5, z: 44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, //ADICIONADO, CORRETO
-    { x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },//ADICIONADO, CORRETO
-    { x: -39.5, z: 44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta }, //ADICIONADO, CORRETO
+    { x: 39.5, z: 44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, 
+    { x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
+    { x: -39.5, z: 44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
     
 
     // Segundo Quadrado
-    { x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta }, /// CORRETO
+    { x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
   ];
 
   // Pontas especiais (fechamento) - ajustadas para 5x5
   const pontasEspeciais = [
-    { x: -160.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },// CORRETO
-    { x: -160.5, z: -59.75, mat: materialMuretaBrancaPista3, w:20.5 },/// CORRETO
-    { x: -139.5, z: -159.75, mat: materialMuretaBrancaPista3, w:19.5 },// CORRETO
-    { x: -60.5, z: 60.25, mat: materialMuretaRoxa, w: 20.5 },// CORRETO
+    { x: -160.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },
+    { x: -160.5, z: -59.75, mat: materialMuretaBrancaPista3, w:20.5 },
+    { x: -139.5, z: -159.75, mat: materialMuretaBrancaPista3, w:19.5 },
+    { x: -60.5, z: 60.25, mat: materialMuretaRoxa, w: 20.5 },
     { x: -60.5, z: -39.75, mat: materialMuretaBrancaPista3, w: 19.5 },
-    { x: 60.5, z: 60.25, mat: materialMuretaBrancaPista3, w: 20.5 },/// ADICIONADO, CORRETO
-    { x: 60.5, z: -60.25, mat: materialMuretaBrancaPista3, w: 20.5},/// ADICIONADO, CORRETO
-    { x: -39.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },// CORRETO
-    { x: -60.5, z: -159.75, mat: materialMuretaRoxa, w: 19.5 },// CORRETO
+    { x: 60.5, z: 60.25, mat: materialMuretaBrancaPista3, w: 20.5 },
+    { x: 60.5, z: -60.25, mat: materialMuretaBrancaPista3, w: 20.5},
+    { x: -39.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },
+    { x: -60.5, z: -159.75, mat: materialMuretaRoxa, w: 19.5 },
   ];
 
   for (let p of pontas) {
