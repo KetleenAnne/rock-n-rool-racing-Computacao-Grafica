@@ -25,6 +25,8 @@ export class IAInimigo {
     console.log(`IA criada com ${this.checkpoints.length} checkpoints`);
   }
 
+  //calcula o centro geográfico entre os dois checkpoint
+  // e cria um vetor THREE.Vector3 para cada um
   obterCheckpointsPista() {
     let checkpointsConfig;
 
@@ -53,6 +55,9 @@ export class IAInimigo {
     this.tentarDisparar(deltaTime, jogador);
   }
 
+  //Waypoint Following -> segue coordenadas
+  // usa o vetor alvo, calculado antes por obterCheckpointsPista()
+  // para guiar o veículo inimigo pela pista
   seguirCheckpoint(deltaTime) {
     const alvo = this.checkpoints[this.checkpointAtual];
     const pos = this.veiculo.position.clone();
@@ -62,6 +67,7 @@ export class IAInimigo {
 
     // --------------- SUAVIZA CURVAS ---------------
     // Calcula o ângulo entre frente do veículo e alvo
+    // usa produto escalar (dot product) para o angulo que deve girar
     const dot = THREE.MathUtils.clamp(dirFrente.dot(dirAlvo), -1, 1);
     const angulo = Math.acos(dot);
 
@@ -70,6 +76,7 @@ export class IAInimigo {
     const sentido = cross.y >= 0 ? 1 : -1;
 
     // Rotação proporcional ao ângulo, suavizando curvas
+    //limita o ângulo máximo por frame para evitar rotações bruscas
     const maxAnguloPorFrame = 0.06 * deltaTime * 30;
     const rotacao = Math.min(angulo, maxAnguloPorFrame) * sentido;
     this.veiculo.rotateY(rotacao);
@@ -108,9 +115,11 @@ export class IAInimigo {
       .normalize();
 
     const direcaoIA = this.veiculo.getDirecaoFrente();
+    //usa produto escalar para um cone de visao de disparo
     const dot = direcaoIA.dot(direcaoJogador);
     const distancia = this.veiculo.position.distanceTo(jogador.position);
 
+    // Verifica se o jogador está dentro do cone de visão e alcance
     if (dot > 0.6 && distancia > 10 && distancia < 60) {
       if (window.sistemaDisparos) {
         window.sistemaDisparos.criarDisparo(this.veiculo);

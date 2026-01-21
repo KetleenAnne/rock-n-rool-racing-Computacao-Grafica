@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 // A luz principal -> projetar sombra em TODOS os elementos
 // Quanto maior, melhor a qualidade da sombra, mas mais pesado o processamento
-const SHADOW_MAP_SIZE = 4096;
+const SHADOW_MAP_SIZE = 4096; //resolução da sombra alta para qualidade melhor
 const SHADOW_CAM_SIZE = 60; // Alcance da câmera de sombra
 const LIGHT_ANGLE_Y = -30 * (Math.PI / 180); // Ângulo para sombra não alongada
 const LIGHT_HEIGHT = 40; // Altura da luz
@@ -65,7 +65,7 @@ export function atualizarLuz(veiculo) {
   // Translação (Posição)
   // A luz acompanha a posição X e Z do carro.
   // A altura (Y) permanece constante.
-  luzPrincipal.position.x = veiculo.position.x + Math.sin(LIGHT_ANGLE_Y) * DIST;
+  luzPrincipal.position.x = veiculo.position.x + Math.sin(LIGHT_ANGLE_Y) * DIST; //fixa distancia
   luzPrincipal.position.z = veiculo.position.z + Math.cos(LIGHT_ANGLE_Y) * DIST;
   luzPrincipal.position.y = LIGHT_HEIGHT; // Altura fixa
 
