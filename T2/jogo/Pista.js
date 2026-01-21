@@ -30,7 +30,7 @@ const POSICAO_INICIAL_PISTA_2 = {
 const POSICAO_INICIAL_PISTA_3 = {
   x: 0,
   y: 0.3,
-  z: 100,
+  z: 60,
   rot: -Math.PI / 2,
 };
 
@@ -235,16 +235,15 @@ export function criarPista3(scene) {
     grama.receiveShadow = true;
     group.add(grama);
 
-    // Linha de largada
-    const linha = criarLinhaLargada(0, 100);
+    // Linha de largada - Ajustada para z=60
+    const linha = criarLinhaLargada(0, 60);
     group.add(linha);
 
-    // Criar blocos, muretas e túnel (vem do arquivo Muretas.js)
+    // Criar blocos, muretas e túnel
     const elementosPista3 = criarMuretasPista3(group);
-
     muretasAtuais = elementosPista3;
 
-    //Cria Arvores
+    // Cria Árvores
     criarArvoresPista3(group);
 
     scene.add(group);

@@ -561,7 +561,6 @@ export function criarMuretasPista3(scene) {
     side: THREE.DoubleSide,
   });
 
-  // Constantes de dimensões (certifique-se de que estão definidas no seu arquivo)
   const ALTURA_MURETA = 1.5;
   const ESPESSURA_MURETA_HORIZONTAL = 1;
   const ESPESSURA_MURETA_VERTICAL = 1;
@@ -581,419 +580,367 @@ export function criarMuretasPista3(scene) {
   const muretaGeometryPonta = new THREE.BoxGeometry(
     ESPESSURA_MURETA_VERTICAL,
     ALTURA_MURETA,
-    22.5
+    9.54
   );
 
   const altura = 0.0;
 
-  // ========== PRIMEIRO QUADRADO - BLOCOS BASE ==========
-  for (let x = -90; x <= 90; x += 20) {
+  // ========== PRIMEIRO QUADRADO - BLOCOS BASE (5x5) ==========
+  for (let x = -50; x <= 50; x += 20) {
     // Sul
     const blocoSul = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoSul.position.set(x, altura, 100);
+    blocoSul.position.set(x, altura, 60);
     blocoSul.castShadow = true;
     blocoSul.receiveShadow = true;
     scene.add(blocoSul);
 
     // Norte
     const blocoNorte = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoNorte.position.set(x, altura, -100);
+    blocoNorte.position.set(x, altura, -60);
     blocoNorte.castShadow = true;
     blocoNorte.receiveShadow = true;
     scene.add(blocoNorte);
   }
 
-  for (let z = -80; z <= 80; z += 20) {
+  for (let z = -40; z <= 40; z += 20) {
     // Esquerda
     const blocoE = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoE.position.set(-90, altura, z);
+    blocoE.position.set(-50, altura, z);
     blocoE.castShadow = true;
     blocoE.receiveShadow = true;
     scene.add(blocoE);
 
     // Direita
     const blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoD.position.set(90, altura, z);
+    blocoD.position.set(50, altura, z);
     blocoD.castShadow = true;
     blocoD.receiveShadow = true;
     scene.add(blocoD);
   }
 
-  // ========== SEGUNDO QUADRADO - BLOCOS BASE ==========
-  const offsetX = -180;
-  const offsetZ = -200;
+  // ========== SEGUNDO QUADRADO - BLOCOS BASE (5x5) ==========
+  const offsetX = -100;
+  const offsetZ = -120;
 
-  for (let x = -90; x <= 90; x += 20) {
+  for (let x = -50; x <= 50; x += 20) {
     // Sul
     const blocoSul = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoSul.position.set(x + offsetX, altura, 100 + offsetZ);
+    blocoSul.position.set(x + offsetX, altura, 60 + offsetZ);
     blocoSul.castShadow = true;
     blocoSul.receiveShadow = true;
     scene.add(blocoSul);
 
     // Norte
     const blocoNorte = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoNorte.position.set(x + offsetX, altura, -100 + offsetZ);
+    blocoNorte.position.set(x + offsetX, altura, -60 + offsetZ);
     blocoNorte.castShadow = true;
     blocoNorte.receiveShadow = true;
     scene.add(blocoNorte);
   }
 
-  for (let z = -80; z <= 80; z += 20) {
+  for (let z = -40; z <= 40; z += 20) {
     const blocoE = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoE.position.set(-90 + offsetX, altura, z + offsetZ);
+    blocoE.position.set(-50 + offsetX, altura, z + offsetZ);
     blocoE.castShadow = true;
     blocoE.receiveShadow = true;
     scene.add(blocoE);
 
     const blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoD.position.set(90 + offsetX, altura, z + offsetZ);
+    blocoD.position.set(50 + offsetX, altura, z + offsetZ);
     blocoD.castShadow = true;
     blocoD.receiveShadow = true;
     scene.add(blocoD);
   }
 
   // ========== MURETAS HORIZONTAIS PRIMEIRO QUADRADO ==========
-  // Sul Interior (z=89)  //SR - Mudei de 89 para 90
+  // Sul Interior (z=50)
   const muretasSulInt1 = [
-    { x: 70, mat: materialMuretaRoxa },
-    { x: 50, mat: materialMuretaBrancaPista3 },
     { x: 30, mat: materialMuretaRoxa },
     { x: 10, mat: materialMuretaBrancaPista3 },
     { x: -10, mat: materialMuretaRoxa },
     { x: -30, mat: materialMuretaBrancaPista3 },
-    { x: -50, mat: materialMuretaRoxa },
-    { x: -70, mat: materialMuretaBrancaPista3 },
   ];
 
   for (let m of muretasSulInt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, 90); //SR - Mudei de 89 para 90
+    mureta.position.set(m.x, 0.1, 50);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: 90 },
-    }); // SR - Mudei de 89 para 90
+      posicao: { x: m.x, z: 50 },
+    });
   }
 
-  // Sul Exterior (z=111) //SR - Mudei de 111 para 110
+  // Sul Exterior (z=70)
   const muretasSulExt1 = [
-    { x: 90, mat: materialMuretaBrancaPista3 },
-    { x: 70, mat: materialMuretaRoxa },
     { x: 50, mat: materialMuretaBrancaPista3 },
     { x: 30, mat: materialMuretaRoxa },
     { x: 10, mat: materialMuretaBrancaPista3 },
     { x: -10, mat: materialMuretaRoxa },
     { x: -30, mat: materialMuretaBrancaPista3 },
     { x: -50, mat: materialMuretaRoxa },
-    { x: -70, mat: materialMuretaBrancaPista3 },
-    { x: -90, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasSulExt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, 110); //SR - Mudei de 111 para 110
+    mureta.position.set(m.x, 0.1, 70);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: 110 },
-    }); //SR - Mudei de 111 para 110
+      posicao: { x: m.x, z: 70 },
+    });
   }
 
-  // Norte Interno (z=-89) //SR - Mudei de -89 para -90
+  // Norte Interno (z=-50)
   const muretasNorteInt1 = [
-    { x: 70, mat: materialMuretaBrancaPista3 },
-    { x: 50, mat: materialMuretaRoxa },
     { x: 30, mat: materialMuretaBrancaPista3 },
     { x: 10, mat: materialMuretaRoxa },
     { x: -10, mat: materialMuretaBrancaPista3 },
     { x: -30, mat: materialMuretaRoxa },
-    { x: -50, mat: materialMuretaBrancaPista3 },
-    { x: -70, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteInt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -90); //SR - Mudei de -89 para -90
+    mureta.position.set(m.x, 0.1, -50);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     scene.add(mureta);
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -90 },
-    }); //SR - Mudei de -89 para -90
+      posicao: { x: m.x, z: -50 },
+    });
   }
 
-  // Norte Externo (z=-111) //SR - Mudei de -111 para -110
+  // Norte Externo (z=-70)
   const muretasNorteExt1 = [
-    { x: 90, mat: materialMuretaRoxa },
-    { x: 70, mat: materialMuretaBrancaPista3 },
     { x: 50, mat: materialMuretaRoxa },
     { x: 30, mat: materialMuretaBrancaPista3 },
     { x: 10, mat: materialMuretaRoxa },
     { x: -10, mat: materialMuretaBrancaPista3 },
     { x: -30, mat: materialMuretaRoxa },
-    { x: -50, mat: materialMuretaBrancaPista3 },
-    { x: -70, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteExt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -110); //SR - Mudei de -111 para -110
+    mureta.position.set(m.x, 0.1, -70);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -110 },
-    }); //SR - Mudei de -111 para -110
+      posicao: { x: m.x, z: -70 },
+    });
   }
 
   // ========== MURETAS HORIZONTAIS SEGUNDO QUADRADO ==========
-  // Sul Exterior (z=-89) //SR - Mudei de -89 para -90
+  // Sul Exterior (z=-60)
   const muretasSulExt2 = [
+    { x: -70, mat: materialMuretaRoxa },
+    { x: -90, mat: materialMuretaBrancaPista3 },
     { x: -110, mat: materialMuretaRoxa },
     { x: -130, mat: materialMuretaBrancaPista3 },
     { x: -150, mat: materialMuretaRoxa },
-    { x: -170, mat: materialMuretaBrancaPista3 },
-    { x: -190, mat: materialMuretaRoxa },
-    { x: -210, mat: materialMuretaBrancaPista3 },
-    { x: -230, mat: materialMuretaRoxa },
-    { x: -250, mat: materialMuretaBrancaPista3 },
-    { x: -270, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasSulExt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -90); //SR - Mudei de -89 para -90
+    mureta.position.set(m.x, 0.1, -50);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -90 },
-    }); //SR - Mudei de -89 para -90
+      posicao: { x: m.x, z: -50 },
+    });
   }
 
-  // Sul Interior (z=-110) ///SR - Mudei de -110 para -110.5
+  // Sul Interior (z=-70)
   const muretasSulInt2 = [
+    { x: -70, mat: materialMuretaRoxa },
+    { x: -90, mat: materialMuretaBrancaPista3 },
     { x: -110, mat: materialMuretaRoxa },
     { x: -130, mat: materialMuretaBrancaPista3 },
-    { x: -150, mat: materialMuretaRoxa },
-    { x: -170, mat: materialMuretaBrancaPista3 },
-    { x: -190, mat: materialMuretaRoxa },
-    { x: -210, mat: materialMuretaBrancaPista3 },
-    { x: -230, mat: materialMuretaRoxa },
-    { x: -250, mat: materialMuretaBrancaPista3 },
   ];
 
   for (let m of muretasSulInt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -110.5); //SR - Mudei de -110 para -110.5
+    mureta.position.set(m.x, 0.1, -70);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -110.5 },
-    }); //SR - Mudei de -110 para -110.5
+      posicao: { x: m.x, z: -70 },
+    });
   }
 
-  // Norte Externo (z=-311) //SR - Mudei de -311 para -310.5
+  // Norte Externo (z=-190.5)
   const muretasNorteExt2 = [
-    { x: -90, mat: materialMuretaRoxa },
-    { x: -110, mat: materialMuretaBrancaPista3 },
-    { x: -130, mat: materialMuretaRoxa },
-    { x: -150, mat: materialMuretaBrancaPista3 },
-    { x: -170, mat: materialMuretaRoxa },
-    { x: -190, mat: materialMuretaBrancaPista3 },
-    { x: -210, mat: materialMuretaRoxa },
-    { x: -230, mat: materialMuretaBrancaPista3 },
-    { x: -250, mat: materialMuretaRoxa },
-    { x: -270, mat: materialMuretaBrancaPista3 },
+    { x: -50, mat: materialMuretaBrancaPista3 },
+    { x: -70, mat: materialMuretaRoxa },
+    { x: -90, mat: materialMuretaBrancaPista3 },
+    { x: -110, mat: materialMuretaRoxa },
+    { x: -130, mat: materialMuretaBrancaPista3 },
+    { x: -150, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteExt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -310.5); //SR - Mudei de -311 para -310.5
+    mureta.position.set(m.x, 0.1, -190.5);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -310.5 },
-    }); //SR - Mudei de -311 para -310.5
+      posicao: { x: m.x, z: -190.5 },
+    });
   }
 
-  // Norte Interno (z=-289) //SR - Mudei de -289 para -289.5
+  // Norte Interno (z=-170)
   const muretasNorteInt2 = [
-    { x: -130, mat: materialMuretaRoxa },
-    { x: -150, mat: materialMuretaBrancaPista3 },
-    { x: -170, mat: materialMuretaRoxa },
-    { x: -190, mat: materialMuretaBrancaPista3 },
-    { x: -210, mat: materialMuretaRoxa },
-    { x: -230, mat: materialMuretaBrancaPista3 },
-    { x: -250, mat: materialMuretaRoxa },
+    { x: -70, mat: materialMuretaBrancaPista3 },
+    { x: -90, mat: materialMuretaRoxa },
     { x: -110, mat: materialMuretaBrancaPista3 },
+    { x: -130, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteInt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -289.5); //SR - Mudei de -289 para -289.5
+    mureta.position.set(m.x, 0.1, -170);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "horizontal",
-      posicao: { x: m.x, z: -289.5 },
-    }); //SR - Mudei de -289 para -289.5
+      posicao: { x: m.x, z: -170 },
+    });
   }
 
   // ========== MURETAS LATERAIS PRIMEIRO QUADRADO ==========
-  // Interior Esquerda (x=-79) //SR - Mudei de -79 para -80
+  // Interior Esquerda (x=-39.5)
   const lateraisEsqInt1 = [
-    { z: -58, mat: materialMuretaRoxa },
-    { z: -38, mat: materialMuretaBrancaPista3 },
-    { z: -18, mat: materialMuretaRoxa },
-    { z: 2, mat: materialMuretaBrancaPista3 },
-    { z: 38, mat: materialMuretaRoxa },
-    { z: 58, mat: materialMuretaBrancaPista3 },
+    { z: -30, mat: materialMuretaRoxa },
+    { z: -10, mat: materialMuretaBrancaPista3 },
+    { z: 10, mat: materialMuretaRoxa },
+    { z: 30, mat: materialMuretaBrancaPista3 },
   ];
 
   for (let m of lateraisEsqInt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(-79.5, 0.1, m.z); //SR - Mudei de -79 para -79.5
+    mureta.position.set(-39.5, 0.1, m.z);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "vertical",
-      posicao: { x: -79.5, z: m.z },
-    }); //SR - Mudei de -79 para -79.5
+      posicao: { x: -39.5, z: m.z },
+    });
   }
 
-  // Interior Direita (x=79) //SR - Mudei de 79 para 79.5
+  // Interior Direita (x=40)
   const lateraisDirInt1 = [
-    { z: -58, mat: materialMuretaBrancaPista3 },
-    { z: -38, mat: materialMuretaRoxa },
-    { z: -18, mat: materialMuretaBrancaPista3 },
-    { z: 2, mat: materialMuretaBrancaPista3 },
-    { z: 22, mat: materialMuretaRoxa },
-    { z: 58, mat: materialMuretaBrancaPista3 },
+    { z: -30, mat: materialMuretaBrancaPista3 },
+    { z: -10, mat: materialMuretaRoxa },
+    { z: 10, mat: materialMuretaBrancaPista3 },
+    { z: 30, mat: materialMuretaRoxa },
   ];
 
   for (let m of lateraisDirInt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(79.5, 0.1, m.z); //SR - Mudei de 79 para 79.5
+    mureta.position.set(39.5, 0.1, m.z);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "vertical",
-      posicao: { x: 79.5, z: m.z },
-    }); //SR - Mudei de 79 para 79.5
+      posicao: { x: 39.5, z: m.z },
+    });
   }
 
-  // Exterior Direita (x=101) //SR - Mudei de 101 para 100.5
+  // Exterior Direita (x=60.5)
   const lateraisDirExt1 = [
-    { z: -78, mat: materialMuretaRoxa },
-    { z: -58, mat: materialMuretaBrancaPista3 },
-    { z: -38, mat: materialMuretaRoxa },
-    { z: -18, mat: materialMuretaBrancaPista3 },
-    { z: 2, mat: materialMuretaRoxa },
-    { z: 22, mat: materialMuretaBrancaPista3 },
-    { z: 58, mat: materialMuretaBrancaPista3 },
-    { z: 78, mat: materialMuretaRoxa },
+    { z: -40, mat: materialMuretaRoxa },
+    { z: -20, mat: materialMuretaBrancaPista3 },
+    { z: 0, mat: materialMuretaRoxa },
+    { z: 20, mat: materialMuretaBrancaPista3 },
+    { z: 40, mat: materialMuretaRoxa },
   ];
 
   for (let m of lateraisDirExt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(100.5, 0.1, m.z); //SR - Mudei de 101 para 100.5
+    mureta.position.set(60.5, 0.1, m.z);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "vertical",
-      posicao: { x: 100.5, z: m.z },
-    }); //SR - Mudei de 101 para 100.5
+      posicao: { x: 60.5, z: m.z },
+    });
   }
 
-  // Exterior Esquerda (x=-101) //SR - Mudei de -101 para -100.5
+  // Exterior Esquerda (x=-60.5)
   const lateraisEsqExt1 = [
-    { z: 78, mat: materialMuretaBrancaPista3 },
-    { z: 22, mat: materialMuretaRoxa },
-    { z: 2, mat: materialMuretaBrancaPista3 },
-    { z: -18, mat: materialMuretaRoxa },
-    { z: -38, mat: materialMuretaBrancaPista3 },
-    { z: -58, mat: materialMuretaRoxa },
-    { z: 42, mat: materialMuretaBrancaPista3 }, // Adicionei essa ultima
+    { z: 40, mat: materialMuretaBrancaPista3 },
+    { z: 20, mat: materialMuretaRoxa },
+    { z: 0, mat: materialMuretaBrancaPista3 },
+    { z: -20, mat: materialMuretaRoxa },
   ];
 
   for (let m of lateraisEsqExt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(-100.5, 0.1, m.z); //SR - Mudei de -101 para -100.5
+    mureta.position.set(-60.5, 0.1, m.z);
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
       mesh: mureta,
       tipo: "vertical",
-      posicao: { x: -100.5, z: m.z },
-    }); //SR - Mudei de -101 para -100.5
+      posicao: { x: -60.5, z: m.z },
+    });
   }
 
   // ========== MURETAS LATERAIS SEGUNDO QUADRADO ==========
   const laterais2 = [
-    // x=-79 //SR - Mudei de -79 para -79.5 LATERAL EXTERIOR ESQUERDO SEGUNDO
-    { x: -79.5, z: -278, mat: materialMuretaRoxa },
-    { x: -79.5, z: -258, mat: materialMuretaBrancaPista3 },
-    { x: -79.5, z: -238, mat: materialMuretaRoxa },
-    { x: -79.5, z: -218, mat: materialMuretaBrancaPista3 },
-    { x: -79.5, z: -178, mat: materialMuretaRoxa },
-    { x: -79.5, z: -198, mat: materialMuretaBrancaPista3 },
-    { x: -79.5, z: -141, mat: materialMuretaRoxa },
+    // x=-39.5 LATERAL EXTERIOR DIREITO SEGUNDO (CONEXÃO)
+    { x: -39.5, z: -160, mat: materialMuretaRoxa },
+    { x: -39.5, z: -140, mat: materialMuretaBrancaPista3 },
+    { x: -39.5, z: -120, mat: materialMuretaRoxa },
+    { x: -39.5, z: -100, mat: materialMuretaBrancaPista3 },
+    { x: -39.5, z: -80, mat: materialMuretaRoxa },
 
-    // x=-101 //SR - Mudei de -101 para -100.5 LATERAL INTERIOR ESQUERDO SEGUNDO
-    { x: -100.5, z: -238, mat: materialMuretaRoxa },
-    { x: -100.5, z: -258, mat: materialMuretaBrancaPista3 },
-    { x: -100.5, z: -218, mat: materialMuretaBrancaPista3 },
-    { x: -100.5, z: -198, mat: materialMuretaBrancaPista3 },
-    { x: -100.5, z: -178, mat: materialMuretaRoxa },
-    { x: -100.5, z: -141, mat: materialMuretaRoxa },
+    // x=-60.5 LATERAL INTERIOR DIREITO SEGUNDO
+    { x: -60.5, z: -140, mat: materialMuretaBrancaPista3 },
+    { x: -60.5, z: -120, mat: materialMuretaRoxa },
+    { x: -60.5, z: -100, mat: materialMuretaBrancaPista3 },
+    { x: -60.5, z: -80, mat: materialMuretaRoxa },
 
-    // x=-259 //SR - Mudei de -259 para -259.5 LATERAL INTERIOR DIREITO SEGUNDO
-    { x: -259.5, z: -258, mat: materialMuretaRoxa },
-    { x: -259.5, z: -238, mat: materialMuretaBrancaPista3 },
-    { x: -259.5, z: -218, mat: materialMuretaRoxa },
-    { x: -259.5, z: -198, mat: materialMuretaBrancaPista3 },
-    { x: -259.5, z: -178, mat: materialMuretaRoxa },
-    { x: -259.5, z: -158, mat: materialMuretaBrancaPista3 },
-    { x: -259.5, z: -138, mat: materialMuretaRoxa },
+    // x=-139.5 LATERAL INTERIOR ESQUERDO SEGUNDO 
+    { x: -139.5, z: -140, mat: materialMuretaRoxa },
+    { x: -139.5, z: -120, mat: materialMuretaBrancaPista3 },
+    { x: -139.5, z: -100, mat: materialMuretaRoxa },
+    { x: -139.5, z: -80, mat: materialMuretaBrancaPista3 },
 
-    // x=-281 //SR - Mudei de -281 para -280.5 LATERAL INTERIOR DIREITO SEGUNDO
-    { x: -280.5, z: -262, mat: materialMuretaRoxa },
-    { x: -280.5, z: -242, mat: materialMuretaBrancaPista3 },
-    { x: -280.5, z: -222, mat: materialMuretaRoxa },
-    { x: -280.5, z: -202, mat: materialMuretaBrancaPista3 },
-    { x: -280.5, z: -182, mat: materialMuretaRoxa },
-    { x: -280.5, z: -162, mat: materialMuretaBrancaPista3 },
-    { x: -280.5, z: -142, mat: materialMuretaRoxa },
-    { x: -280.5, z: -122, mat: materialMuretaBrancaPista3 },
+    // x=-160 LATERAL EXTERIOR ESQUERDO SEGUNDO
+    { x: -160.5, z: -160, mat: materialMuretaRoxa },
+    { x: -160.5, z: -140, mat: materialMuretaBrancaPista3 },
+    { x: -160.5, z: -120, mat: materialMuretaRoxa },
+    { x: -160.5, z: -100, mat: materialMuretaBrancaPista3 },
+    { x: -160.5, z: -80, mat: materialMuretaRoxa },
   ];
 
   for (let m of laterais2) {
@@ -1012,60 +959,33 @@ export function criarMuretasPista3(scene) {
   // ========== PONTAS (CANTOS) ==========
   const pontas = [
     // Primeiro Quadrado
-    {
-      x: 100.5,
-      z: -99.2,
-      mat: materialMuretaBrancaPista3,
-      geo: muretaGeometryPonta,
-    }, //Lateral Dir Exter Nort Primeiro (101,-100)
-    { x: -100.5, z: 99.2, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, //Lateral Esq Inter Sul Primeiro (-101,100)
-    {
-      x: 100.5,
-      z: 99.2,
-      mat: materialMuretaBrancaPista3,
-      geo: muretaGeometryPonta,
-    }, //Lateral Dir Ext Sul Primeiro (101,100)
+    { x: 39.5, z: 44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, 
+    { x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
+    { x: -39.5, z: 44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
+    
 
     // Segundo Quadrado
-    { x: -280.5, z: -100.7, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, //Lateral Esq Ext Sul (-281,-100)
-    {
-      x: -100.5,
-      z: -121,
-      mat: materialMuretaBrancaPista3,
-      geo: muretaGeometryLateral,
-    }, //Lateral Dir Int Sul (-101,-121)
-    {
-      x: -79.5,
-      z: -120.5,
-      mat: materialMuretaBrancaPista3,
-      geo: muretaGeometryLateral,
-    }, //Lateral Dir Ext Sul (-79,-122)
-    { x: -280.5, z: -299.7, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, //Lateral Esq Ext Nort (-281,-300)
+    { x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
   ];
 
-  // Pontas especiais (fechamento)
+  // Pontas especiais (fechamento) - ajustadas para 5x5
   const pontasEspeciais = [
-    { x: -280.5, z: -280.2, mat: materialMuretaBrancaPista3, w: 16.48 }, //Ponta Esq Ext Nort Segundo (-281,-280, w:16)
-    { x: -79.5, z: -159.5, mat: materialMuretaBrancaPista3, w: 17 }, //Ponta Dir Ext Sul Segundo (-79,-159.5, w:17)
-    { x: -100.5, z: -159.5, mat: materialMuretaBrancaPista3, w: 17 }, //Ponta Dir Int Sul Segundo (-101,-159.5, w:17)
-    { x: -100.5, z: 60, mat: materialMuretaRoxa, w: 16 }, //Lateral Esq Ext Sul Primeiro (-101,60, w:16)
-    { x: 100.5, z: 40, mat: materialMuretaRoxa, w: 16 }, //Lateral Dir Ext Sul Primeiro (101,40, w:16)
-    { x: -79.5, z: 20, mat: materialMuretaBrancaPista3, w: 16 }, //Lateral Esq Int Sul Primeiro (-79,20, w:16)
-    { x: 79.5, z: 40, mat: materialMuretaBrancaPista3, w: 16 }, //Lateral Dir Int Sul Primeiro (79,40, w:16)
-    { x: -100.5, z: -78.7, mat: materialMuretaBrancaPista3, w: 21.5 }, //Ponta Nort Exter Primeiro (Criei nova)
-    { x: 79.5, z: 78.7, mat: materialMuretaRoxa, w: 21.5 }, //Lateral Dir Inter Sul Primeiro (79,78)
-    { x: 79.5, z: -78.7, mat: materialMuretaRoxa, w: 21.5 }, //Lateral Dir Inter Nort Primeiro (-79,-78)
-    { x: -79.5, z: -78.7, mat: materialMuretaBrancaPista3, w: 21.5 }, //Lateral Esq Inter Nort Primeiro (-79,-78)
-    { x: -79.5, z: 78.7, mat: materialMuretaRoxa, w: 21.5 }, //Lateral Esq Ext Sul Primeiro (-79,78)
-    { x: -259.5, z: -278.5, mat: materialMuretaBrancaPista3, w: 21 }, //Lateral Esq Int Nort (-259,-278)
-    { x: -79.5, z: -299.5, mat: materialMuretaBrancaPista3, w: 23 }, //Ponta Dir Ext Nort Segundo (-79.5,-300)
-    { x: -100.5, z: -278.5, mat: materialMuretaRoxa, w: 21 }, //Ponta Dir Int Nort (-101,-278)
-    { x: -259.5, z: -120, mat: materialMuretaRoxa, w: 18 }, //Lateral Esq Int Nort (-259,-121) Podemos trocar para branco
+    { x: -160.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },
+    { x: -160.5, z: -59.75, mat: materialMuretaBrancaPista3, w:20.5 },
+    { x: -139.5, z: -159.75, mat: materialMuretaBrancaPista3, w:19.5 },
+    { x: -60.5, z: 60.25, mat: materialMuretaRoxa, w: 20.5 },
+    { x: -60.5, z: -39.75, mat: materialMuretaBrancaPista3, w: 19.5 },
+    { x: 60.5, z: 60.25, mat: materialMuretaBrancaPista3, w: 20.5 },
+    { x: 60.5, z: -60.25, mat: materialMuretaBrancaPista3, w: 20.5},
+    { x: -39.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },
+    { x: -60.5, z: -159.75, mat: materialMuretaRoxa, w: 19.5 },
   ];
 
   for (let p of pontas) {
     const mureta = new THREE.Mesh(p.geo, p.mat);
     mureta.position.set(p.x, 0.1, p.z);
+    mureta.castShadow = true;
+    mureta.receiveShadow = true;
     scene.add(mureta);
     muretas.push({ mesh: mureta, tipo: "ponta", posicao: { x: p.x, z: p.z } });
   }
@@ -1078,6 +998,8 @@ export function criarMuretasPista3(scene) {
     );
     const mureta = new THREE.Mesh(geo, p.mat);
     mureta.position.set(p.x, 0.1, p.z);
+    mureta.castShadow = true;
+    mureta.receiveShadow = true;
     scene.add(mureta);
     muretas.push({ mesh: mureta, tipo: "ponta", posicao: { x: p.x, z: p.z } });
   }
@@ -1093,8 +1015,6 @@ export function criarMuretasPista3(scene) {
     );
     cylinder.rotation.x = Math.PI / 2;
     cylinder.position.set(-210, 10, 0);
-
-    //sombras
     cylinder.castShadow = true;
     cylinder.receiveShadow = true;
 
@@ -1104,8 +1024,6 @@ export function criarMuretasPista3(scene) {
     );
     cylinder2.rotation.x = Math.PI / 2;
     cylinder2.position.set(-210, 10, 0);
-
-    //sombras
     cylinder2.castShadow = true;
     cylinder2.receiveShadow = true;
 
@@ -1149,7 +1067,7 @@ export function criarMuretasPista3(scene) {
 
     let csgFinal = CSG.toMesh(resultado, new THREE.Matrix4());
     csgFinal.material = new THREE.MeshPhongMaterial({ color: "white" });
-    csgFinal.position.set(119.4, -6, 0);
+    csgFinal.position.set(159.4, -6, 0);
     scene.add(csgFinal);
   } catch (error) {
     console.warn("CSG não disponível, túnel não foi criado:", error);
