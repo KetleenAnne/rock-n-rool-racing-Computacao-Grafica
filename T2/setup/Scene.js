@@ -9,32 +9,19 @@ import { criarLuzes } from "./Luz.js";
 let axesHelper = null;
 
 export function setupScene(scene) {
-  let corCeu = "skyblue";
+  // let corCeu = "skyblue";
   // initDefaultBasicLight(scene);
   criarLuzes(scene); //  novo sistema de luz
 
-  scene.background = new THREE.Color(corCeu);
+  //carregar o ceu
+  const loader = new THREE.TextureLoader();
+  const caminhoCeu = "assets/texturas/sky/ceu2.jpg";
 
-  // Eixos helper para orientação (Debug) - Inicialmente Pista 1
-  //defineAxes(scene, 1);
+  const textureEquirec = loader.load(caminhoCeu);
+  // diz ao Three.js que a imagem é uma esfera 360 graus
+  textureEquirec.mapping = THREE.EquirectangularReflectionMapping;
+  textureEquirec.colorSpace = THREE.SRGBColorSpace;
+
+  //define como fundo
+  scene.background = textureEquirec;
 }
-
-// export function defineAxes(scene, pista = 1) {
-//   // Remover eixos anteriores se existirem
-//   if (axesHelper) {
-//     scene.remove(axesHelper);
-//   }
-
-//   // Show axes do plano
-//   axesHelper = new THREE.AxesHelper(80);
-
-//   if (pista === 1) {
-//     // Centro da Pista 1
-//     axesHelper.position.set(69, 0, 67);
-//   } else if (pista === 2) {
-//     // Centro da Pista 2
-//     axesHelper.position.set(40, 0, 69);
-//   }
-
-//   scene.add(axesHelper);
-// }
