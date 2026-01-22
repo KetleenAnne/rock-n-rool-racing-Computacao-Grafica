@@ -19,7 +19,7 @@ export class SistemaDisparos {
       color: 0xff0000,
       emissive: 0xff0000,
       emissiveIntensity: 0.5,
-      shininess: 100,
+      shininess: 300,
     });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;

@@ -13,7 +13,7 @@ const CORES_MURETAS_PISTA2 = {
 };
 
 // ========== CONFIGURAÇÕES DE DIMENSÕES ==========
-const ALTURA_MURETA = 1.5;
+const ALTURA_MURETA = 21.5;
 const ESPESSURA_MURETA_HORIZONTAL = 0.3;
 const ESPESSURA_MURETA_VERTICAL = 0.1;
 
@@ -54,7 +54,7 @@ const muretaGeometryLateral = new THREE.BoxGeometry(
 // ========== FUNÇÃO AUXILIAR: CRIAR MURETA HORIZONTAL ==========
 function criarMuretaHorizontal(x, z, material) {
   const mureta = new THREE.Mesh(muretaGeometry, material);
-  mureta.position.set(x, 0.1, z);
+  mureta.position.set(x, -9.8, z); // mudou de 0.1 para -9.8
   mureta.castShadow = true;
   mureta.receiveShadow = true;
 
@@ -68,7 +68,7 @@ function criarMuretaHorizontal(x, z, material) {
 // ========== FUNÇÃO AUXILIAR: CRIAR MURETA VERTICAL ==========
 function criarMuretaVertical(x, z, material) {
   const mureta = new THREE.Mesh(muretaGeometryLateral, material);
-  mureta.position.set(x, 0.1, z);
+  mureta.position.set(x, -9.8, z); // mudou de 0.1 para -9.8
   mureta.castShadow = true;
   mureta.receiveShadow = true;
 
@@ -546,7 +546,7 @@ export function criarMuretasPista2(scene) {
   return muretas;
 }
 
-// ========== MURETAS PISTA 3  ==========
+// ========== MURETAS PISTA 3  ========== -> Posição do buraco (-10,altura,-60)
 export function criarMuretasPista3(scene) {
   const muretas = [];
 
@@ -561,7 +561,7 @@ export function criarMuretasPista3(scene) {
     side: THREE.DoubleSide,
   });
 
-  const ALTURA_MURETA = 1.5;
+  const ALTURA_MURETA = 21.5;
   const ESPESSURA_MURETA_HORIZONTAL = 1;
   const ESPESSURA_MURETA_VERTICAL = 1;
 
@@ -586,21 +586,36 @@ export function criarMuretasPista3(scene) {
   const altura = 0.0;
 
   // ========== PRIMEIRO QUADRADO - BLOCOS BASE (5x5) ==========
-  for (let x = -50; x <= 50; x += 20) {
-    // Sul
-    const blocoSul = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoSul.position.set(x, altura, 60);
-    blocoSul.castShadow = true;
-    blocoSul.receiveShadow = true;
-    scene.add(blocoSul);
+for (let x = -50; x <= 50; x += 20) {
+  // Sul
+  const blocoSul = new THREE.Mesh(cubeGeometry, materialBloco);
+  blocoSul.position.set(x, altura, 60);
+  blocoSul.castShadow = true;
+  blocoSul.receiveShadow = true;
+  scene.add(blocoSul);
 
-    // Norte
-    const blocoNorte = new THREE.Mesh(cubeGeometry, materialBloco);
-    blocoNorte.position.set(x, altura, -60);
-    blocoNorte.castShadow = true;
-    blocoNorte.receiveShadow = true;
-    scene.add(blocoNorte);
+  // Norte - PULA o bloco em (-10, -60) -> Alteração 18/01/2026 Criar Buraco
+  if (x !== -10) {
+    // BLOCOS ELEVADOS nas posições (-30, -60) e (10, -60)
+    if (x === -30 || x === 10) {
+      const cubeGeometryAlto = new THREE.BoxGeometry(20, 20, 20);
+      const blocoNorteAlto = new THREE.Mesh(cubeGeometryAlto, materialBloco);
+      blocoNorteAlto.position.set(x, -10, -60);
+      blocoNorteAlto.castShadow = true;
+      blocoNorteAlto.receiveShadow = true;
+      scene.add(blocoNorteAlto);
+
+      
+    } else {
+      // Blocos normais
+      const blocoNorte = new THREE.Mesh(cubeGeometry, materialBloco);
+      blocoNorte.position.set(x, altura, -60);
+      blocoNorte.castShadow = true;
+      blocoNorte.receiveShadow = true;
+      scene.add(blocoNorte);
+    }
   }
+}
 
   for (let z = -40; z <= 40; z += 20) {
     // Esquerda
@@ -663,7 +678,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasSulInt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, 50);
+    mureta.position.set(m.x, -9.8, 50); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -686,7 +701,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasSulExt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, 70);
+    mureta.position.set(m.x, -9.8, 70); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -701,13 +716,13 @@ export function criarMuretasPista3(scene) {
   const muretasNorteInt1 = [
     { x: 30, mat: materialMuretaBrancaPista3 },
     { x: 10, mat: materialMuretaRoxa },
-    { x: -10, mat: materialMuretaBrancaPista3 },
+    //{ x: -10, mat: materialMuretaBrancaPista3 }, Tirando para Criar Buraco
     { x: -30, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteInt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -50);
+    mureta.position.set(m.x, -9.8, -49.5); // mudou de 0.1 para -9.8, -49.5
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     scene.add(mureta);
@@ -723,13 +738,13 @@ export function criarMuretasPista3(scene) {
     { x: 50, mat: materialMuretaRoxa },
     { x: 30, mat: materialMuretaBrancaPista3 },
     { x: 10, mat: materialMuretaRoxa },
-    { x: -10, mat: materialMuretaBrancaPista3 },
+    //{ x: -10, mat: materialMuretaBrancaPista3 }, Tirando para criar buraco
     { x: -30, mat: materialMuretaRoxa },
   ];
 
   for (let m of muretasNorteExt1) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -70);
+    mureta.position.set(m.x, -9.8, -70.5); // mudou de 0.1 para -9.8 e -70.5
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -752,7 +767,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasSulExt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -50);
+    mureta.position.set(m.x, -9.8, -50); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -773,7 +788,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasSulInt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -70);
+    mureta.position.set(m.x, -9.8, -70); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -796,7 +811,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasNorteExt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -190.5);
+    mureta.position.set(m.x, -9.8, -190.5); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -817,7 +832,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of muretasNorteInt2) {
     const mureta = new THREE.Mesh(muretaGeometry, m.mat);
-    mureta.position.set(m.x, 0.1, -170);
+    mureta.position.set(m.x, -9.8, -170); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -839,7 +854,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of lateraisEsqInt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(-39.5, 0.1, m.z);
+    mureta.position.set(-39.5, -9.8, m.z); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -860,7 +875,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of lateraisDirInt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(39.5, 0.1, m.z);
+    mureta.position.set(39.5, -9.8, m.z); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -882,7 +897,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of lateraisDirExt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(60.5, 0.1, m.z);
+    mureta.position.set(60.5, -9.8, m.z); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -903,7 +918,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of lateraisEsqExt1) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(-60.5, 0.1, m.z);
+    mureta.position.set(-60.5, -9.8, m.z); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -945,7 +960,7 @@ export function criarMuretasPista3(scene) {
 
   for (let m of laterais2) {
     const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
-    mureta.position.set(m.x, 0.1, m.z);
+    mureta.position.set(m.x, -9.8, m.z); // mudou de 0.1 para -9.8
     scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -960,12 +975,12 @@ export function criarMuretasPista3(scene) {
   const pontas = [
     // Primeiro Quadrado
     { x: 39.5, z: 44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta }, 
-    { x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
+    //{ x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
     { x: -39.5, z: 44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
     
 
     // Segundo Quadrado
-    { x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
+    //{ x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
   ];
 
   // Pontas especiais (fechamento) - ajustadas para 5x5
@@ -979,11 +994,13 @@ export function criarMuretasPista3(scene) {
     { x: 60.5, z: -60.25, mat: materialMuretaBrancaPista3, w: 20.5},
     { x: -39.5, z: -180.5, mat: materialMuretaBrancaPista3, w: 21 },
     { x: -60.5, z: -159.75, mat: materialMuretaRoxa, w: 19.5 },
+    { x: -39.5, z: -44.5, mat: materialMuretaBrancaPista3, w: 9},
+    { x: 39.5, z: -44.5, mat: materialMuretaRoxa, w: 9 }
   ];
 
   for (let p of pontas) {
     const mureta = new THREE.Mesh(p.geo, p.mat);
-    mureta.position.set(p.x, 0.1, p.z);
+    mureta.position.set(p.x, -9.8, p.z); // mudou de 0.1 para -9.8
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     scene.add(mureta);
@@ -997,7 +1014,7 @@ export function criarMuretasPista3(scene) {
       p.w
     );
     const mureta = new THREE.Mesh(geo, p.mat);
-    mureta.position.set(p.x, 0.1, p.z);
+    mureta.position.set(p.x, -9.8, p.z); // mudou de 0.1 para -9.8
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     scene.add(mureta);

@@ -34,7 +34,7 @@ export class VeiculoBase {
     
     // Criar modelo com tipo para identificação
     criarModeloHavac(this.group, this.cores, this.tipo);
-    this.group.scale.set(0.2, 0.2, 0.2);
+    this.group.scale.set(0.5, 0.5, 0.5);
     
     // Encontrar hélice no grupo
     this.group.traverse((child) => {

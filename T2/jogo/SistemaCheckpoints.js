@@ -27,7 +27,8 @@ class SistemaCheckpoints {
     );
 
     // ========== POSTES DO PORTAL ==========
-    const posteGeo = new THREE.CylinderGeometry(0.5, 0.5, 8, 8);
+    const alturaPoste = 28; // Mudou de 8 para 28 (8 + 20)
+    const posteGeo = new THREE.CylinderGeometry(0.5, 0.5, alturaPoste, 8);
     const posteMat = new THREE.MeshPhongMaterial({
       color: 0x00ff00,
       emissive: 0x00ff00,
@@ -35,12 +36,12 @@ class SistemaCheckpoints {
     });
 
     const poste1 = new THREE.Mesh(posteGeo, posteMat);
-    poste1.position.set(poste1Pos.x, 4, poste1Pos.z);
+    poste1.position.set(poste1Pos.x, -6.1, poste1Pos.z); // Mudou de 4 para -6.1
     poste1.castShadow = true;
     poste1.receiveShadow = true;
 
     const poste2 = new THREE.Mesh(posteGeo, posteMat);
-    poste2.position.set(poste2Pos.x, 4, poste2Pos.z);
+    poste2.position.set(poste2Pos.x, -6.1, poste2Pos.z); // Mudou de 4 para -6.1
     poste2.castShadow = true;
     poste2.receiveShadow = true;
 
@@ -54,21 +55,22 @@ class SistemaCheckpoints {
       emissiveIntensity: 0.3,
     });
     const barra = new THREE.Mesh(barraGeo, barraMat);
-    barra.position.set(centroX, 8, centroZ);
+    barra.position.set(centroX, 7.9, centroZ); // Mudou de 8 para 7.9
     barra.rotation.y = angulo;
     barra.castShadow = true;
     barra.receiveShadow = true;
     group.add(barra);
 
     // ========== ZONA DE DETECÇÃO - LINHA ENTRE OS POSTES ==========
-    const zonaGeo = new THREE.BoxGeometry(largura, 8, 2);
+    const alturaZona = 28; // Mudou de 8 para 28
+    const zonaGeo = new THREE.BoxGeometry(largura, alturaZona, 2);
     const zonaMat = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
       transparent: true,
       opacity: 0.0, // Invisível no jogo (mude para 0.3 para debug)
     });
     const zona = new THREE.Mesh(zonaGeo, zonaMat);
-    zona.position.set(centroX, 4, centroZ);
+    zona.position.set(centroX, -6.1, centroZ); // Mudou de 4 para -6.1
     zona.rotation.y = angulo;
     group.add(zona);
 

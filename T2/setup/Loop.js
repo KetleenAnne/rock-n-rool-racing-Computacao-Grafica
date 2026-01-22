@@ -8,6 +8,7 @@ import {
 import contadorVoltas from "../jogo/ContadorVoltas.js";
 import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
 import { atualizarLuz } from "./Luz.js";
+import { atualizarAguas } from "../jogo/Agua.js";
 
 const clock = new THREE.Clock();
 
@@ -22,6 +23,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
   function render() {
     const deltaTime = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
     stats.update();
 
     const state = atualizaControlesVeiculo(deltaTime);
@@ -70,7 +72,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     // --- Colisão ---
     const muretas = getMuretas();
-    const colisao = verificarColisao(jogador.position, muretas, 0.55);
+    const colisao = verificarColisao(jogador.position, muretas, 1.2);
 
     if (colisao.colidiu) {
       const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
@@ -170,7 +172,7 @@ if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFina
 
     // --- Colisão IA com muretas ---
     if (adv) {
-      const colisaoIA = verificarColisao(adv.position, muretas, 0.55);
+      const colisaoIA = verificarColisao(adv.position, muretas, 1.2);
       if (colisaoIA.colidiu) {
         adv.velocidadeAtual *= 0.5;
         const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
@@ -182,7 +184,7 @@ if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFina
     // --- Colisão entre veículos ---
     if (adv) {
       const distancia = jogador.position.distanceTo(adv.position);
-      if (distancia < 1.3) {
+      if (distancia < 2.4) {
         const separacao = new THREE.Vector3()
           .subVectors(jogador.position, adv.position)
           .normalize()
@@ -224,6 +226,9 @@ if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFina
 
     // --- Luz ---
     atualizarLuz(jogador);
+
+    //-- Agua --
+    atualizarAguas(elapsedTime);
 
     // --- Câmera ---
     let lateralDrift = state.direção * lateral_camera;

@@ -11,6 +11,8 @@ import {
   criarArvoresPista2,
   criarArvoresPista3,
 } from "./Arvores.js";
+import { criarAguaPista2, limparAguas } from "./Agua.js";
+
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
@@ -52,7 +54,7 @@ export function criarPista1(scene) {
       setDefaultMaterial(corPista)
     );
     grama.rotation.x = -Math.PI / 2;
-    grama.position.set(0, -0.1, 0);
+    grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
     grama.receiveShadow = true;
     group.add(grama);
 
@@ -131,7 +133,7 @@ export function criarPista2(scene) {
       setDefaultMaterial(corPista)
     );
     grama.rotation.x = -Math.PI / 2;
-    grama.position.set(0, -0.1, 0);
+    grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
     grama.receiveShadow = true;
     group.add(grama);
 
@@ -205,6 +207,7 @@ export function criarPista2(scene) {
 
     //Cria Arvores
     criarArvoresPista2(group);
+    criarAguaPista2(group);
 
     scene.add(group);
     pistaAtual = group;
@@ -231,7 +234,7 @@ export function criarPista3(scene) {
       setDefaultMaterial("green")
     );
     grama.rotation.x = -Math.PI / 2;
-    grama.position.set(0, -0.1, 0);
+    grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
     grama.receiveShadow = true;
     group.add(grama);
 
@@ -263,6 +266,7 @@ function limparPistaAtual(scene) {
     pistaAtual = null;
   }
   muretasAtuais = [];
+  limparAguas();
 }
 
 export function getMuretas() {
