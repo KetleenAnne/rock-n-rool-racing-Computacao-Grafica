@@ -262,7 +262,7 @@ export function criarPista3(scene) {
       new THREE.MeshLambertMaterial({ map: texGrama })
     );
     grama.rotation.x = -Math.PI / 2;
-    grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
+    grama.position.set(0, -20.1, 0);
     grama.receiveShadow = true;
     group.add(grama);
 
