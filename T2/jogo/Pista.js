@@ -39,6 +39,18 @@ const POSICAO_INICIAL_PISTA_3 = {
 let pistaAtual = null;
 let muretasAtuais = [];
 
+// ========== TEXTURAS ==========
+const textureLoader = new THREE.TextureLoader();
+
+function carregarTextura(caminho, repX, repY) {
+  const tex = textureLoader.load(caminho);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping; // Permite repetir na horizontal
+  tex.wrapT = THREE.RepeatWrapping; // Permite repetir na vertical
+  tex.repeat.set(repX, repY); // Quantas vezes repete
+  return tex;
+}
+
 // ========== PISTA 1 - OVAL ==========
 export function criarPista1(scene) {
   console.log("Criando Pista 1...");
@@ -47,19 +59,29 @@ export function criarPista1(scene) {
   const group = new THREE.Group();
 
   try {
-    // GRAMA DE FUNDO
-    const corPista = "green";
+    // GRAMA
+    // Repetimos 15x15 vezes para a textura ficar detalhada e não um borrão gigante
+    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 15, 15);
+    const materialGrama = new THREE.MeshLambertMaterial({ map: texGrama });
+
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(400, 400),
-      setDefaultMaterial(corPista)
+      materialGrama // Usa a textura
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
     grama.receiveShadow = true;
     group.add(grama);
 
-    // BLOCOS CINZAS DA PISTA (20x20)
-    const materialBloco = new THREE.MeshLambertMaterial({ color: "gray" });
+    // BLOCOS DA PISTA ASFALTO
+    // repetição 1x1 por bloco de 20 metros
+    const texAsfalto = carregarTextura(
+      "assets/texturas/pista/asfalto.jpg",
+      1,
+      1
+    );
+    const materialPista = new THREE.MeshLambertMaterial({ map: texAsfalto });
+
     const cubeGeometry = new THREE.BoxGeometry(20, 0.1, 20);
     const altura = 0.0;
     const inicio = -90;
@@ -69,14 +91,14 @@ export function criarPista1(scene) {
     for (let x = inicio; x <= fim; x += 20) {
       // parte inferior (sul) - pula x=0 para colocar a linha de chegada
       if (x !== 0) {
-        let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+        let bloco = new THREE.Mesh(cubeGeometry, materialPista);
         bloco.position.set(x, altura, 100);
         bloco.receiveShadow = true;
         group.add(bloco);
       }
 
       // parte superior (norte)
-      let blocoTopo = new THREE.Mesh(cubeGeometry, materialBloco);
+      let blocoTopo = new THREE.Mesh(cubeGeometry, materialPista);
       blocoTopo.position.set(x, altura, -100);
       blocoTopo.receiveShadow = true;
       group.add(blocoTopo);
@@ -84,13 +106,13 @@ export function criarPista1(scene) {
 
     for (let z = -80; z <= 80; z += 20) {
       // esquerda
-      let blocoE = new THREE.Mesh(cubeGeometry, materialBloco);
+      let blocoE = new THREE.Mesh(cubeGeometry, materialPista);
       blocoE.position.set(-90, altura, z);
       blocoE.receiveShadow = true;
       group.add(blocoE);
 
       // direita
-      let blocoD = new THREE.Mesh(cubeGeometry, materialBloco);
+      let blocoD = new THREE.Mesh(cubeGeometry, materialPista);
       blocoD.position.set(90, altura, z);
       blocoD.receiveShadow = true;
       group.add(blocoD);
@@ -104,7 +126,6 @@ export function criarPista1(scene) {
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
 
-    //Cria Arvores
     criarArvoresPista1(group);
 
     scene.add(group);
@@ -127,26 +148,32 @@ export function criarPista2(scene) {
 
   try {
     // GRAMA DE FUNDO
-    const corPista = "green";
+    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 15, 15);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(400, 400),
-      setDefaultMaterial(corPista)
+      new THREE.MeshLambertMaterial({ map: texGrama })
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1
     grama.receiveShadow = true;
     group.add(grama);
 
-    // BLOCOS CINZAS DA PISTA (20x20)
+    // BLOCOS CINZAS DA PISTA
+    const texAsfalto = carregarTextura(
+      "assets/texturas/pista/asfalto.jpg",
+      1,
+      1
+    );
+    const materialPista = new THREE.MeshLambertMaterial({ map: texAsfalto });
     const cubeGeometry = new THREE.BoxGeometry(20, 0.01, 20);
-    const materialBloco = new THREE.MeshPhongMaterial({ color: "Peru" });
+
     const altura = 0.0;
     const offsetX = -110;
     const offsetZ = 50;
 
     // BLOCOS CINZAS - PAREDE SUL (horizontal)
     for (let x = 1; x <= 10; x++) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(x * 20 + offsetX, altura, 20.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -155,7 +182,7 @@ export function criarPista2(scene) {
 
     // BLOCOS CINZAS - PAREDE ESQUERDA (vertical)
     for (let z = 0; z >= -9; z--) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(20.0 + offsetX, altura, z * 20 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -164,7 +191,7 @@ export function criarPista2(scene) {
 
     // BLOCOS CINZAS - TOPO (horizontal)
     for (let x = 2; x <= 6; x++) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(x * 20 + offsetX, altura, -180.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -173,7 +200,7 @@ export function criarPista2(scene) {
 
     // BLOCOS CINZAS - continuação TOPO (vertical)
     for (let z = -1.5; z >= -5.5; z -= 1) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(10, altura, z * 20);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -182,7 +209,7 @@ export function criarPista2(scene) {
 
     // BLOCOS CINZAS - LESTE (horizontal e vertical)
     for (let x = 6; x <= 10; x++) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(x * 20 + offsetX, altura, -60.0 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -190,7 +217,7 @@ export function criarPista2(scene) {
     }
 
     for (let z = -3; z <= 0; z++) {
-      let bloco = new THREE.Mesh(cubeGeometry, materialBloco);
+      let bloco = new THREE.Mesh(cubeGeometry, materialPista);
       bloco.position.set(200.0 + offsetX, altura, z * 20 + offsetZ);
       bloco.receiveShadow = true;
       bloco.castShadow = true;
@@ -229,9 +256,10 @@ export function criarPista3(scene) {
 
   try {
     // GRAMA
+    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 40, 40);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(1000, 1000),
-      setDefaultMaterial("green")
+      new THREE.MeshLambertMaterial({ map: texGrama })
     );
     grama.rotation.x = -Math.PI / 2;
     grama.position.set(0, -20.1, 0); // mudança do plano verde, descendo ele para dar altura de -0.1 para -20.1

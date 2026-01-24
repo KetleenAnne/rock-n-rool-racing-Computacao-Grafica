@@ -600,7 +600,7 @@ for (let x = -50; x <= 50; x += 20) {
     if (x === -30 || x === 10) {
       const cubeGeometryAlto = new THREE.BoxGeometry(20, 20, 20);
       const blocoNorteAlto = new THREE.Mesh(cubeGeometryAlto, materialBloco);
-      blocoNorteAlto.position.set(x, -10, -60);
+      blocoNorteAlto.position.set(x, -9.95, -60);
       blocoNorteAlto.castShadow = true;
       blocoNorteAlto.receiveShadow = true;
       scene.add(blocoNorteAlto);
