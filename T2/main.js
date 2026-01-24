@@ -23,13 +23,14 @@ import {
   CHECKPOINTS_PISTA3 
 } from "./jogo/ConfigCheckpoints.js";
 import Stats from "../../build/jsm/libs/stats.module.js";
+import { CORES_IA } from "./veiculos/coresVeiculos.js";
 
 // Função auxiliar para criar adversários
 function criarAdversariosPista(scene, numeroPista, checkpoints) {
   // Criar 3 adversários
-  const adv1 = new VeiculoIA(scene, numeroPista);
-  const adv2 = new VeiculoIA(scene, numeroPista);
-  const adv3 = new VeiculoIA(scene, numeroPista);
+  let adversario1 = new VeiculoIA(scene, 1, CORES_IA[0]);
+  let adversario2 = new VeiculoIA(scene, 1, CORES_IA[1]);
+  let adversario3 = new VeiculoIA(scene, 1, CORES_IA[2]);
   
   // Resetar voltas
   adv1.voltasCompletadas = 0;
@@ -73,9 +74,9 @@ sistemaCheckpoints.scene = scene;
 
 // Criar jogador e 3 adversários
 const jogador = new VeiculoJogador(scene);
-let adversario1 = new VeiculoIA(scene, 1);
-let adversario2 = new VeiculoIA(scene, 1);
-let adversario3 = new VeiculoIA(scene, 1);
+let adversario1 = new VeiculoIA(scene, 1, CORES_IA[0]);
+let adversario2 = new VeiculoIA(scene, 1, CORES_IA[1]);
+let adversario3 = new VeiculoIA(scene, 1, CORES_IA[2]);
 
 // Array com todos os veículos para facilitar
 let todosVeiculos = [jogador, adversario1, adversario2, adversario3];
@@ -120,53 +121,58 @@ sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
 function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
 
+  // ===== RESET GLOBAL =====
   contadorVoltas.reset();
   sistemaDisparos.limparTodos();
   window.jogoFinalizado = false;
-  
-  // Remover TODOS os adversários da cena
-  [adversario1, adversario2, adversario3].forEach(adv => {
-    if (adv && adv.group) {
-      scene.remove(adv.group);
-    }
-  });
 
-  // Resetar mensagem de vitória/derrota
+  // Esconder resultado final
   if (window.divResultado) {
     window.divResultado.style.display = "none";
     window.divResultado.innerHTML = "";
   }
 
-  // USAR A FUNÇÃO 
+  // ===== CRIAR / TROCAR PISTA =====
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20);
-    [adversario1, adversario2, adversario3] = criarAdversariosPista(scene, 1, CHECKPOINTS_PISTA1);
-    
-  } else if (numeroPista === 2) {
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
+  } 
+  else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
     contadorVoltas.setLinhaChegada(30, 70, 20, 20);
-    [adversario1, adversario2, adversario3] = criarAdversariosPista(scene, 2, CHECKPOINTS_PISTA2);
-    
-  } else if (numeroPista === 3) {
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2);
+  } 
+  else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
     contadorVoltas.setLinhaChegada(0, 60, 20, 20);
-    [adversario1, adversario2, adversario3] = criarAdversariosPista(scene, 3, CHECKPOINTS_PISTA3);
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3);
   }
 
-  // Resetar todos os veículos
-  jogador.reset(posInicial.x, 0, posInicial.z - 5, posInicial.rot);
+  // ===== RESET DO JOGADOR =====
+  jogador.reset(
+    posInicial.x,
+    0,
+    posInicial.z - 5,
+    posInicial.rot
+  );
+
+  // ===== RESET DAS IAs (SEM RECRIAR) =====
+  adversario1.resetIA(numeroPista);
+  adversario2.resetIA(numeroPista);
+  adversario3.resetIA(numeroPista);
+
   adversario1.reset(posInicial.x + 3, 0, posInicial.z + 3, posInicial.rot);
   adversario2.reset(posInicial.x - 3, 0, posInicial.z + 3, posInicial.rot);
   adversario3.reset(posInicial.x - 4, 0, posInicial.z - 5, posInicial.rot);
 
-  // Atualizar globais
-  window.adversario1 = adversario1;
-  window.adversario2 = adversario2;
-  window.adversario3 = adversario3;
+  // ===== ATUALIZAR LISTA GLOBAL =====
   todosVeiculos = [jogador, adversario1, adversario2, adversario3];
   window.todosVeiculos = todosVeiculos;
+
+  console.log("ista trocada com sucesso");
 }
+
 
 // "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
 setPistaChangeCallback(trocarPista);
