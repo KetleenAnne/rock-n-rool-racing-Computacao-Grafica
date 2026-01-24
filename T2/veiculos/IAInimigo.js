@@ -51,7 +51,7 @@ export class IAInimigo {
       return;
     }
 
-    //  this.seguirCheckpoint(deltaTime);
+    this.seguirCheckpoint(deltaTime);
     this.tentarDisparar(deltaTime, jogador);
   }
 
