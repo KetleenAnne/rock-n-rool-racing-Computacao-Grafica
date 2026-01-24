@@ -6,11 +6,12 @@ const textureLoader = new THREE.TextureLoader();
 const texMetal = textureLoader.load("assets/texturas/objetos/metal.jpg");
 texMetal.colorSpace = THREE.SRGBColorSpace;
 texMetal.wrapS = texMetal.wrapT = THREE.RepeatWrapping;
-texMetal.repeat.set(1, 1);
+// Repetição padrão para o topo (planar) - Ajustado para ver melhor
+texMetal.repeat.set(0.9, 0.9);
 
 const texLateral = texMetal.clone();
 texLateral.wrapS = texLateral.wrapT = THREE.RepeatWrapping;
-texLateral.repeat.set(6, 1);
+texLateral.repeat.set(3, 0.5); // Lateral menos esticada
 
 const texCabine = texMetal.clone();
 texCabine.wrapS = texCabine.wrapT = THREE.RepeatWrapping;
@@ -22,6 +23,10 @@ texVidro.wrapS = texVidro.wrapT = THREE.RepeatWrapping;
 
 const texMotor = texMetal.clone();
 texMotor.colorSpace = THREE.SRGBColorSpace;
+
+const texHelice = texMetal.clone();
+texHelice.wrapS = texHelice.wrapT = THREE.RepeatWrapping;
+texHelice.repeat.set(0.2, 0.2);
 
 export function criarModeloHavac(group, cores, tipo) {
   // TOPO
@@ -79,7 +84,7 @@ export function criarModeloHavac(group, cores, tipo) {
 
   const matHelice = new THREE.MeshPhongMaterial({
     color: 0xaaaaaa,
-    map: texMetal,
+    map: texHelice,
     shininess: 50,
     specular: 0x444444,
   });
