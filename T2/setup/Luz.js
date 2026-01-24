@@ -1,0 +1,74 @@
+import * as THREE from "three";
+
+// A luz principal -> projetar sombra em TODOS os elementos
+// Quanto maior, melhor a qualidade da sombra, mas mais pesado o processamento
+const SHADOW_MAP_SIZE = 4096; //resolução da sombra alta para qualidade melhor
+const SHADOW_CAM_SIZE = 60; // Alcance da câmera de sombra
+const LIGHT_ANGLE_Y = -30 * (Math.PI / 180); // Ângulo para sombra não alongada
+const LIGHT_HEIGHT = 40; // Altura da luz
+const LIGHT_INTENSITY = 2.5; // Intensidade
+const LIGHT_COLOR = 0xffffff; //"rgb(255, 255, 255)";
+const AMBIENT_LIGHT_INTENSITY = 0.5; // Intensidade da luz ambiente
+const AMBIENT_LIGHT_COLOR = 0xfcc3cb; //"rgb(252, 227, 203)"; // Cor quente
+
+let luzPrincipal = null;
+let luzSecundaria = null; // Luz ambiente para iluminar áreas de sombra
+
+export function criarLuzes(scene) {
+  //  DIRECIONAL PRINCIPAL (Com Sombra)
+  luzPrincipal = new THREE.DirectionalLight(LIGHT_COLOR, LIGHT_INTENSITY);
+  luzPrincipal.castShadow = true;
+  // Configurações de sombra
+  luzPrincipal.shadow.mapSize.width = SHADOW_MAP_SIZE;
+  luzPrincipal.shadow.mapSize.height = SHADOW_MAP_SIZE;
+
+  // A câmera da sombra (shadow camera) - ortográfica
+  luzPrincipal.shadow.camera.near = 0.1;
+  luzPrincipal.shadow.camera.far = 450; // Alcance da sombra
+  luzPrincipal.shadow.camera.left = -SHADOW_CAM_SIZE;
+  luzPrincipal.shadow.camera.right = SHADOW_CAM_SIZE;
+  luzPrincipal.shadow.camera.top = SHADOW_CAM_SIZE;
+  luzPrincipal.shadow.camera.bottom = -SHADOW_CAM_SIZE;
+
+  //bias para evitar sombras pixeladas
+  luzPrincipal.shadow.bias = -0.0001;
+
+  // Posição inicial (atualizada no loop)
+  luzPrincipal.position.set(10, LIGHT_HEIGHT, 10);
+  luzPrincipal.target.position.set(0, 0, 0);
+
+  scene.add(luzPrincipal);
+  scene.add(luzPrincipal.target);
+
+  // para visualizar a câmera de sombra
+  // const shadowHelper = new THREE.CameraHelper(luzPrincipal.shadow.camera);
+  // scene.add(shadowHelper);
+
+  // LUZ SECUNDÁRIA ( meno intensidade)
+  // A luz ambiente não projeta sombras
+  // deve ficar atrás do veículo, iluminando as áreas de sombra
+  luzSecundaria = new THREE.AmbientLight(
+    AMBIENT_LIGHT_COLOR,
+    AMBIENT_LIGHT_INTENSITY
+  );
+  scene.add(luzSecundaria);
+
+  console.log("Sistema de iluminação.");
+}
+
+// Atualiza a posição e direção da luz principal para seguir o veículo
+export function atualizarLuz(veiculo) {
+  if (!luzPrincipal) return;
+
+  const DIST = 60;
+
+  // Translação (Posição)
+  // A luz acompanha a posição X e Z do carro.
+  // A altura (Y) permanece constante.
+  luzPrincipal.position.x = veiculo.position.x + Math.sin(LIGHT_ANGLE_Y) * DIST; //fixa distancia
+  luzPrincipal.position.z = veiculo.position.z + Math.cos(LIGHT_ANGLE_Y) * DIST;
+  luzPrincipal.position.y = LIGHT_HEIGHT; // Altura fixa
+
+  luzPrincipal.target.position.copy(veiculo.position);
+  luzPrincipal.target.updateMatrixWorld();
+}
