@@ -8,6 +8,7 @@ import {
 import contadorVoltas from "../jogo/ContadorVoltas.js";
 import sistemaCheckpoints from "../jogo/SistemaCheckpoints.js";
 import { atualizarLuz } from "./Luz.js";
+import { atualizarAguas } from "../jogo/Agua.js";
 
 const clock = new THREE.Clock();
 
@@ -17,21 +18,23 @@ const lateral_camera = 50.0;
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
 let currentLookAt = new THREE.Vector3();
 
-export function startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats) {
+export function startLoop(renderer, scene, camera, jogador, todosVeiculos, sistemaDisparos, stats) {
   currentLookAt.copy(jogador.position).add(focoCamera);
 
   function render() {
     const deltaTime = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
     stats.update();
 
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // --- Referência dinâmica do adversário ---
-    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+    // Adv
+    const adversarios = todosVeiculos.filter(v => v !== jogador);
 
     // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
-    jogador.atualizarPenalizacao(deltaTime);
-    adv.atualizarPenalizacao(deltaTime)
+      todosVeiculos.forEach(veiculo => {
+      if (veiculo) veiculo.atualizarPenalizacao(deltaTime);
+    });
 
     // ========== ROTAÇÃO ==========
     if (state.velocidade !== 0) {
@@ -53,24 +56,31 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     
     jogador.translateZ(velocidadeMovimento * deltaTime);
 
-    // ========== MOVIMENTO DA IA COM PENALIZAÇÃO ==========
-    if (adv && !adv.corridaFinalizada) {
-      let velocidadeAIMov;
+    if (state.disparar && jogador.podeDisparar()) {
+      if (window.sistemaDisparos) {
+        window.sistemaDisparos.criarDisparo(jogador);
+        console.log("Jogador disparou!");
+      }
+  }
 
-      if (adv.penalizado) {
-        // IA penalizada — usa velocidadeAtual já reduzida a 30%
-        velocidadeAIMov = adv.velocidadeAtual;
-      } else {
-        // Sem penalização — usa velocidadeAtual normal (aceleração da IA)
-        velocidadeAIMov = adv.velocidadeAtual;
+    // ========== MOVIMENTO DA IA COM PENALIZAÇÃO ==========
+    // Movimento de TODOS os adversários
+    adversarios.forEach(adv => {
+      if (!adv || adv.corridaFinalizada) return;
+
+      // Atualizar IA (passando TODOS os veículos)
+      if (adv.atualizar) {
+        adv.atualizar(deltaTime, todosVeiculos);
       }
 
+      // Movimento
+      let velocidadeAIMov = adv.velocidadeAtual;
       adv.translateZ(velocidadeAIMov * deltaTime);
-    }
+    });
 
     // --- Colisão ---
     const muretas = getMuretas();
-    const colisao = verificarColisao(jogador.position, muretas, 0.55);
+    const colisao = verificarColisao(jogador.position, muretas, 1.2);
 
     if (colisao.colidiu) {
       const novaVelocidade = resolverColisaoDeslizante(jogador, colisao, state);
@@ -107,11 +117,13 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
 
     // ========== CONTADOR DE VOLTAS DA IA  ==========
-    if (adv && !contadorVoltas.isCorridaFinalizada()) {
+    // ========== CONTADOR DE VOLTAS ADVERSÁRIOS ==========
+    adversarios.forEach(adv => {
+      if (!adv || contadorVoltas.isCorridaFinalizada()) return;
+      
       if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
       if (adv.primeiraPassagemIA === undefined) adv.primeiraPassagemIA = true;
       
-      // OBTER LINHA DE CHEGADA CORRETA PARA CADA PISTA
       const linhaChegada = contadorVoltas.linhaBox;
       
       if (linhaChegada) {
@@ -121,10 +133,8 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
         if (dentroLinha && !adv.passouLinha) {
           adv.passouLinha = true;
           
-          // Ignora a primeira passagem (posição inicial)
           if (adv.primeiraPassagemIA) {
             adv.primeiraPassagemIA = false;
-            console.log("🤖 IA - Posição inicial - não conta como volta");
           } else {
             adv.voltasCompletadas++;
             adv.recarregarDisparos();
@@ -134,74 +144,87 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
           adv.passouLinha = false;
         }
       }
-    }
+    });
 
     // Verificar fim de jogo (4 voltas) - JOGADOR
-if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
-  window.jogoFinalizado = true;
-  window.divResultado.style.display = "block";
-  window.divResultado.style.color = "#00FF00";
-  window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
-  // Parar IA
-  if (adv) {
-    adv.corridaFinalizada = true;
-    adv.velocidadeAtual = 0;
-  }
-}
+    // ========== FIM DE JOGO ==========
+    // Vitória do jogador
+    if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
+      window.jogoFinalizado = true;
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#00FF00";
+      window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
+      
+      // Parar TODOS os adversários
+      adversarios.forEach(adv => {
+        if (adv) {
+          adv.corridaFinalizada = true;
+          adv.velocidadeAtual = 0;
+        }
+      });
+    }
 
-// Se IA completou 4 voltas primeiro - DERROTA
-if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFinalizado) {
-  window.jogoFinalizado = true;
-  contadorVoltas.corridaFinalizada = true; // Parar contador do jogador
-  window.divResultado.style.display = "block";
-  window.divResultado.style.color = "#FF0000";
-  window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
-  // Parar IA na linha de chegada
-  if (adv) {
-    adv.corridaFinalizada = true;
-    adv.velocidadeAtual = 0;
-  }
-}
-
-    // ========== IA - ATUALIZAÇÃO ==========
-    if (adv && adv.atualizar && !adv.corridaFinalizada) {
-      adv.atualizar(deltaTime, jogador);
+    // Verificar se alguma IA ganhou
+    const iaVencedora = adversarios.find(adv => adv && adv.voltasCompletadas >= 4);
+    if (iaVencedora && window.divResultado && !window.jogoFinalizado) {
+      window.jogoFinalizado = true;
+      contadorVoltas.corridaFinalizada = true;
+      window.divResultado.style.display = "block";
+      window.divResultado.style.color = "#FF0000";
+      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>Uma IA venceu!</small>";
+      
+      // Parar TODOS os adversários
+      adversarios.forEach(adv => {
+        if (adv) {
+          adv.corridaFinalizada = true;
+          adv.velocidadeAtual = 0;
+        }
+      });
     }
 
     // --- Colisão IA com muretas ---
-    if (adv) {
-      const colisaoIA = verificarColisao(adv.position, muretas, 0.55);
+    // Colisão de TODOS os adversários com muretas
+    adversarios.forEach(adv => {
+      if (!adv) return;
+      const colisaoIA = verificarColisao(adv.position, muretas, 1.2);
       if (colisaoIA.colidiu) {
         adv.velocidadeAtual *= 0.5;
         const normal = colisaoIA.normal.clone().multiplyScalar(0.5);
         if (adv.group) adv.group.position.add(normal);
         if (adv.position && adv.group) adv.position.copy(adv.group.position);
       }
-    }
+    });
 
     // --- Colisão entre veículos ---
-    if (adv) {
-      const distancia = jogador.position.distanceTo(adv.position);
-      if (distancia < 1.3) {
-        const separacao = new THREE.Vector3()
-          .subVectors(jogador.position, adv.position)
-          .normalize()
-          .multiplyScalar(0.2);
+    // Colisões entre TODOS os veículos
+    for (let i = 0; i < todosVeiculos.length; i++) {
+      for (let j = i + 1; j < todosVeiculos.length; j++) {
+        const v1 = todosVeiculos[i];
+        const v2 = todosVeiculos[j];
+        
+        if (!v1 || !v2 || v1.corridaFinalizada || v2.corridaFinalizada) continue;
 
-        if (jogador.group) jogador.group.position.add(separacao);
-        if (jogador.group) jogador.position.copy(jogador.group.position);
+        const distancia = v1.position.distanceTo(v2.position);
+        if (distancia < 2.4) {
+          const separacao = new THREE.Vector3()
+            .subVectors(v1.position, v2.position)
+            .normalize()
+            .multiplyScalar(0.2);
 
-        if (adv.group) adv.group.position.sub(separacao);
-        if (adv.group && adv.position) adv.position.copy(adv.group.position);
+          if (v1.group) v1.group.position.add(separacao);
+          if (v1.group) v1.position.copy(v1.group.position);
 
-        jogador.velocidadeAtual *= 0.8;
-        adv.velocidadeAtual *= 0.8;
+          if (v2.group) v2.group.position.sub(separacao);
+          if (v2.group && v2.position) v2.position.copy(v2.group.position);
+
+          v1.velocidadeAtual *= 0.8;
+          v2.velocidadeAtual *= 0.8;
+        }
       }
     }
-
     // --- Sistema de Disparos ---
     if (sistemaDisparos) {
-      sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
+      sistemaDisparos.atualizar(deltaTime, todosVeiculos, muretas);
     }
 
     // ========== UI DE DISPAROS ==========
@@ -224,6 +247,9 @@ if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFina
 
     // --- Luz ---
     atualizarLuz(jogador);
+
+    //-- Agua --
+    atualizarAguas(elapsedTime);
 
     // --- Câmera ---
     let lateralDrift = state.direção * lateral_camera;

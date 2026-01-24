@@ -44,7 +44,7 @@ function criarArvoreCone(x, z) {
     tree.add(cone);
   });
 
-  tree.position.set(x, 0, z);
+  tree.position.set(x, -20, z);
   return tree;
 }
 
@@ -68,7 +68,7 @@ function criarArvoreEsfera(x, z) {
   sphere.receiveShadow = true;
   tree.add(sphere);
 
-  tree.position.set(x, 0, z);
+  tree.position.set(x, -20, z);
   return tree;
 }
 

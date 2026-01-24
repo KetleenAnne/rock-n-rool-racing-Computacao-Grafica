@@ -25,7 +25,7 @@ export class IAInimigo {
     console.log(`IA criada com ${this.checkpoints.length} checkpoints`);
   }
 
-  //calcula o centro geográfico entre os dois checkpoint
+  // Calcula o centro geográfico entre os dois checkpoints
   // e cria um vetor THREE.Vector3 para cada um
   obterCheckpointsPista() {
     let checkpointsConfig;
@@ -42,7 +42,7 @@ export class IAInimigo {
     });
   }
 
-  atualizar(deltaTime, jogador) {
+  atualizar(deltaTime, todosVeiculos) {
     // Atualiza penalização
     this.veiculo.atualizarPenalizacao(deltaTime);
 
@@ -55,7 +55,7 @@ export class IAInimigo {
     this.tentarDisparar(deltaTime, jogador);
   }
 
-  //Waypoint Following -> segue coordenadas
+  // Waypoint Following -> segue coordenadas
   // usa o vetor alvo, calculado antes por obterCheckpointsPista()
   // para guiar o veículo inimigo pela pista
   seguirCheckpoint(deltaTime) {
@@ -76,7 +76,7 @@ export class IAInimigo {
     const sentido = cross.y >= 0 ? 1 : -1;
 
     // Rotação proporcional ao ângulo, suavizando curvas
-    //limita o ângulo máximo por frame para evitar rotações bruscas
+    // limita o ângulo máximo por frame para evitar rotações bruscas
     const maxAnguloPorFrame = 0.06 * deltaTime * 30;
     const rotacao = Math.min(angulo, maxAnguloPorFrame) * sentido;
     this.veiculo.rotateY(rotacao);
@@ -104,27 +104,55 @@ export class IAInimigo {
     }
   }
 
-  tentarDisparar(deltaTime, jogador) {
+  tentarDisparar(deltaTime, todosVeiculos) {
     this.tempoUltimoDisparo += deltaTime;
     if (this.tempoUltimoDisparo < this.intervaloDisparo) return;
     if (!this.veiculo.podeDisparar()) return;
 
-    const direcaoJogador = new THREE.Vector3()
-      .subVectors(jogador.position, this.veiculo.position)
-      .setY(0)
-      .normalize();
+    // Filtrar apenas veículos válidos (não undefined, não this, não finalizados)
+    const alvos = todosVeiculos.filter(
+      (v) => v && v !== this.veiculo && !v.corridaFinalizada && v.position
+    );
+
+    if (alvos.length === 0) return;
+
+    // Encontrar o alvo mais próximo dentro do cone de visão
+    let melhorAlvo = null;
+    let melhorScore = -1;
 
     const direcaoIA = this.veiculo.getDirecaoFrente();
-    //usa produto escalar para um cone de visao de disparo
-    const dot = direcaoIA.dot(direcaoJogador);
-    const distancia = this.veiculo.position.distanceTo(jogador.position);
 
-    // Verifica se o jogador está dentro do cone de visão e alcance
-    if (dot > 0.6 && distancia > 10 && distancia < 60) {
-      if (window.sistemaDisparos) {
-        window.sistemaDisparos.criarDisparo(this.veiculo);
-        this.tempoUltimoDisparo = 0;
+    for (const alvo of alvos) {
+      const direcaoAlvo = new THREE.Vector3()
+        .subVectors(alvo.position, this.veiculo.position)
+        .setY(0)
+        .normalize();
+
+      // Usa produto escalar para um cone de visão de disparo
+      const dot = direcaoIA.dot(direcaoAlvo);
+      const distancia = this.veiculo.position.distanceTo(alvo.position);
+
+      // Verifica se o alvo está dentro do cone de visão (60°) e alcance (10-60)
+      if (dot > 0.6 && distancia > 10 && distancia < 60) {
+        // Score: quanto maior o dot (mais alinhado) e menor a distância, melhor
+        // Prioriza alvos bem na mira e próximos
+        const score = dot / (distancia * 0.1);
+
+        if (score > melhorScore) {
+          melhorScore = score;
+          melhorAlvo = alvo;
+        }
       }
+    }
+
+    // Disparar no melhor alvo encontrado
+    if (melhorAlvo && window.sistemaDisparos) {
+      window.sistemaDisparos.criarDisparo(this.veiculo);
+      this.tempoUltimoDisparo = 0;
+
+      // Log opcional para debug - mostra quem atirou em quem
+      const tipoAlvo = melhorAlvo.tipo || "desconhecido";
+      console.log(`🤖 IA disparou em ${tipoAlvo}`);
     }
   }
 }
