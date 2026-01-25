@@ -13,6 +13,7 @@ import {
 } from "./Arvores.js";
 import { criarAguaPista2, limparAguas } from "./Agua.js";
 import { criarJumpsPista3, limparJumps } from "./Jump.js";
+import { criarMurosPista1, criarMurosPista2, criarMurosPista3 } from "./MuroLateral.js";
 
 
 // Posições iniciais dos veículos
@@ -126,6 +127,7 @@ export function criarPista1(scene) {
     // Criar muretas
     const muretas = criarMuretasPista1(group);
     muretasAtuais = muretas;
+    const muros = criarMurosPista1(group);
 
     criarArvoresPista1(group);
 
@@ -232,6 +234,7 @@ export function criarPista2(scene) {
     // Criar muretas
     const muretas = criarMuretasPista2(group);
     muretasAtuais = muretas;
+    const muros = criarMurosPista2(group);
 
     //Cria Arvores
     criarArvoresPista2(group);
@@ -274,6 +277,7 @@ export function criarPista3(scene) {
     // Criar blocos, muretas e túnel
     const elementosPista3 = criarMuretasPista3(group);
     muretasAtuais = elementosPista3;
+    const muros = criarMurosPista3(group);
 
     // Cria Árvores
     criarArvoresPista3(group);
