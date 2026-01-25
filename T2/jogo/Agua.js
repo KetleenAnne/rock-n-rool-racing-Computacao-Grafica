@@ -2,67 +2,72 @@ import * as THREE from "three";
 
 let aguasAtivas = [];
 
-// ========== CRIAR ÁGUA PISTA 2 ==========
 export function criarAguaPista2(group) {
-  // Material da água com transparência e cor azul
   const materialAgua = new THREE.MeshPhongMaterial({
-    color: 0x1e90ff, // Azul água
+    color: 0x1e90ff,
     transparent: true,
     opacity: 0.7,
     shininess: 100,
     side: THREE.DoubleSide,
   });
 
-  // Geometria da água - plano horizontal no topo da pista
-  // TOPO tem 5 blocos (x=2,3,4,5,6) = 5 * 20 = 100 de largura
-  const largura = 67; // 5 blocos de 20
-  const profundidade = 20; // 1 bloco de profundidade
-  const aguaGeometry = new THREE.PlaneGeometry(largura, profundidade);
-
+  // 64x32 segmentos para permitir a deformação da malha
+  const aguaGeometry = new THREE.PlaneGeometry(67, 20, 64, 32);
   const agua = new THREE.Mesh(aguaGeometry, materialAgua);
   
-  // Posicionamento no topo horizontal da pista 2
-  // NORTE EXTERNO: x de 2 a 8 (6 blocos), z = -3.5
-  // Centro X: (2+3+4+5+6+7+8)/7 * 20 + offsetX = 5*20 - 110 = -10
-  // Z: -3.5 * 20 + offsetZ = -70 + 50 = -20
-  agua.position.set(-36, 0.5, -130); 
-  agua.rotation.x = -Math.PI / 2; // Horizontal
+  agua.position.set(-36, 0.2, -130); 
+  agua.rotation.x = -Math.PI / 2;
   agua.receiveShadow = true;
 
-  // Dados para animação
-  agua.userData.offsetY = 0.15; // Altura base
-  agua.userData.amplitude = 0.1; // Amplitude da ondulação
-  agua.userData.velocidade = 2; // Velocidade da animação
+  agua.userData = {
+    offsetY: 0.5,
+    impactoPonto: new THREE.Vector2(0, 0),
+    forcaAtual: 0,
+    alvoForca: 0
+  };
 
   group.add(agua);
   aguasAtivas.push(agua);
-
-  console.log("💧 Água criada na Pista 2!");
   return agua;
 }
 
-// ========== ATUALIZAR ANIMAÇÃO DA ÁGUA ==========
-export function atualizarAguas(time) {
+export function atualizarAguas(time, carro) {
   aguasAtivas.forEach((agua) => {
-    if (agua && agua.userData) {
-      // Animação de ondulação (subir e descer)
-      agua.position.y = 
-        agua.userData.offsetY + 
-        Math.sin(time * agua.userData.velocidade) * agua.userData.amplitude;
+    const posAttribute = agua.geometry.attributes.position;
+    const localCarPos = new THREE.Vector3();
+
+    if (carro) {
+      agua.worldToLocal(localCarPos.copy(carro.position));
+      const estaSobreAgua = Math.abs(localCarPos.x) < 33.5 && Math.abs(localCarPos.y) < 10;
       
-      // Rotação leve para simular movimento de água
-      agua.rotation.z = Math.sin(time * 0.5) * 0.005;
+      // Suaviza a entrada e saída da força da onda
+      agua.userData.alvoForca = estaSobreAgua ? 0.6 : 0;
+      agua.userData.forcaAtual = THREE.MathUtils.lerp(agua.userData.forcaAtual, agua.userData.alvoForca, 0.05);
+
+      if (estaSobreAgua) {
+        agua.userData.impactoPonto.set(localCarPos.x, localCarPos.y);
+      }
     }
+
+    for (let i = 0; i < posAttribute.count; i++) {
+      const x = posAttribute.getX(i);
+      const y = posAttribute.getY(i);
+      const dist = Math.sqrt(Math.pow(x - agua.userData.impactoPonto.x, 2) + Math.pow(y - agua.userData.impactoPonto.y, 2));
+
+      // Onda que se propaga do ponto de impacto
+      const onda = Math.sin(dist * 0.4 - time * 4) * (1 / (dist + 1));
+      const z = onda * agua.userData.forcaAtual;
+      
+      posAttribute.setZ(i, z + Math.sin(x * 0.1 + time) * 0.05);
+    }
+    posAttribute.needsUpdate = true;
   });
 }
 
-// ========== LIMPAR ÁGUAS ==========
 export function limparAguas() {
   aguasAtivas = [];
-  console.log("💧 Águas limpas!");
 }
 
-// ========== OBTER ÁGUAS ATIVAS ==========
 export function getAguas() {
   return aguasAtivas;
 }

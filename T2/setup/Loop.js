@@ -38,12 +38,13 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
 
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // Adv
+    // Filtrar adversários
     const adversarios = todosVeiculos.filter(v => v !== jogador);
 
-    // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
-    jogador.atualizarPenalizacao(deltaTime);
-    if (adv) adv.atualizarPenalizacao(deltaTime);
+    // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - TODOS OS VEÍCULOS ==========
+    todosVeiculos.forEach(veiculo => {
+      if (veiculo) veiculo.atualizarPenalizacao(deltaTime);
+    });
 
     // ========== FÍSICA DE JUMP - JOGADOR ==========
     atualizarFisicaJump(jogador, deltaTime);
@@ -62,7 +63,6 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
     if (!estaCaindo(jogador)) {
       const jumpResult = verificarColisaoJump(jogador.position);
       if (jumpResult.ativado && !estaNoAr(jogador)) {
-        // Passa a velocidade atual para calcular a distância do salto
         const velocidadeParaJump = jogador.penalizado ? jogador.velocidadeAtual : state.velocidade;
         aplicarEfeitoJump(jogador, velocidadeParaJump);
       }
@@ -79,33 +79,41 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       let velocidadeMovimento;
       
       if (jogador.penalizado) {
-        // Durante penalização: usa velocidadeAtual 
         velocidadeMovimento = jogador.velocidadeAtual;
       } else {
-        // Fora de penalização: usa velocidade normal das teclas
         velocidadeMovimento = state.velocidade;
-        jogador.velocidadeAtual = state.velocidade; // Sincroniza
+        jogador.velocidadeAtual = state.velocidade;
       }
       
       jogador.translateZ(velocidadeMovimento * deltaTime);
     }
 
-    // ========== MOVIMENTO DA IA COM PENALIZAÇÃO E JUMP ==========
-    if (adv && !adv.corridaFinalizada) {
-      // Física do jump para IA
+    // ========== DISPARO DO JOGADOR ==========
+    if (state.disparar && jogador.podeDisparar()) {
+      if (window.sistemaDisparos) {
+        window.sistemaDisparos.criarDisparo(jogador);
+        console.log("Jogador disparou!");
+      }
+    }
+
+    // ========== MOVIMENTO DOS ADVERSÁRIOS COM JUMP ==========
+    adversarios.forEach(adv => {
+      if (!adv || adv.corridaFinalizada) return;
+
+      // Física do jump para adversários
       atualizarFisicaJump(adv, deltaTime);
       
-      // ========== VERIFICAR ZONA DE QUEDA - IA ==========
+      // ========== VERIFICAR ZONA DE QUEDA - ADVERSÁRIOS ==========
       if (!estaNoAr(adv) && !estaCaindo(adv)) {
         if (verificarZonaQueda(adv.position)) {
           iniciarQuedaLivre(adv);
         }
       }
       
-      // ========== ATUALIZAR QUEDA LIVRE - IA ==========
+      // ========== ATUALIZAR QUEDA LIVRE - ADVERSÁRIOS ==========
       atualizarQuedaLivre(adv, deltaTime);
       
-      // Verificar jump para IA
+      // Verificar jump para adversários
       if (!estaCaindo(adv)) {
         const jumpResultIA = verificarColisaoJump(adv.position);
         if (jumpResultIA.ativado && !estaNoAr(adv)) {
@@ -113,21 +121,17 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
         }
       }
 
+      // Atualizar IA (passando TODOS os veículos)
+      if (adv.atualizar) {
+        adv.atualizar(deltaTime, todosVeiculos);
+      }
+
       // Movimento normal (só se não estiver no ar e não estiver caindo)
       if (!estaNoAr(adv) && !estaCaindo(adv)) {
-        let velocidadeAIMov;
-
-        if (adv.penalizado) {
-          // IA penalizada – usa velocidadeAtual já reduzida a 30%
-          velocidadeAIMov = adv.velocidadeAtual;
-        } else {
-          // Sem penalização – usa velocidadeAtual normal (aceleração da IA)
-          velocidadeAIMov = adv.velocidadeAtual;
-        }
-
+        let velocidadeAIMov = adv.velocidadeAtual;
         adv.translateZ(velocidadeAIMov * deltaTime);
       }
-    }
+    });
 
     // ========== COLISÃO COM MURETAS (desabilitada durante o salto e queda) ==========
     const muretas = getMuretas();
@@ -156,7 +160,7 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       }
     }
 
-    // --- Contador de Voltas + Recarga ---
+    // ========== CONTADOR DE VOLTAS + RECARGA - JOGADOR ==========
     const voltasAntes = contadorVoltas.voltas;
     const resultadoVolta = contadorVoltas.verificarPassagem(jogador.position);
     const voltasDepois = contadorVoltas.voltas;
@@ -170,8 +174,7 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       console.warn(`⚠️ Passe por todos os checkpoints! Faltam: ${resultadoVolta.checkpointsFaltando}`);
     }
 
-    // ========== CONTADOR DE VOLTAS DA IA  ==========
-    // ========== CONTADOR DE VOLTAS ADVERSÁRIOS ==========
+    // ========== CONTADOR DE VOLTAS - ADVERSÁRIOS ==========
     adversarios.forEach(adv => {
       if (!adv || contadorVoltas.isCorridaFinalizada()) return;
       
@@ -189,6 +192,7 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
           
           if (adv.primeiraPassagemIA) {
             adv.primeiraPassagemIA = false;
+            console.log("🤖 IA - Posição inicial - não conta como volta");
           } else {
             adv.voltasCompletadas++;
             adv.recarregarDisparos();
@@ -200,40 +204,44 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       }
     });
 
-    // Verificar fim de jogo (4 voltas) - JOGADOR
+    // ========== FIM DE JOGO - VITÓRIA DO JOGADOR ==========
     if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
       window.jogoFinalizado = true;
       window.divResultado.style.display = "block";
       window.divResultado.style.color = "#00FF00";
       window.divResultado.innerHTML = "🏆 VITÓRIA! 🏆<br><small>Você completou 4 voltas!</small>";
-      // Parar IA
-      if (adv) {
-        adv.corridaFinalizada = true;
-        adv.velocidadeAtual = 0;
-      }
+      
+      // Parar TODOS os adversários
+      adversarios.forEach(adv => {
+        if (adv) {
+          adv.corridaFinalizada = true;
+          adv.velocidadeAtual = 0;
+        }
+      });
     }
 
-    // Se IA completou 4 voltas primeiro - DERROTA
-    if (adv && adv.voltasCompletadas >= 4 && window.divResultado && !window.jogoFinalizado) {
+    // ========== FIM DE JOGO - DERROTA (IA VENCEU) ==========
+    const iaVencedora = adversarios.find(adv => adv && adv.voltasCompletadas >= 4);
+    if (iaVencedora && window.divResultado && !window.jogoFinalizado) {
       window.jogoFinalizado = true;
-      contadorVoltas.corridaFinalizada = true; // Parar contador do jogador
+      contadorVoltas.corridaFinalizada = true;
       window.divResultado.style.display = "block";
       window.divResultado.style.color = "#FF0000";
-      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>A IA venceu!</small>";
-      // Parar IA na linha de chegada
-      if (adv) {
-        adv.corridaFinalizada = true;
-        adv.velocidadeAtual = 0;
-      }
+      window.divResultado.innerHTML = "💥 DERROTA 💥<br><small>Uma IA venceu!</small>";
+      
+      // Parar TODOS os adversários
+      adversarios.forEach(adv => {
+        if (adv) {
+          adv.corridaFinalizada = true;
+          adv.velocidadeAtual = 0;
+        }
+      });
     }
 
-    // ========== IA - ATUALIZAÇÃO ==========
-    if (adv && adv.atualizar && !adv.corridaFinalizada) {
-      adv.atualizar(deltaTime, jogador);
-    }
-
-    // --- Colisão IA com muretas (desabilitada durante o salto e queda) ---
-    if (adv && !estaNoAr(adv) && !estaCaindo(adv)) {
+    // ========== COLISÃO ADVERSÁRIOS COM MURETAS (desabilitada durante salto e queda) ==========
+    adversarios.forEach(adv => {
+      if (!adv || estaNoAr(adv) || estaCaindo(adv)) return;
+      
       const colisaoIA = verificarColisao(adv.position, muretas, 1.2);
       if (colisaoIA.colidiu) {
         adv.velocidadeAtual *= 0.5;
@@ -243,14 +251,16 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       }
     });
 
-    // --- Colisão entre veículos (desabilitada se qualquer um estiver no ar ou caindo) ---
-    if (adv && !estaNoAr(jogador) && !estaNoAr(adv) && !estaCaindo(jogador) && !estaCaindo(adv)) {
-      const distancia = jogador.position.distanceTo(adv.position);
-      if (distancia < 2.4) {
-        const separacao = new THREE.Vector3()
-          .subVectors(jogador.position, adv.position)
-          .normalize()
-          .multiplyScalar(0.2);
+    // ========== COLISÃO ENTRE TODOS OS VEÍCULOS (desabilitada se qualquer um estiver no ar ou caindo) ==========
+    for (let i = 0; i < todosVeiculos.length; i++) {
+      for (let j = i + 1; j < todosVeiculos.length; j++) {
+        const v1 = todosVeiculos[i];
+        const v2 = todosVeiculos[j];
+        
+        if (!v1 || !v2 || v1.corridaFinalizada || v2.corridaFinalizada) continue;
+        
+        // Pula colisão se qualquer um estiver no ar ou caindo
+        if (estaNoAr(v1) || estaNoAr(v2) || estaCaindo(v1) || estaCaindo(v2)) continue;
 
         const distancia = v1.position.distanceTo(v2.position);
         if (distancia < 2.4) {
@@ -270,7 +280,8 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
         }
       }
     }
-    // --- Sistema de Disparos ---
+
+    // ========== SISTEMA DE DISPAROS ==========
     if (sistemaDisparos) {
       sistemaDisparos.atualizar(deltaTime, todosVeiculos, muretas);
     }
@@ -282,7 +293,7 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       window.linhaDisparos.innerHTML = `Disparos: ${icones} (${jogador.disparosDisponiveis}/4)`;
     }
 
-    // ========== UI DE PENALIZAÇÃO (OPCIONAL) ==========
+    // ========== UI DE PENALIZAÇÃO ==========
     if (window.linhaPenalizacao) {
       if (jogador.penalizado) {
         window.linhaPenalizacao.style.display = "block";
@@ -293,13 +304,13 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
       }
     }
 
-    // --- Luz ---
+    // ========== LUZ ==========
     atualizarLuz(jogador);
 
-    //-- Agua --
-    atualizarAguas(elapsedTime);
+    // ========== ÁGUA ==========
+    atualizarAguas(elapsedTime, jogador);
 
-    // --- Câmera ---
+    // ========== CÂMERA ==========
     let lateralDrift = state.direção * lateral_camera;
     let targetCameraPos = offsetCamera.clone();
 
