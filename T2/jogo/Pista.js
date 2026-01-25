@@ -13,8 +13,11 @@ import {
 } from "./Arvores.js";
 import { criarAguaPista2, limparAguas } from "./Agua.js";
 import { criarJumpsPista3, limparJumps } from "./Jump.js";
-import { criarMurosPista1, criarMurosPista2, criarMurosPista3 } from "./MuroLateral.js";
-
+import {
+  criarMurosPista1,
+  criarMurosPista2,
+  criarMurosPista3,
+} from "./MuroLateral.js";
 
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
@@ -63,7 +66,7 @@ export function criarPista1(scene) {
   try {
     // GRAMA
     // Repetimos 15x15 vezes para a textura ficar detalhada e não um borrão gigante
-    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 15, 15);
+    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 5, 5);
     const materialGrama = new THREE.MeshLambertMaterial({ map: texGrama });
 
     const grama = new THREE.Mesh(
@@ -150,8 +153,8 @@ export function criarPista2(scene) {
   const group = new THREE.Group();
 
   try {
-    // GRAMA DE FUNDO
-    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 15, 15);
+    // GRAMA DE FUNDO (ALTERADO PARA AREIA)
+    const texGrama = carregarTextura("assets/texturas/pista/areia.jpg", 5, 5);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(400, 400),
       new THREE.MeshLambertMaterial({ map: texGrama })
@@ -259,8 +262,8 @@ export function criarPista3(scene) {
   const group = new THREE.Group();
 
   try {
-    // GRAMA
-    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 40, 40);
+    // GRAMA (ALTERADO PARA PEDRA)
+    const texGrama = carregarTextura("assets/texturas/pista/pedra.jpg", 5, 5);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(1000, 1000),
       new THREE.MeshLambertMaterial({ map: texGrama })
@@ -294,7 +297,6 @@ export function criarPista3(scene) {
     //cubeTESTE.position.set(-15, 0.1, -60);
     // add the cube to the scene
     //scene.add(cubeTESTE);
-
 
     scene.add(group);
     pistaAtual = group;

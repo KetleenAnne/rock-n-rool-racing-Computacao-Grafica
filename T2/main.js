@@ -24,24 +24,7 @@ import {
 } from "./jogo/ConfigCheckpoints.js";
 import Stats from "../../build/jsm/libs/stats.module.js";
 import { CORES_IA } from "./veiculos/coresVeiculos.js";
-
-// Função auxiliar para criar adversários
-function criarAdversariosPista(scene, numeroPista, checkpoints) {
-  // Criar 3 adversários
-  let adversario1 = new VeiculoIA(scene, 1, CORES_IA[0]);
-  let adversario2 = new VeiculoIA(scene, 1, CORES_IA[1]);
-  let adversario3 = new VeiculoIA(scene, 1, CORES_IA[2]);
-  
-  // Resetar voltas
-  adv1.voltasCompletadas = 0;
-  adv2.voltasCompletadas = 0;
-  adv3.voltasCompletadas = 0;
-  
-  // Configurar checkpoints
-  sistemaCheckpoints.setCheckpoints(checkpoints);
-  
-  return [adv1, adv2, adv3];
-}
+import { AudioManager } from "./jogo/AudioManager.js";
 
 // Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
@@ -50,6 +33,23 @@ let renderer = initRenderer();
 renderer.shadowMap.enabled = true; // Habilita processamento de sombras
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Sombra mais suave
 let camera = setupCamera();
+
+
+// SOM
+const audioManager = new AudioManager(camera);
+window.audioManager = audioManager; 
+// ===== INÍCIO DA CORRIDA =====
+audioManager.carregar("start1", "../0_assets_T3/start01.mp3", false, 0.8);
+audioManager.carregar("start2", "../0_assets_T3/start02.mp3", false, 0.8);
+
+// ===== MÚSICAS =====
+audioManager.carregar("track1", "../0_assets_T3/01 Bad to the Bone.mp3", true, 5);
+audioManager.carregar("track2", "../0_assets_T3/02 Paranoid.mp3", true, 0.4);
+audioManager.carregar("track3", "../0_assets_T3/04 Peter Gunn.mp3", true, 0.4);
+
+// ===== ÚLTIMA VOLTA =====
+audioManager.carregar("lastLap", "../0_assets_T3/lastLap.mp3", false, 0.9);
+
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -125,6 +125,7 @@ function trocarPista(numeroPista) {
   contadorVoltas.reset();
   sistemaDisparos.limparTodos();
   window.jogoFinalizado = false;
+  window.lastLapPlayed = false;
 
   // Esconder resultado final
   if (window.divResultado) {
@@ -133,20 +134,25 @@ function trocarPista(numeroPista) {
   }
 
   // ===== CRIAR / TROCAR PISTA =====
+  // Tocar som de início
+  audioManager.tocarInicioCorrida();
   if (numeroPista === 1) {
     posInicial = criarPista1(scene);
     contadorVoltas.setLinhaChegada(0, 100, 20, 20);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
+    audioManager.tocarMusica("track1");
   } 
   else if (numeroPista === 2) {
     posInicial = criarPista2(scene);
     contadorVoltas.setLinhaChegada(30, 70, 20, 20);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2);
+    audioManager.tocarMusica("track2");
   } 
   else if (numeroPista === 3) {
     posInicial = criarPista3(scene);
     contadorVoltas.setLinhaChegada(0, 60, 20, 20);
     sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3);
+    audioManager.tocarMusica("track3");
   }
 
   // ===== RESET DO JOGADOR =====

@@ -11,7 +11,7 @@ texMetal.repeat.set(0.9, 0.9);
 
 const texLateral = texMetal.clone();
 texLateral.wrapS = texLateral.wrapT = THREE.RepeatWrapping;
-texLateral.repeat.set(3, 0.5); // Lateral menos esticada
+texLateral.repeat.set(1, 1); // Lateral menos esticada
 
 const texCabine = texMetal.clone();
 texCabine.wrapS = texCabine.wrapT = THREE.RepeatWrapping;
@@ -26,7 +26,7 @@ texMotor.colorSpace = THREE.SRGBColorSpace;
 
 const texHelice = texMetal.clone();
 texHelice.wrapS = texHelice.wrapT = THREE.RepeatWrapping;
-texHelice.repeat.set(0.2, 0.2);
+texHelice.repeat.set(1, 1);
 
 export function criarModeloHavac(group, cores, tipo) {
   // TOPO
