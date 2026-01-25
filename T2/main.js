@@ -43,13 +43,16 @@ audioManager.carregar("start1", "../0_assets_T3/start01.mp3", false, 0.8);
 audioManager.carregar("start2", "../0_assets_T3/start02.mp3", false, 0.8);
 
 // ===== MÚSICAS =====
-audioManager.carregar("track1", "../0_assets_T3/01 Bad to the Bone.mp3", true, 5);
+audioManager.carregar("track1", "../0_assets_T3/01 Bad to the Bone.mp3", true, 0.4);
 audioManager.carregar("track2", "../0_assets_T3/02 Paranoid.mp3", true, 0.4);
 audioManager.carregar("track3", "../0_assets_T3/04 Peter Gunn.mp3", true, 0.4);
 
 // ===== ÚLTIMA VOLTA =====
 audioManager.carregar("lastLap", "../0_assets_T3/lastLap.mp3", false, 0.9);
 
+// ===== DISPARO E HIT =====
+audioManager.carregar("shot", "../0_assets_T3/Shot.wav", false, 0.6);
+audioManager.carregar("hit", "../0_assets_T3/Hit.wav", false, 0.8);
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);
@@ -96,6 +99,9 @@ window.jogoFinalizado = false; // Flag global de controle
 
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
+audioManager.desbloqueado
+audioManager.tocarInicioCorrida();
+audioManager.tocarMusica("track1");
 //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
 // Posições iniciais conforme especificação
 // Jogador: centro-trás

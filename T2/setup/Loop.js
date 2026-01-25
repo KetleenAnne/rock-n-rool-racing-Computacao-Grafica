@@ -92,7 +92,6 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
     if (state.disparar && jogador.podeDisparar()) {
       if (window.sistemaDisparos) {
         window.sistemaDisparos.criarDisparo(jogador);
-        //window.audioManager.tocar("shot");
         console.log("Jogador disparou!");
       }
     }
@@ -204,13 +203,6 @@ export function startLoop(renderer, scene, camera, jogador, todosVeiculos, siste
         }
       }
     });
-
-    // ========== FIM DE JOGO - Som ==========
-    if (contadorVoltas.isUltimaVolta() && !window.lastLapPlayed) {
-      window.lastLapPlayed = true;
-      window.audioManager.tocar("lastLap");
-    }
-
 
     // ========== FIM DE JOGO - VITÓRIA DO JOGADOR ==========
     if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
