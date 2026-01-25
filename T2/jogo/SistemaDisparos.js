@@ -42,6 +42,7 @@ export class SistemaDisparos {
     };
 
     this.projeteis.push(projetil);
+    window.audioManager.tocar("shot");
 
     console.log(
       `Disparo criado! Munição restante: ${veiculo.disparosDisponiveis}`
@@ -69,6 +70,7 @@ export class SistemaDisparos {
 
         const distancia = proj.mesh.position.distanceTo(veiculo.position);
         if (distancia < 1.5) {
+          window.audioManager.tocar("hit");
           veiculo.aplicarDano();
           this.removerProjetil(i);
           colidiu = true;
