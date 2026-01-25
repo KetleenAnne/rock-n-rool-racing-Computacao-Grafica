@@ -4,11 +4,23 @@ import { CSG } from "../../libs/other/CSGMesh.js";
 // ========== TEXTURAS ==========
 const textureLoader = new THREE.TextureLoader();
 
-// Muretas (Concreto)
-const texParede = textureLoader.load("assets/texturas/objetos/parede.jpg");
+// Muretas Pista 1 (Madeira)
+const texParede = textureLoader.load("assets/texturas/pista/madeira.jpg");
 texParede.colorSpace = THREE.SRGBColorSpace;
 texParede.wrapS = texParede.wrapT = THREE.RepeatWrapping;
-texParede.repeat.set(10, 1); // Repete para não esticar
+texParede.repeat.set(10, 1);
+
+// Muretas Pista 2 (Pedras)
+const texMetal = textureLoader.load("assets/texturas/pista/muroPedra.jpg");
+texMetal.colorSpace = THREE.SRGBColorSpace;
+texMetal.wrapS = texMetal.wrapT = THREE.RepeatWrapping;
+texMetal.repeat.set(2, 2);
+
+// Muretas Pista 3 (Blocos de Tijolo)
+const texParedePista3 = textureLoader.load("assets/texturas/pista/tijolo.jpg");
+texParedePista3.colorSpace = THREE.SRGBColorSpace;
+texParedePista3.wrapS = texParedePista3.wrapT = THREE.RepeatWrapping;
+texParedePista3.repeat.set(3, 3);
 
 // Chão Pista 3 (Asfalto)
 const texAsfalto = textureLoader.load("assets/texturas/pista/asfalto.jpg");
@@ -26,7 +38,6 @@ texTunel.repeat.set(2, 2);
 const texLargada = textureLoader.load("assets/texturas/objetos/largada.jpg");
 texLargada.colorSpace = THREE.SRGBColorSpace;
 texLargada.wrapS = texLargada.wrapT = THREE.RepeatWrapping;
-// Ajuste a repetição se sua imagem for apenas 1 quadrado (ex: 8, 1)
 texLargada.repeat.set(1, 1);
 
 // ========== CONFIGURAÇÕES DE CORES ==========
@@ -48,45 +59,26 @@ const ESPESSURA_MURETA_VERTICAL = 0.1;
 // ========== MATERIAIS PISTA 1 ==========
 const materialMuretaVermelha = new THREE.MeshLambertMaterial({
   color: CORES_MURETAS_PISTA1.cor1,
-  map: texParede, // Textura
+  map: texParede,
   side: THREE.DoubleSide,
 });
 
 const materialMuretaBranca = new THREE.MeshLambertMaterial({
   color: CORES_MURETAS_PISTA1.cor2,
-  map: texParede, // Textura
+  map: texParede,
   side: THREE.DoubleSide,
 });
 
 // ========== MATERIAIS PISTA 2 ==========
 const materialMuretaAzul = new THREE.MeshLambertMaterial({
   color: CORES_MURETAS_PISTA2.cor1,
-  map: texParede, // Textura
+  map: texMetal,
   side: THREE.DoubleSide,
 });
 
 const materialMuretaBrancaPista2 = new THREE.MeshLambertMaterial({
   color: CORES_MURETAS_PISTA2.cor2,
-  map: texParede, // Textura
-  side: THREE.DoubleSide,
-});
-
-// ========== MATERIAIS EXTRAS  ==========
-// Pista 3
-const materialBloco = new THREE.MeshLambertMaterial({ map: texAsfalto });
-const materialMuretaRoxa = new THREE.MeshLambertMaterial({
-  color: 0x9370db, // Roxo mais claro para ver textura
-  map: texParede,
-  side: THREE.DoubleSide,
-});
-const materialMuretaBrancaPista3 = new THREE.MeshLambertMaterial({
-  color: "white",
-  map: texParede,
-  side: THREE.DoubleSide,
-});
-// Túnel
-const materialTunel = new THREE.MeshPhongMaterial({
-  map: texTunel,
+  map: texMetal,
   side: THREE.DoubleSide,
 });
 
@@ -96,24 +88,11 @@ const muretaGeometry = new THREE.BoxGeometry(
   ALTURA_MURETA,
   ESPESSURA_MURETA_HORIZONTAL
 );
-
-// Cria geometria "deitada" (X=20) para textura alinhar corretamente
-// Será rotacionada na função de criação
 const muretaGeometryLateral = new THREE.BoxGeometry(
-  20,
+  ESPESSURA_MURETA_VERTICAL,
   ALTURA_MURETA,
-  ESPESSURA_MURETA_VERTICAL
+  20
 );
-
-// Ponta também "deitada" para rotação
-const muretaGeometryPonta = new THREE.BoxGeometry(
-  9.54,
-  ALTURA_MURETA,
-  ESPESSURA_MURETA_VERTICAL
-);
-
-// Pista 3 chão
-const cubeGeometry = new THREE.BoxGeometry(20, 0.1, 20);
 
 // ========== FUNÇÃO AUXILIAR: CRIAR MURETA HORIZONTAL ==========
 function criarMuretaHorizontal(x, z, material) {
@@ -132,7 +111,6 @@ function criarMuretaHorizontal(x, z, material) {
 // ========== FUNÇÃO AUXILIAR: CRIAR MURETA VERTICAL ==========
 function criarMuretaVertical(x, z, material) {
   const mureta = new THREE.Mesh(muretaGeometryLateral, material);
-  mureta.rotation.y = Math.PI / 2; // Rotação necessária pela nova geometria
   mureta.position.set(x, -9.8, z); // mudou de 0.1 para -9.8
   mureta.castShadow = true;
   mureta.receiveShadow = true;
@@ -142,50 +120,6 @@ function criarMuretaVertical(x, z, material) {
     tipo: "vertical",
     posicao: { x, z },
   };
-}
-
-// ========== FUNÇÃO AUXILIAR: TÚNEL (REUTILIZÁVEL) ==========
-function criarTunel(scene, posX, posZ, rotateY) {
-  const geometry = new THREE.CylinderGeometry(20, 20, 80, 16);
-  const geometry2 = new THREE.CylinderGeometry(14, 14, 80, 16);
-  const cylinder = new THREE.Mesh(geometry);
-  cylinder.rotation.x = Math.PI / 2;
-  cylinder.position.set(-210, 10, 0);
-  const cylinder2 = new THREE.Mesh(geometry2);
-  cylinder2.rotation.x = Math.PI / 2;
-  cylinder2.position.set(-210, 10, 0);
-
-  const geometry3 = new THREE.SphereGeometry(10, 16, 8);
-  const spheres = [-20, 20]
-    .map((z) =>
-      [-220, -200].map((x) => {
-        const s = new THREE.Mesh(geometry3);
-        s.position.set(x, 20, z);
-        return s;
-      })
-    )
-    .flat();
-
-  cylinder.updateMatrix();
-  cylinder2.updateMatrix();
-  spheres.forEach((s) => s.updateMatrix());
-  geometry.applyMatrix4(cylinder.matrix);
-  geometry2.applyMatrix4(cylinder2.matrix);
-
-  let res = CSG.fromMesh(new THREE.Mesh(geometry));
-  res = res.subtract(CSG.fromMesh(new THREE.Mesh(geometry2)));
-  spheres.forEach((s) => {
-    const g = s.geometry.clone();
-    g.applyMatrix4(s.matrix);
-    res = res.subtract(CSG.fromMesh(new THREE.Mesh(g)));
-  });
-
-  let csgFinal = CSG.toMesh(res, new THREE.Matrix4());
-  csgFinal.material = materialTunel; // Aplica textura metal
-
-  if (rotateY) csgFinal.rotation.y = Math.PI / 2;
-  csgFinal.position.set(posX, -6, posZ);
-  scene.add(csgFinal);
 }
 
 // ========== MURETAS PISTA 1 ==========
@@ -303,7 +237,65 @@ export function criarMuretasPista1(scene) {
 
   // ========== TÚNEL Pista 1 (usando CSG) ==========
   try {
-    criarTunel(scene, 300.4, 0, false);
+    const geometry = new THREE.CylinderGeometry(20, 20, 80, 16);
+    const geometry2 = new THREE.CylinderGeometry(14, 14, 80, 16);
+
+    const cylinder = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+    cylinder.rotation.x = Math.PI / 2;
+    cylinder.position.set(-210, 10, 0);
+
+    const cylinder2 = new THREE.Mesh(
+      geometry2,
+      new THREE.MeshBasicMaterial({ color: "blue" })
+    );
+    cylinder2.rotation.x = Math.PI / 2;
+    cylinder2.position.set(-210, 10, 0);
+
+    const geometry3 = new THREE.SphereGeometry(10, 16, 8);
+    const material3 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+
+    const spheres = [
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+    ];
+
+    spheres[0].position.set(-220, 20, -20);
+    spheres[1].position.set(-200, 20, -20);
+    spheres[2].position.set(-200, 20, 20);
+    spheres[3].position.set(-220, 20, 20);
+
+    cylinder.updateMatrix();
+    cylinder2.updateMatrix();
+    spheres.forEach((s) => s.updateMatrix());
+
+    geometry.applyMatrix4(cylinder.matrix);
+    geometry2.applyMatrix4(cylinder2.matrix);
+
+    const geoSpheres = spheres.map((s) => {
+      const g = s.geometry.clone();
+      g.applyMatrix4(s.matrix);
+      return new THREE.Mesh(g, s.material);
+    });
+
+    let cylinderCSG = CSG.fromMesh(new THREE.Mesh(geometry, cylinder.material));
+    let cylinder2CSG = CSG.fromMesh(
+      new THREE.Mesh(geometry2, cylinder2.material)
+    );
+
+    let resultado = cylinderCSG.subtract(cylinder2CSG);
+    geoSpheres.forEach((s) => {
+      resultado = resultado.subtract(CSG.fromMesh(s));
+    });
+
+    let csgFinal = CSG.toMesh(resultado, new THREE.Matrix4());
+    csgFinal.material = new THREE.MeshPhongMaterial({ map: texTunel });
+    csgFinal.position.set(300.4, -6, 0);
+    scene.add(csgFinal);
   } catch (error) {
     console.warn("CSG não disponível, túnel não foi criado:", error);
   }
@@ -311,7 +303,7 @@ export function criarMuretasPista1(scene) {
   return muretas;
 }
 
-// ========== MURETAS PISTA 2  ==========
+// ========== MURETAS PISTA 2 ==========
 export function criarMuretasPista2(scene) {
   const muretas = [];
   const offsetX = -110;
@@ -530,7 +522,66 @@ export function criarMuretasPista2(scene) {
 
   // ========== TÚNEL Pista 2 (usando CSG) ==========
   try {
-    criarTunel(scene, 20, -140, true);
+    const geometry = new THREE.CylinderGeometry(20, 20, 80, 16);
+    const geometry2 = new THREE.CylinderGeometry(14, 14, 80, 16);
+
+    const cylinder = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+    cylinder.rotation.x = Math.PI / 2;
+    cylinder.position.set(-210, 10, 0);
+
+    const cylinder2 = new THREE.Mesh(
+      geometry2,
+      new THREE.MeshBasicMaterial({ color: "blue" })
+    );
+    cylinder2.rotation.x = Math.PI / 2;
+    cylinder2.position.set(-210, 10, 0);
+
+    const geometry3 = new THREE.SphereGeometry(10, 16, 8);
+    const material3 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+
+    const spheres = [
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+    ];
+
+    spheres[0].position.set(-220, 20, -20);
+    spheres[1].position.set(-200, 20, -20);
+    spheres[2].position.set(-200, 20, 20);
+    spheres[3].position.set(-220, 20, 20);
+
+    cylinder.updateMatrix();
+    cylinder2.updateMatrix();
+    spheres.forEach((s) => s.updateMatrix());
+
+    geometry.applyMatrix4(cylinder.matrix);
+    geometry2.applyMatrix4(cylinder2.matrix);
+
+    const geoSpheres = spheres.map((s) => {
+      const g = s.geometry.clone();
+      g.applyMatrix4(s.matrix);
+      return new THREE.Mesh(g, s.material);
+    });
+
+    let cylinderCSG = CSG.fromMesh(new THREE.Mesh(geometry, cylinder.material));
+    let cylinder2CSG = CSG.fromMesh(
+      new THREE.Mesh(geometry2, cylinder2.material)
+    );
+
+    let resultado = cylinderCSG.subtract(cylinder2CSG);
+    geoSpheres.forEach((s) => {
+      resultado = resultado.subtract(CSG.fromMesh(s));
+    });
+
+    let csgFinal = CSG.toMesh(resultado, new THREE.Matrix4());
+    csgFinal.material = new THREE.MeshPhongMaterial({ map: texTunel });
+    csgFinal.rotation.y = Math.PI / 2;
+    csgFinal.position.set(20, -6, -140);
+    scene.add(csgFinal);
   } catch (error) {
     console.warn("CSG não disponível, túnel não foi criado:", error);
   }
@@ -538,18 +589,20 @@ export function criarMuretasPista2(scene) {
   return muretas;
 }
 
-// ========== MURETAS PISTA 3  ========== -> Posição do buraco (-10,altura,-60)
+// ========== MURETAS PISTA 3 ==========
 export function criarMuretasPista3(scene) {
   const muretas = [];
 
-  // Materiais
-  const materialBloco = new THREE.MeshLambertMaterial({ color: 0xc8503c });
+  // Materiais (com textura)
+  const materialBloco = new THREE.MeshLambertMaterial({ map: texAsfalto });
   const materialMuretaRoxa = new THREE.MeshLambertMaterial({
-    color: 0x4b0082,
+    color: 0x9370db,
+    map: texParedePista3,
     side: THREE.DoubleSide,
   });
   const materialMuretaBrancaPista3 = new THREE.MeshLambertMaterial({
     color: "white",
+    map: texParedePista3,
     side: THREE.DoubleSide,
   });
 
@@ -843,8 +896,9 @@ export function criarMuretasPista3(scene) {
   ];
 
   for (let m of lateraisEsqInt1) {
-    const mureta = criarMuretaVertical(-39.5, m.z, m.mat);
-    scene.add(mureta.mesh);
+    const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
+    mureta.position.set(-39.5, -9.8, m.z); // mudou de 0.1 para -9.8
+    scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
@@ -863,8 +917,9 @@ export function criarMuretasPista3(scene) {
   ];
 
   for (let m of lateraisDirInt1) {
-    const mureta = criarMuretaVertical(39.5, m.z, m.mat);
-    scene.add(mureta.mesh);
+    const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
+    mureta.position.set(39.5, -9.8, m.z); // mudou de 0.1 para -9.8
+    scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
@@ -884,8 +939,9 @@ export function criarMuretasPista3(scene) {
   ];
 
   for (let m of lateraisDirExt1) {
-    const mureta = criarMuretaVertical(60.5, m.z, m.mat);
-    scene.add(mureta.mesh);
+    const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
+    mureta.position.set(60.5, -9.8, m.z); // mudou de 0.1 para -9.8
+    scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
@@ -904,8 +960,9 @@ export function criarMuretasPista3(scene) {
   ];
 
   for (let m of lateraisEsqExt1) {
-    const mureta = criarMuretaVertical(-60.5, m.z, m.mat);
-    scene.add(mureta.mesh);
+    const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
+    mureta.position.set(-60.5, -9.8, m.z); // mudou de 0.1 para -9.8
+    scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
@@ -945,8 +1002,9 @@ export function criarMuretasPista3(scene) {
   ];
 
   for (let m of laterais2) {
-    const mureta = criarMuretaVertical(m.x, m.z, m.mat);
-    scene.add(mureta.mesh);
+    const mureta = new THREE.Mesh(muretaGeometryLateral, m.mat);
+    mureta.position.set(m.x, -9.8, m.z); // mudou de 0.1 para -9.8
+    scene.add(mureta);
     mureta.castShadow = true;
     mureta.receiveShadow = true;
     muretas.push({
@@ -960,7 +1018,7 @@ export function criarMuretasPista3(scene) {
   const pontas = [
     // Primeiro Quadrado
     { x: 39.5, z: 44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
-    { x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
+    //{ x: 39.5, z: -44.75, mat: materialMuretaRoxa, geo: muretaGeometryPonta },
     {
       x: -39.5,
       z: 44.75,
@@ -969,12 +1027,7 @@ export function criarMuretasPista3(scene) {
     },
 
     // Segundo Quadrado
-    {
-      x: -39.5,
-      z: -44.75,
-      mat: materialMuretaBrancaPista3,
-      geo: muretaGeometryPonta,
-    },
+    //{ x: -39.5, z: -44.75, mat: materialMuretaBrancaPista3, geo: muretaGeometryPonta },
   ];
 
   // Pontas especiais (fechamento) - ajustadas para 5x5
@@ -994,7 +1047,7 @@ export function criarMuretasPista3(scene) {
 
   for (let p of pontas) {
     const mureta = new THREE.Mesh(muretaGeometryPonta, p.mat);
-    mureta.rotation.y = Math.PI / 2; // Rotação para a geometria 'deitada'
+    // mureta.rotation.y = Math.PI / 2; // Rotação para a geometria 'deitada'
     mureta.position.set(p.x, -9.8, p.z); // mudou de 0.1 para -9.8
     mureta.castShadow = true;
     mureta.receiveShadow = true;
@@ -1004,9 +1057,9 @@ export function criarMuretasPista3(scene) {
 
   for (let p of pontasEspeciais) {
     const geo = new THREE.BoxGeometry(
-      p.w, // Geometria larga no X para textura alinhar
+      ESPESSURA_MURETA_VERTICAL,
       ALTURA_MURETA,
-      ESPESSURA_MURETA_VERTICAL
+      p.w
     );
     const mureta = new THREE.Mesh(geo, p.mat);
     mureta.position.set(p.x, -9.8, p.z); // mudou de 0.1 para -9.8
@@ -1018,7 +1071,69 @@ export function criarMuretasPista3(scene) {
 
   // ========== TÚNEL Pista 3 (usando CSG) ==========
   try {
-    criarTunel(scene, 159.4, 0, false);
+    const geometry = new THREE.CylinderGeometry(20, 20, 80, 16);
+    const geometry2 = new THREE.CylinderGeometry(14, 14, 80, 16);
+
+    const cylinder = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+    cylinder.rotation.x = Math.PI / 2;
+    cylinder.position.set(-210, 10, 0);
+    cylinder.castShadow = true;
+    cylinder.receiveShadow = true;
+
+    const cylinder2 = new THREE.Mesh(
+      geometry2,
+      new THREE.MeshBasicMaterial({ color: "blue" })
+    );
+    cylinder2.rotation.x = Math.PI / 2;
+    cylinder2.position.set(-210, 10, 0);
+    cylinder2.castShadow = true;
+    cylinder2.receiveShadow = true;
+
+    const geometry3 = new THREE.SphereGeometry(10, 16, 8);
+    const material3 = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+
+    const spheres = [
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+      new THREE.Mesh(geometry3, material3),
+    ];
+
+    spheres[0].position.set(-220, 20, -20);
+    spheres[1].position.set(-200, 20, -20);
+    spheres[2].position.set(-200, 20, 20);
+    spheres[3].position.set(-220, 20, 20);
+
+    cylinder.updateMatrix();
+    cylinder2.updateMatrix();
+    spheres.forEach((s) => s.updateMatrix());
+
+    geometry.applyMatrix4(cylinder.matrix);
+    geometry2.applyMatrix4(cylinder2.matrix);
+
+    const geoSpheres = spheres.map((s) => {
+      const g = s.geometry.clone();
+      g.applyMatrix4(s.matrix);
+      return new THREE.Mesh(g, s.material);
+    });
+
+    let cylinderCSG = CSG.fromMesh(new THREE.Mesh(geometry, cylinder.material));
+    let cylinder2CSG = CSG.fromMesh(
+      new THREE.Mesh(geometry2, cylinder2.material)
+    );
+
+    let resultado = cylinderCSG.subtract(cylinder2CSG);
+    geoSpheres.forEach((s) => {
+      resultado = resultado.subtract(CSG.fromMesh(s));
+    });
+
+    let csgFinal = CSG.toMesh(resultado, new THREE.Matrix4());
+    csgFinal.material = new THREE.MeshPhongMaterial({ map: texTunel });
+    csgFinal.position.set(159.4, -6, 0);
+    scene.add(csgFinal);
   } catch (error) {
     console.warn("CSG não disponível, túnel não foi criado:", error);
   }
