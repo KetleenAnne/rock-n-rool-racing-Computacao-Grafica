@@ -1,4 +1,5 @@
 import contadorVoltas from "./ContadorVoltas.js";
+import { setPistaAtiva } from "../jogo/Jump.js";
 
 let pistaAtualNum = 1; // Começa na pista 1
 var pistaSelecionada = null;
@@ -99,6 +100,7 @@ function configuracaoTeclado() {
           // Resetar velocidade ao trocar de pista
           statusVeiculo.velocidade = 0;
           statusVeiculo.direção = 0;
+          setPistaAtiva(1);
           onPistaChangeCallback(1);
           console.log("Trocando para Pista 1");
         }
@@ -110,6 +112,7 @@ function configuracaoTeclado() {
           // Resetar velocidade ao trocar de pista
           statusVeiculo.velocidade = 0;
           statusVeiculo.direção = 0;
+          setPistaAtiva(2);
           onPistaChangeCallback(2);
           console.log("Trocando para Pista 2");
         }
@@ -121,6 +124,7 @@ function configuracaoTeclado() {
           // Resetar velocidade ao trocar de pista
           statusVeiculo.velocidade = 0;
           statusVeiculo.direção = 0;
+          setPistaAtiva(3);
           onPistaChangeCallback(3);
           console.log("Trocando para Pista 3");
         }

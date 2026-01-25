@@ -17,7 +17,7 @@ import {
   verificarZonaQueda,
   iniciarQuedaLivre,
   atualizarQuedaLivre,
-  estaCaindo
+  estaCaindo,
 } from "../jogo/Jump.js";
 
 const clock = new THREE.Clock();

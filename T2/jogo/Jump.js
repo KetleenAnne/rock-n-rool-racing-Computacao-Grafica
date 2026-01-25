@@ -4,6 +4,63 @@ import { setDefaultMaterial } from "../../libs/util/util.js";
 // Array para armazenar os jumps criados
 let jumpsAtuais = [];
 
+// ========== BLOCOS DE CHÃO DA PISTA 3 ==========
+// Define exatamente onde estão os blocos de chão (cada bloco é 20x20)
+const BLOCOS_CHAO_PISTA3 = [
+  // PRIMEIRO QUADRADO - SÓ A BORDA (forma um quadrado oco)
+  
+  // BORDA SUL (z = 60)
+  { x: -50, z: 60 }, { x: -30, z: 60 }, { x: -10, z: 60 }, { x: 10, z: 60 }, { x: 30, z: 60 }, { x: 50, z: 60 },
+  
+  // BORDA NORTE (z = -60) - PULA x = -10 (buraco)
+  { x: -50, z: -60 }, { x: -30, z: -60 }, { x: 10, z: -60 }, { x: 30, z: -60 }, { x: 50, z: -60 },
+  
+  // BORDA ESQUERDA (x = -50, z de -40 a 40)
+  { x: -50, z: -40 }, { x: -50, z: -20 }, { x: -50, z: 0 }, { x: -50, z: 20 }, { x: -50, z: 40 },
+  
+  // BORDA DIREITA (x = 50, z de -40 a 40)
+  { x: 50, z: -40 }, { x: 50, z: -20 }, { x: 50, z: 0 }, { x: 50, z: 20 }, { x: 50, z: 40 },
+  
+  // SEGUNDO QUADRADO (5x6 blocos completos)
+  
+  // LINHA SUL (z = -60)
+  { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 },
+  
+  // LINHA z = -80
+  { x: -150, z: -80 }, { x: -130, z: -80 }, { x: -110, z: -80 }, { x: -90, z: -80 }, { x: -70, z: -80 },
+  
+  // LINHA z = -100
+  { x: -150, z: -100 }, { x: -130, z: -100 }, { x: -110, z: -100 }, { x: -90, z: -100 }, { x: -70, z: -100 },
+  
+  // LINHA z = -120
+  { x: -150, z: -120 }, { x: -130, z: -120 }, { x: -110, z: -120 }, { x: -90, z: -120 }, { x: -70, z: -120 },
+  
+  // LINHA z = -140
+  { x: -150, z: -140 }, { x: -130, z: -140 }, { x: -110, z: -140 }, { x: -90, z: -140 }, { x: -70, z: -140 },
+  
+  // LINHA z = -160
+  { x: -150, z: -160 }, { x: -130, z: -160 }, { x: -110, z: -160 }, { x: -90, z: -160 }, { x: -70, z: -160 },
+  
+  // LINHA NORTE (z = -180)
+  { x: -150, z: -180 }, { x: -130, z: -180 }, { x: -110, z: -180 }, { x: -90, z: -180 }, { x: -70, z: -180 },
+];
+
+// Variável para controlar qual pista está ativa
+let pistaAtivaAtual = null;
+
+// ========== DEFINIR PISTA ATIVA ==========
+export function setPistaAtiva(numeroPista) {
+  pistaAtivaAtual = numeroPista;
+  console.log(`🏁 Pista ativa definida: ${numeroPista}`);
+}
+
+const LIMITES_PISTA = {
+  minX: -160,  // Limite esquerdo (segundo quadrado)
+  maxX: 60,    // Limite direito (primeiro quadrado)
+  minZ: -190,  // Limite norte (segundo quadrado)
+  maxZ: 70     // Limite sul (primeiro quadrado)
+};
+
 // ========== CRIAR JUMPS DA PISTA 3 ==========
 export function criarJumpsPista3(scene) {
   console.log("Criando jumps da Pista 3...");
@@ -191,8 +248,12 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
     veiculo.group.position.z += deslocamentoHorizontal.z;
     veiculo.position.copy(veiculo.group.position);
 
-    // Pequena redução da velocidade horizontal (resistência do ar)
-    veiculo.dadosSalto.velocidadeHorizontal.multiplyScalar(0.995);
+    // --- CORREÇÃO AQUI: RESISTÊNCIA DO AR INDEPENDENTE DE FRAME RATE ---
+    // Em vez de multiplyScalar(0.995) fixo, usamos Math.pow para ajustar ao tempo decorrido.
+    // 0.95 significa que o carro mantém 95% da velocidade após 1 segundo no ar.
+    const resistenciaPorSegundo = 0.95; 
+    const fatorFrame = Math.pow(resistenciaPorSegundo, deltaTime);
+    veiculo.dadosSalto.velocidadeHorizontal.multiplyScalar(fatorFrame);
 
     // ========== VERIFICAR ATERRISSAGEM ==========
     if (veiculo.group.position.y <= alturaChao) {
@@ -203,23 +264,13 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
       veiculo.dadosSalto.velocidadeHorizontal.set(0, 0, 0);
       veiculo.dadosSalto.estaNoAr = false;
       
-      // Reduz a velocidade do veículo ao aterrissar (para não cair na velocidade máxima)
+      // Reduz a velocidade do veículo ao aterrissar
       if (veiculo.velocidadeAtual) {
-        veiculo.velocidadeAtual *= 0.6; // Reduz para 60% da velocidade atual
+        veiculo.velocidadeAtual *= 0.6;
         console.log(`   Velocidade após aterrissagem: ${veiculo.velocidadeAtual.toFixed(2)}`);
       }
       
-      const distanciaPercorrida = veiculo.dadosSalto.tempoNoAr * 20; // Estimativa
-      console.log(`✅ ATERRISSAGEM!`);
-      console.log(`   Tempo no ar: ${veiculo.dadosSalto.tempoNoAr.toFixed(2)}s`);
-      console.log(`   Distância aprox: ${distanciaPercorrida.toFixed(2)} unidades`);
-      
       veiculo.dadosSalto.tempoNoAr = 0;
-    }
-
-    // Log de debug a cada 0.5s no ar
-    if (Math.floor(veiculo.dadosSalto.tempoNoAr * 2) % 2 === 0) {
-      // console.log(`   Altura: ${veiculo.group.position.y.toFixed(2)} | Vel.Vertical: ${veiculo.dadosSalto.velocidadeVertical.toFixed(2)}`);
     }
   }
 }
@@ -260,13 +311,16 @@ const ZONA_QUEDA = {
 
 // ========== VERIFICAR SE ESTÁ NA ZONA DE QUEDA ==========
 export function verificarZonaQueda(posicaoVeiculo) {
+  if (pistaAtivaAtual !== 3) {
+    return false; // Nas outras pistas, nunca ativa queda
+  }
   // Calcula distância do veículo ao centro do buraco (só X e Z)
   const dx = posicaoVeiculo.x - ZONA_QUEDA.x;
   const dz = posicaoVeiculo.z - ZONA_QUEDA.z;
   const distancia = Math.sqrt(dx * dx + dz * dz);
 
   // Verifica se está dentro da área do buraco
-  return distancia < ZONA_QUEDA.raio;
+  return !esChaoDaPista(posicaoVeiculo);
 }
 
 // ========== INICIAR QUEDA LIVRE ==========
@@ -376,4 +430,26 @@ function respawnarVeiculo(veiculo) {
 export function estaCaindo(veiculo) {
   if (!veiculo || !veiculo.dadosQueda) return false;
   return veiculo.dadosQueda.estaCaindo;
+}
+
+// ========== VERIFICAR SE É CHÃO DA PISTA ==========
+export function esChaoDaPista(posicaoVeiculo) {
+  // ⚠️ SÓ FUNCIONA NA PISTA 3
+  if (pistaAtivaAtual !== 3) {
+    return true; // Nas outras pistas, sempre considera chão válido
+  }
+
+  // Verifica se o veículo está em cima de algum bloco de chão
+  // Cada bloco tem 20x20, então verificamos se está a ±10 do centro
+  for (let bloco of BLOCOS_CHAO_PISTA3) {
+    const dentroBlocoX = Math.abs(posicaoVeiculo.x - bloco.x) <= 10;
+    const dentroBlocoZ = Math.abs(posicaoVeiculo.z - bloco.z) <= 10;
+    
+    if (dentroBlocoX && dentroBlocoZ) {
+      return true; // Está em cima de um bloco = é chão válido
+    }
+  }
+
+  // Não está em cima de nenhum bloco = não é chão
+  return false;
 }
