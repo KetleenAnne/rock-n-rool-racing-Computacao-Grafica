@@ -23,6 +23,25 @@ import {
   CHECKPOINTS_PISTA3 
 } from "./jogo/ConfigCheckpoints.js";
 import Stats from "../../build/jsm/libs/stats.module.js";
+import { CORES_IA } from "./veiculos/coresVeiculos.js";
+
+// Função auxiliar para criar adversários
+function criarAdversariosPista(scene, numeroPista, checkpoints) {
+  // Criar 3 adversários
+  let adversario1 = new VeiculoIA(scene, 1, CORES_IA[0]);
+  let adversario2 = new VeiculoIA(scene, 1, CORES_IA[1]);
+  let adversario3 = new VeiculoIA(scene, 1, CORES_IA[2]);
+  
+  // Resetar voltas
+  adv1.voltasCompletadas = 0;
+  adv2.voltasCompletadas = 0;
+  adv3.voltasCompletadas = 0;
+  
+  // Configurar checkpoints
+  sistemaCheckpoints.setCheckpoints(checkpoints);
+  
+  return [adv1, adv2, adv3];
+}
 
 // Setup básico: cena, renderizador e câmera
 let scene = new THREE.Scene();
@@ -53,15 +72,24 @@ setupScene(scene);
 // Inicializar o sistema de checkpoints com a cena
 sistemaCheckpoints.scene = scene;
 
-//const veiculo = new Veiculo(scene);
+// Criar jogador e 3 adversários
 const jogador = new VeiculoJogador(scene);
-let adversario = new VeiculoIA(scene, 1);
+let adversario1 = new VeiculoIA(scene, 1, CORES_IA[0]);
+let adversario2 = new VeiculoIA(scene, 1, CORES_IA[1]);
+let adversario3 = new VeiculoIA(scene, 1, CORES_IA[2]);
+
+// Array com todos os veículos para facilitar
+let todosVeiculos = [jogador, adversario1, adversario2, adversario3];
 
 const sistemaDisparos = new SistemaDisparos(scene);
 window.sistemaDisparos = sistemaDisparos;
 
+// Tornar globais
 window.jogador = jogador;
-window.adversario = adversario;
+window.adversario1 = adversario1;
+window.adversario2 = adversario2;
+window.adversario3 = adversario3;
+window.todosVeiculos = todosVeiculos;
 window.jogoFinalizado = false; // Flag global de controle
 
 // --- Lógica das Pistas ---
@@ -69,8 +97,18 @@ window.jogoFinalizado = false; // Flag global de controle
 // Carrega a Pista 1 por padrão
 let posInicial = criarPista1(scene);
 //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot); // Bota o carro no lugar
-jogador.reset(posInicial.x, 0, posInicial.z -5, posInicial.rot);
-adversario.reset(posInicial.x , 0, posInicial.z, posInicial.rot);
+// Posições iniciais conforme especificação
+// Jogador: centro-trás
+jogador.reset(posInicial.x, 0, posInicial.z - 5, posInicial.rot);
+
+// Adversário 1: frente-direita
+adversario1.reset(posInicial.x + 3, 0, posInicial.z + 3, posInicial.rot);
+
+// Adversário 2: frente-esquerda
+adversario2.reset(posInicial.x - 3, 0, posInicial.z + 3, posInicial.rot);
+
+// Adversário 3: lateral esquerda (mesmo Z do jogador)
+adversario3.reset(posInicial.x - 4, 0, posInicial.z - 5, posInicial.rot);
 
 // Avisa o contador onde fica a linha de chegada da Pista 1
 contadorVoltas.setLinhaChegada(0, 100, 20, 20);
@@ -83,45 +121,58 @@ sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
 function trocarPista(numeroPista) {
   console.log(`Trocando para pista ${numeroPista}`);
 
-  contadorVoltas.reset(); // ZERA as voltas
+  // ===== RESET GLOBAL =====
+  contadorVoltas.reset();
   sistemaDisparos.limparTodos();
-  window.jogoFinalizado = false; // Resetar flag de jogo finalizado
-  if (adversario && adversario.group) {
-    scene.remove(adversario.group);
-  }
+  window.jogoFinalizado = false;
 
-  // ========== RESETAR MENSAGEM DE VITÓRIA/DERROTA ==========
+  // Esconder resultado final
   if (window.divResultado) {
     window.divResultado.style.display = "none";
     window.divResultado.innerHTML = "";
-  } 
-
-  if (numeroPista === 1) {
-    posInicial = criarPista1(scene);
-    contadorVoltas.setLinhaChegada(0, 100, 20, 20); // Define linha de chegada
-    adversario = new VeiculoIA(scene, 1);
-    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
-    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1); // Define checkpoints
-  } else if (numeroPista === 2) {
-    posInicial = criarPista2(scene);
-    contadorVoltas.setLinhaChegada(30, 70, 20, 20); // Define linha de chegada
-    adversario = new VeiculoIA(scene, 2);
-    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
-    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2); // Define checkpoints
-  } else if (numeroPista === 3) {
-    posInicial = criarPista3(scene);
-    contadorVoltas.setLinhaChegada(0, 60, 20, 20); // Define linha de chegada
-    adversario = new VeiculoIA(scene, 3);
-    adversario.voltasCompletadas = 0; // Resetar contador de voltas da IA
-    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3); // Define checkpoints
   }
 
-  // Reseta o carro na posição da nova pista
-  //veiculo.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
-  jogador.reset(posInicial.x, 0, posInicial.z - 5, posInicial.rot);
-  adversario.reset(posInicial.x, 0, posInicial.z, posInicial.rot);
-  window.adversario = adversario;
+  // ===== CRIAR / TROCAR PISTA =====
+  if (numeroPista === 1) {
+    posInicial = criarPista1(scene);
+    contadorVoltas.setLinhaChegada(0, 100, 20, 20);
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA1);
+  } 
+  else if (numeroPista === 2) {
+    posInicial = criarPista2(scene);
+    contadorVoltas.setLinhaChegada(30, 70, 20, 20);
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA2);
+  } 
+  else if (numeroPista === 3) {
+    posInicial = criarPista3(scene);
+    contadorVoltas.setLinhaChegada(0, 60, 20, 20);
+    sistemaCheckpoints.setCheckpoints(CHECKPOINTS_PISTA3);
+  }
+
+  // ===== RESET DO JOGADOR =====
+  jogador.reset(
+    posInicial.x,
+    0,
+    posInicial.z - 5,
+    posInicial.rot
+  );
+
+  // ===== RESET DAS IAs (SEM RECRIAR) =====
+  adversario1.resetIA(numeroPista);
+  adversario2.resetIA(numeroPista);
+  adversario3.resetIA(numeroPista);
+
+  adversario1.reset(posInicial.x + 3, 0, posInicial.z + 3, posInicial.rot);
+  adversario2.reset(posInicial.x - 3, 0, posInicial.z + 3, posInicial.rot);
+  adversario3.reset(posInicial.x - 4, 0, posInicial.z - 5, posInicial.rot);
+
+  // ===== ATUALIZAR LISTA GLOBAL =====
+  todosVeiculos = [jogador, adversario1, adversario2, adversario3];
+  window.todosVeiculos = todosVeiculos;
+
+  console.log("ista trocada com sucesso");
 }
+
 
 // "Linka" o arquivo de Teclas com a nossa função 'trocarPista'
 setPistaChangeCallback(trocarPista);
@@ -129,8 +180,7 @@ setPistaChangeCallback(trocarPista);
 // Inicia os controles e o loop principal do jogo
 addControls(camera, renderer);
 //startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats);
-startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats);
-
+startLoop(renderer, scene, camera, jogador, todosVeiculos, sistemaDisparos, stats);
 
 var pistaSelecionada = getPistaSelecionada();
 

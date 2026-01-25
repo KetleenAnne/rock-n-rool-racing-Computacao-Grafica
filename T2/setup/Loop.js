@@ -28,7 +28,7 @@ const lateral_camera = 50.0;
 let focoCamera = new THREE.Vector3(0, 2.0, 0);
 let currentLookAt = new THREE.Vector3();
 
-export function startLoop(renderer, scene, camera, jogador, adversario, sistemaDisparos, stats) {
+export function startLoop(renderer, scene, camera, jogador, todosVeiculos, sistemaDisparos, stats) {
   currentLookAt.copy(jogador.position).add(focoCamera);
 
   function render() {
@@ -38,8 +38,8 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
 
     const state = atualizaControlesVeiculo(deltaTime);
 
-    // --- Referência dinâmica do adversário ---
-    const adv = (typeof window !== 'undefined' && window.adversario) ? window.adversario : adversario;
+    // Adv
+    const adversarios = todosVeiculos.filter(v => v !== jogador);
 
     // ========== ATUALIZAÇÃO DE PENALIZAÇÃO - JOGADOR ==========
     jogador.atualizarPenalizacao(deltaTime);
@@ -171,11 +171,13 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
     }
 
     // ========== CONTADOR DE VOLTAS DA IA  ==========
-    if (adv && !contadorVoltas.isCorridaFinalizada()) {
+    // ========== CONTADOR DE VOLTAS ADVERSÁRIOS ==========
+    adversarios.forEach(adv => {
+      if (!adv || contadorVoltas.isCorridaFinalizada()) return;
+      
       if (!adv.voltasCompletadas) adv.voltasCompletadas = 0;
       if (adv.primeiraPassagemIA === undefined) adv.primeiraPassagemIA = true;
       
-      // OBTER LINHA DE CHEGADA CORRETA PARA CADA PISTA
       const linhaChegada = contadorVoltas.linhaBox;
       
       if (linhaChegada) {
@@ -185,10 +187,8 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
         if (dentroLinha && !adv.passouLinha) {
           adv.passouLinha = true;
           
-          // Ignora a primeira passagem (posição inicial)
           if (adv.primeiraPassagemIA) {
             adv.primeiraPassagemIA = false;
-            console.log("🤖 IA - Posição inicial - não conta como volta");
           } else {
             adv.voltasCompletadas++;
             adv.recarregarDisparos();
@@ -198,7 +198,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
           adv.passouLinha = false;
         }
       }
-    }
+    });
 
     // Verificar fim de jogo (4 voltas) - JOGADOR
     if (voltasDepois >= 4 && window.divResultado && !window.jogoFinalizado) {
@@ -241,7 +241,7 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
         if (adv.group) adv.group.position.add(normal);
         if (adv.position && adv.group) adv.position.copy(adv.group.position);
       }
-    }
+    });
 
     // --- Colisão entre veículos (desabilitada se qualquer um estiver no ar ou caindo) ---
     if (adv && !estaNoAr(jogador) && !estaNoAr(adv) && !estaCaindo(jogador) && !estaCaindo(adv)) {
@@ -252,20 +252,27 @@ export function startLoop(renderer, scene, camera, jogador, adversario, sistemaD
           .normalize()
           .multiplyScalar(0.2);
 
-        if (jogador.group) jogador.group.position.add(separacao);
-        if (jogador.group) jogador.position.copy(jogador.group.position);
+        const distancia = v1.position.distanceTo(v2.position);
+        if (distancia < 2.4) {
+          const separacao = new THREE.Vector3()
+            .subVectors(v1.position, v2.position)
+            .normalize()
+            .multiplyScalar(0.2);
 
-        if (adv.group) adv.group.position.sub(separacao);
-        if (adv.group && adv.position) adv.position.copy(adv.group.position);
+          if (v1.group) v1.group.position.add(separacao);
+          if (v1.group) v1.position.copy(v1.group.position);
 
-        jogador.velocidadeAtual *= 0.8;
-        adv.velocidadeAtual *= 0.8;
+          if (v2.group) v2.group.position.sub(separacao);
+          if (v2.group && v2.position) v2.position.copy(v2.group.position);
+
+          v1.velocidadeAtual *= 0.8;
+          v2.velocidadeAtual *= 0.8;
+        }
       }
     }
-
     // --- Sistema de Disparos ---
     if (sistemaDisparos) {
-      sistemaDisparos.atualizar(deltaTime, [adv, jogador], muretas);
+      sistemaDisparos.atualizar(deltaTime, todosVeiculos, muretas);
     }
 
     // ========== UI DE DISPAROS ==========
