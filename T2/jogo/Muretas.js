@@ -8,19 +8,19 @@ const textureLoader = new THREE.TextureLoader();
 const texParede = textureLoader.load("assets/texturas/pista/madeira.jpg");
 texParede.colorSpace = THREE.SRGBColorSpace;
 texParede.wrapS = texParede.wrapT = THREE.RepeatWrapping;
-texParede.repeat.set(10, 1);
+texParede.repeat.set(1, 1);
 
 // Muretas Pista 2 (Pedras)
 const texMetal = textureLoader.load("assets/texturas/pista/muroPedra.jpg");
 texMetal.colorSpace = THREE.SRGBColorSpace;
 texMetal.wrapS = texMetal.wrapT = THREE.RepeatWrapping;
-texMetal.repeat.set(2, 2);
+texMetal.repeat.set(1, 1);
 
 // Muretas Pista 3 (Blocos de Tijolo)
 const texParedePista3 = textureLoader.load("assets/texturas/pista/tijolo.jpg");
 texParedePista3.colorSpace = THREE.SRGBColorSpace;
 texParedePista3.wrapS = texParedePista3.wrapT = THREE.RepeatWrapping;
-texParedePista3.repeat.set(3, 3);
+texParedePista3.repeat.set(1, 1);
 
 // Chão Pista 3 (Asfalto)
 const texAsfalto = textureLoader.load("assets/texturas/pista/asfalto.jpg");
@@ -32,7 +32,7 @@ texAsfalto.repeat.set(1, 1);
 const texTunel = textureLoader.load("assets/texturas/objetos/tunel.jpg");
 texTunel.colorSpace = THREE.SRGBColorSpace;
 texTunel.wrapS = texTunel.wrapT = THREE.RepeatWrapping;
-texTunel.repeat.set(2, 2);
+texTunel.repeat.set(1, 1);
 
 // Largada (Quadriculada)
 const texLargada = textureLoader.load("assets/texturas/objetos/largada.jpg");
