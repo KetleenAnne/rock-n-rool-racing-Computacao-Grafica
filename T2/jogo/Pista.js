@@ -12,6 +12,7 @@ import {
   criarArvoresPista3,
 } from "./Arvores.js";
 import { criarAguaPista2, limparAguas } from "./Agua.js";
+import { criarJumpsPista3, limparJumps } from "./Jump.js";
 
 
 // Posições iniciais dos veículos
@@ -277,6 +278,20 @@ export function criarPista3(scene) {
     // Cria Árvores
     criarArvoresPista3(group);
 
+    // CRIA JUMPS
+    criarJumpsPista3(scene);
+    console.log("✅ Jumps adicionados à Pista 3");
+
+    // create a cube
+    let cubeGeometry = new THREE.BoxGeometry(5, 5, 5, 5);
+    let materialTeste = setDefaultMaterial();
+    let cubeTESTE = new THREE.Mesh(cubeGeometry, materialTeste);
+    // position the cube
+    cubeTESTE.position.set(-15, 0.1, -60);
+    // add the cube to the scene
+    scene.add(cubeTESTE);
+
+
     scene.add(group);
     pistaAtual = group;
 
@@ -295,6 +310,7 @@ function limparPistaAtual(scene) {
   }
   muretasAtuais = [];
   limparAguas();
+  limparJumps(scene);
 }
 
 export function getMuretas() {

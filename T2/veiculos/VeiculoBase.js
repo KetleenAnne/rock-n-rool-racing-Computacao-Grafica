@@ -16,7 +16,7 @@ export class VeiculoBase {
     
     // Estado do veículo
     this.velocidadeAtual = 0;
-    this.velocidadeMaxima = 50.0;
+    this.velocidadeMaxima = 40.0;
     this.penalizado = false;
     this.tempoPenalizacao = 0;
     

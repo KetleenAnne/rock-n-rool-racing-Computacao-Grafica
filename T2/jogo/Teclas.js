@@ -45,7 +45,7 @@ const statusVeiculo = {
   direção: 0,
 
   // constantes
-  velocidadeMax: 28.0,
+  velocidadeMax: 35.0,
   velocidadeMaxRe: -8.0,
   aceleracao: 4.0,
   aceleracaoRe: 2.0,
