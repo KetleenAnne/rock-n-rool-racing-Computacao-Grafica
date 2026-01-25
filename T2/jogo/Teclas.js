@@ -86,6 +86,12 @@ function configuracaoTeclado() {
       case "D":
         keyStates.KeyD = true;
         break;
+      case "q":
+      case "Q":
+        if (window.audioManager) {
+          window.audioManager.toggleMusica();
+        }
+        break;
       case "1":
         // Trocar para Pista 1
         if (pistaAtualNum !== 1 && onPistaChangeCallback) {
