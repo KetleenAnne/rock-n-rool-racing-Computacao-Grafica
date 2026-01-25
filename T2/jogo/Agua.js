@@ -15,7 +15,7 @@ export function criarAguaPista2(group) {
   const aguaGeometry = new THREE.PlaneGeometry(67, 20, 64, 32);
   const agua = new THREE.Mesh(aguaGeometry, materialAgua);
   
-  agua.position.set(-36, 0.2, -130); 
+  agua.position.set(-36, 0.25, -130); 
   agua.rotation.x = -Math.PI / 2;
   agua.receiveShadow = true;
 
