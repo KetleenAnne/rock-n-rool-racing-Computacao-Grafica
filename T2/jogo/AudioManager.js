@@ -1,13 +1,14 @@
 import * as THREE from "three";
 
 export class AudioManager {
-  constructor(camera) {
+  constructor(camera, loadingManager = null) {
     this.listener = new THREE.AudioListener();
     camera.add(this.listener);
 
-    this.loader = new THREE.AudioLoader();
+    // O LoadingManager monitora o progresso do download dos sons
+    this.loader = new THREE.AudioLoader(loadingManager);
+    
     this.sons = {};
-
     this.musicaAtual = null;
     this.musicaLigada = true;
     this.toggleStart = false;
@@ -24,21 +25,21 @@ export class AudioManager {
         audio.setLoop(loop);
         audio.setVolume(volume);
         this.sons[nome] = audio;
-        console.log(`Áudio "${nome}" carregado com sucesso!`);
       },
       undefined,
       (error) => {
-        console.error(`Erro ao carregar "${nome}" de "${caminho}":`, error);
+        console.error(`Erro ao carregar áudio "${nome}":`, error);
       }
     );
 
     return audio;
   }
 
+  // Método crucial para navegadores modernos
   desbloquear() {
     if (this.listener.context.state === "suspended") {
       this.listener.context.resume().then(() => {
-        console.log("🔊 Contexto de áudio desbloqueado!");
+        console.log("🔊 Contexto de áudio ativado!");
         this.desbloqueado = true;
       });
     } else {
@@ -49,57 +50,43 @@ export class AudioManager {
   tocar(nome) {
     const som = this.sons[nome];
     if (!som) {
-      console.warn(`Som "${nome}" não encontrado`);
+      console.warn(`Som "${nome}" não registrado.`);
       return;
     }
 
-    if (!som.buffer) {
-      console.warn(`Som "${nome}" ainda não foi carregado`);
-      return;
-    }
+    if (!som.buffer) return; // Ainda não carregou
 
     if (som.isPlaying) {
       som.stop();
     }
 
-    this.desbloquear();
+    this.desbloquear(); // Tenta desbloquear sempre que tocar um efeito
     som.play();
-    console.log(`Tocando: ${nome}`);
   }
 
   parar(nome) {
     const som = this.sons[nome];
     if (som && som.isPlaying) {
       som.stop();
-      console.log(`Parado: ${nome}`);
     }
   }
 
   tocarInicioCorrida() {
     this.toggleStart = !this.toggleStart;
     const nomeSom = this.toggleStart ? "start1" : "start2";
-    console.log(`Tocando início da corrida: ${nomeSom}`);
     this.tocar(nomeSom);
   }
 
   tocarMusica(nome) {
-    console.log(`🎵 Tentando tocar música: ${nome}`);
-    
-    // Parar música atual se existir
+    // Para a música anterior
     if (this.musicaAtual && this.musicaAtual.isPlaying) {
       this.musicaAtual.stop();
-      console.log("Música anterior parada");
     }
 
     const novaMusica = this.sons[nome];
     
-    if (!novaMusica) {
-      console.warn(`Música "${nome}" não encontrada`);
-      return;
-    }
-
-    if (!novaMusica.buffer) {
-      console.warn(`Música "${nome}" ainda não foi carregada`);
+    if (!novaMusica || !novaMusica.buffer) {
+      console.warn(`Música "${nome}" não pronta.`);
       return;
     }
 
@@ -108,26 +95,23 @@ export class AudioManager {
     if (this.musicaLigada) {
       this.desbloquear();
       this.musicaAtual.play();
-      console.log(`Música "${nome}" tocando!`);
     }
   }
 
   toggleMusica() {
     this.musicaLigada = !this.musicaLigada;
-    console.log(`🎵 Música ${this.musicaLigada ? "LIGADA" : "DESLIGADA"}`);
 
-    if (!this.musicaAtual) {
-      console.warn(" Nenhuma música carregada para toggle");
-      return;
-    }
+    if (!this.musicaAtual) return;
 
-    if (this.musicaLigada && this.musicaAtual.buffer) {
+    if (this.musicaLigada) {
       this.desbloquear();
-      if (!this.musicaAtual.isPlaying) {
+      if (!this.musicaAtual.isPlaying && this.musicaAtual.buffer) {
         this.musicaAtual.play();
       }
-    } else if (this.musicaAtual.isPlaying) {
-      this.musicaAtual.stop();
+    } else {
+      if (this.musicaAtual.isPlaying) {
+        this.musicaAtual.stop();
+      }
     }
   }
 }
