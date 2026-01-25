@@ -15,7 +15,7 @@ export function setupScene(scene) {
 
   //carregar o ceu
   const loader = new THREE.TextureLoader();
-  const caminhoCeu = "assets/texturas/sky/ceu2.jpg";
+  const caminhoCeu = "assets/texturas/sky/ceu3.jpg";
 
   const textureEquirec = loader.load(caminhoCeu);
   // diz ao Three.js que a imagem é uma esfera 360 graus
