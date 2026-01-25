@@ -19,6 +19,14 @@ import {
   criarMurosPista3,
 } from "./MuroLateral.js";
 
+// === IMPORTAÇÃO DOS NOVOS OBJETOS ===
+import {
+  carregarObjetosPista1,
+  carregarObjetosPista2,
+  carregarObjetosPista3,
+  limparObjetosImportados,
+} from "./ObjetosImportados.js";
+
 // Posições iniciais dos veículos
 const POSICAO_INICIAL_PISTA_1 = {
   x: 0,
@@ -66,7 +74,7 @@ export function criarPista1(scene) {
   try {
     // GRAMA
     // Repetimos 15x15 vezes para a textura ficar detalhada e não um borrão gigante
-    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 5, 5);
+    const texGrama = carregarTextura("assets/texturas/pista/grama.jpg", 1, 1);
     const materialGrama = new THREE.MeshLambertMaterial({ map: texGrama });
 
     const grama = new THREE.Mesh(
@@ -134,6 +142,10 @@ export function criarPista1(scene) {
 
     criarArvoresPista1(group);
 
+    // === ADICIONAR OBJETOS PISTA 1 (Pneu e Cone) ===
+    // Passamos o grupo da pista e o array de colisão (muretasAtuais)
+    carregarObjetosPista1(group, muretasAtuais);
+
     scene.add(group);
     pistaAtual = group;
 
@@ -154,7 +166,7 @@ export function criarPista2(scene) {
 
   try {
     // GRAMA DE FUNDO (ALTERADO PARA AREIA)
-    const texGrama = carregarTextura("assets/texturas/pista/areia.jpg", 5, 5);
+    const texGrama = carregarTextura("assets/texturas/pista/areia.jpg", 15, 15);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(400, 400),
       new THREE.MeshLambertMaterial({ map: texGrama })
@@ -243,6 +255,9 @@ export function criarPista2(scene) {
     criarArvoresPista2(group);
     criarAguaPista2(group);
 
+    // === ADICIONAR OBJETOS PISTA 2 (Palmeira e Barril) ===
+    carregarObjetosPista2(group, muretasAtuais);
+
     scene.add(group);
     pistaAtual = group;
 
@@ -263,7 +278,7 @@ export function criarPista3(scene) {
 
   try {
     // GRAMA (ALTERADO PARA PEDRA)
-    const texGrama = carregarTextura("assets/texturas/pista/hell.jpg", 5, 5);
+    const texGrama = carregarTextura("assets/texturas/pista/pedra.jpg", 40, 40);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(1000, 1000),
       new THREE.MeshLambertMaterial({ map: texGrama })
@@ -289,14 +304,8 @@ export function criarPista3(scene) {
     criarJumpsPista3(scene);
     console.log("✅ Jumps adicionados à Pista 3");
 
-    // create a cube
-    //let cubeGeometry = new THREE.BoxGeometry(5, 5, 5, 5);
-    //let materialTeste = setDefaultMaterial();
-    //let cubeTESTE = new THREE.Mesh(cubeGeometry, materialTeste);
-    // position the cube
-    //cubeTESTE.position.set(-15, 0.1, -60);
-    // add the cube to the scene
-    //scene.add(cubeTESTE);
+    // === ADICIONAR OBJETOS PISTA 3 (Rocha e Caixa) ===
+    carregarObjetosPista3(group, muretasAtuais);
 
     scene.add(group);
     pistaAtual = group;
@@ -317,6 +326,8 @@ function limparPistaAtual(scene) {
   muretasAtuais = [];
   limparAguas();
   limparJumps(scene);
+  // Limpa referências para não acumular
+  limparObjetosImportados();
 }
 
 export function getMuretas() {
