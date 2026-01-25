@@ -2,11 +2,29 @@ import * as THREE from "three";
 
 class SistemaCheckpoints {
   constructor() {
-    this.scene = null; // Inicialmente null
+    this.scene = null;
     this.checkpoints = [];
     this.checkpointAtual = 0;
     this.todosCheckpointsColetados = false;
     this.grupoCheckpoints = new THREE.Group();
+
+    // Carrega a textura
+    const loader = new THREE.TextureLoader();
+    const baseTex = loader.load("assets/texturas/objetos/checkpoint.jpg");
+    baseTex.colorSpace = THREE.SRGBColorSpace;
+
+    // ========== TEXTURA POSTES (Vertical) ==========
+    // Necessário para a textura não ficar esticada e borrada no poste alto
+    this.texPoste = baseTex.clone();
+    this.texPoste.wrapS = THREE.RepeatWrapping;
+    this.texPoste.wrapT = THREE.RepeatWrapping;
+    this.texPoste.repeat.set(1, 3); // Repete 3x na altura
+
+    // ========== TEXTURA BARRA (Horizontal) ==========
+    this.texBarra = baseTex.clone();
+    this.texBarra.wrapS = THREE.RepeatWrapping;
+    this.texBarra.wrapT = THREE.RepeatWrapping;
+    this.texBarra.repeat.set(1, 1); // Repete 1x na largura
   }
 
   criarCheckpointVisual(poste1Pos, poste2Pos, numero) {
@@ -16,76 +34,93 @@ class SistemaCheckpoints {
     const centroX = (poste1Pos.x + poste2Pos.x) / 2;
     const centroZ = (poste1Pos.z + poste2Pos.z) / 2;
     const largura = Math.sqrt(
-      Math.pow(poste2Pos.x - poste1Pos.x, 2) + 
-      Math.pow(poste2Pos.z - poste1Pos.z, 2)
+      Math.pow(poste2Pos.x - poste1Pos.x, 2) +
+        Math.pow(poste2Pos.z - poste1Pos.z, 2)
     );
-    
+
     // Calcular rotação da linha entre os postes
     const angulo = Math.atan2(
-      poste2Pos.z - poste1Pos.z, 
+      poste2Pos.z - poste1Pos.z,
       poste2Pos.x - poste1Pos.x
     );
 
-    // ========== POSTES DO PORTAL ==========
-    const alturaPoste = 28; // Mudou de 8 para 28 (8 + 20)
-    const posteGeo = new THREE.CylinderGeometry(0.5, 0.5, alturaPoste, 8);
-    const posteMat = new THREE.MeshPhongMaterial({
-      color: 0x00ff00,
-      emissive: 0x00ff00,
-      emissiveIntensity: 0.3,
+    // ========== CONFIGURAÇÃO DE MATERIAIS ==========
+
+    // ATIVO: Menos "neon", mais textura
+    const matAtivoPoste = new THREE.MeshPhongMaterial({
+      color: 0xffffff, // Base branca para mostrar a cor real da imagem
+      map: this.texPoste,
+      emissive: 0x004400, // Verde ESCURO
+      emissiveIntensity: 0.5,
+      specular: 0x222222, // Reflexo baixo para não ofuscar
+      shininess: 30,
     });
 
-    const poste1 = new THREE.Mesh(posteGeo, posteMat);
-    poste1.position.set(poste1Pos.x, -6.1, poste1Pos.z); // Mudou de 4 para -6.1
+    const matAtivoBarra = matAtivoPoste.clone();
+    matAtivoBarra.map = this.texBarra; // Usa o mapa horizontal
+
+    // Cinza claro (não preto) para ver a textura desligada
+    const matInativoPoste = new THREE.MeshPhongMaterial({
+      color: 0xaaaaaa, // Cinza CLARO
+      map: this.texPoste,
+      emissive: 0x000000, // Sem luz própria
+      specular: 0x111111,
+      shininess: 10,
+    });
+
+    const matInativoBarra = matInativoPoste.clone();
+    matInativoBarra.map = this.texBarra;
+
+    // ========== POSTES ==========
+    const alturaPoste = 28;
+    const posteGeo = new THREE.CylinderGeometry(0.5, 0.5, alturaPoste, 16);
+
+    // Começa com material INATIVO (será trocado no update)
+    const poste1 = new THREE.Mesh(posteGeo, matInativoPoste.clone());
+    poste1.position.set(poste1Pos.x, -6.1, poste1Pos.z);
     poste1.castShadow = true;
     poste1.receiveShadow = true;
 
-    const poste2 = new THREE.Mesh(posteGeo, posteMat);
-    poste2.position.set(poste2Pos.x, -6.1, poste2Pos.z); // Mudou de 4 para -6.1
+    const poste2 = new THREE.Mesh(posteGeo, matInativoPoste.clone());
+    poste2.position.set(poste2Pos.x, -6.1, poste2Pos.z);
     poste2.castShadow = true;
     poste2.receiveShadow = true;
 
     group.add(poste1, poste2);
 
-    // ========== BARRA SUPERIOR ==========
-    const barraGeo = new THREE.BoxGeometry(largura, 0.5, 0.5);
-    const barraMat = new THREE.MeshPhongMaterial({
-      color: 0x00ff00,
-      emissive: 0x00ff00,
-      emissiveIntensity: 0.3,
-    });
-    const barra = new THREE.Mesh(barraGeo, barraMat);
-    barra.position.set(centroX, 7.9, centroZ); // Mudou de 8 para 7.9
+    // ========== BARRA ==========
+    const barraGeo = new THREE.BoxGeometry(largura, 0.8, 0.8);
+    const barra = new THREE.Mesh(barraGeo, matInativoBarra.clone());
+    barra.position.set(centroX, 7.9, centroZ);
     barra.rotation.y = angulo;
     barra.castShadow = true;
     barra.receiveShadow = true;
     group.add(barra);
 
-    // ========== ZONA DE DETECÇÃO - LINHA ENTRE OS POSTES ==========
-    const alturaZona = 28; // Mudou de 8 para 28
-    const zonaGeo = new THREE.BoxGeometry(largura, alturaZona, 2);
-    const zonaMat = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
-      transparent: true,
-      opacity: 0.0, // Invisível no jogo (mude para 0.3 para debug)
-    });
-    const zona = new THREE.Mesh(zonaGeo, zonaMat);
-    zona.position.set(centroX, -6.1, centroZ); // Mudou de 4 para -6.1
+    // ========== ZONA INVISÍVEL ==========
+    const zonaGeo = new THREE.BoxGeometry(largura, alturaPoste, 2);
+    const zona = new THREE.Mesh(
+      zonaGeo,
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    zona.position.set(centroX, -6.1, centroZ);
     zona.rotation.y = angulo;
     group.add(zona);
 
-    // Dados do checkpoint
-    const checkpointData = {
-      mesh: zona, // Mesh para detecção de colisão
-      group: group, // Grupo visual completo
-      poste1: poste1Pos,
-      poste2: poste2Pos,
-      centro: { x: centroX, z: centroZ },
+    return {
+      mesh: zona,
+      group: group,
+      poste1: poste1,
+      poste2: poste2,
+      barra: barra,
+      // materiais para troca rápida
+      matAtivoPoste: matAtivoPoste,
+      matAtivoBarra: matAtivoBarra,
+      matInativoPoste: matInativoPoste,
+      matInativoBarra: matInativoBarra,
       numero: numero,
       coletado: false,
     };
-
-    return checkpointData;
   }
 
   // Configurar checkpoints da pista
@@ -112,7 +147,6 @@ class SistemaCheckpoints {
 
     // Adicionar grupo à cena
     this.scene.add(this.grupoCheckpoints);
-
     this.checkpointAtual = 0;
     this.todosCheckpointsColetados = false;
     this.atualizarVisibilidade();
@@ -121,7 +155,6 @@ class SistemaCheckpoints {
   // Verificar se o veículo passou pelo checkpoint
   verificarPassagem(posicaoVeiculo) {
     if (this.todosCheckpointsColetados) return { completo: true };
-
     const cpAtivo = this.checkpoints[this.checkpointAtual];
     if (!cpAtivo) return { completo: false };
 
@@ -136,7 +169,6 @@ class SistemaCheckpoints {
     if (bbox.containsPoint(pontoVeiculo) && !cpAtivo.coletado) {
       cpAtivo.coletado = true;
       this.checkpointAtual++;
-
       console.log(`✓ Checkpoint ${cpAtivo.numero} coletado!`);
 
       // Completou todos os checkpoints?
@@ -154,45 +186,24 @@ class SistemaCheckpoints {
         total: this.checkpoints.length,
       };
     }
-
     return { completo: this.todosCheckpointsColetados };
   }
 
-  // Atualizar visibilidade dos checkpoints
   atualizarVisibilidade() {
     this.checkpoints.forEach((cp, index) => {
-      const postes = cp.group.children.filter(
-        (child) => child.geometry.type === "CylinderGeometry"
-      );
-      const barra = cp.group.children.find(
-        (child) => child.geometry.type === "BoxGeometry"
-      );
+      //  Troca os materiais inteiros em vez de mudar cor (seguro para texturas)
 
       if (index === this.checkpointAtual) {
-        // ========== CHECKPOINT ATIVO - VERDE BRILHANTE ==========
-        postes.forEach((poste) => {
-          poste.material.color.set(0x00ff00);
-          poste.material.emissive.set(0x00ff00);
-          poste.material.emissiveIntensity = 0.5;
-        });
-        if (barra) {
-          barra.material.color.set(0x00ff00);
-          barra.material.emissive.set(0x00ff00);
-          barra.material.emissiveIntensity = 0.5;
-        }
+        // === ATIVO (Verde Suave) ===
+        cp.poste1.material = cp.matAtivoPoste;
+        cp.poste2.material = cp.matAtivoPoste;
+        cp.barra.material = cp.matAtivoBarra;
         cp.group.visible = true;
       } else if (index < this.checkpointAtual) {
-        // ========== JÁ COLETADO - CINZA ==========
-        postes.forEach((poste) => {
-          poste.material.color.set(0x444444);
-          poste.material.emissive.set(0x000000);
-          poste.material.emissiveIntensity = 0;
-        });
-        if (barra) {
-          barra.material.color.set(0x444444);
-          barra.material.emissive.set(0x000000);
-          barra.material.emissiveIntensity = 0;
-        }
+        // === JÁ PASSOU (Cinza Claro) ===
+        cp.poste1.material = cp.matInativoPoste;
+        cp.poste2.material = cp.matInativoPoste;
+        cp.barra.material = cp.matInativoBarra;
         cp.group.visible = true;
       } else {
         // ========== PRÓXIMOS - INVISÍVEL ==========
@@ -223,21 +234,14 @@ class SistemaCheckpoints {
 
   // Limpar checkpoints da cena
   limparCheckpoints() {
-    if (this.scene && this.grupoCheckpoints) {
+    if (this.scene && this.grupoCheckpoints)
       this.scene.remove(this.grupoCheckpoints);
-    }
-    
-    this.checkpoints.forEach((cp) => {
-      this.grupoCheckpoints.remove(cp.group);
-    });
-    
+    this.checkpoints.forEach((cp) => this.grupoCheckpoints.remove(cp.group));
     this.checkpoints = [];
     this.checkpointAtual = 0;
     this.todosCheckpointsColetados = false;
   }
 }
 
-// Instância única do sistema
 const sistemaCheckpoints = new SistemaCheckpoints();
-
 export default sistemaCheckpoints;
