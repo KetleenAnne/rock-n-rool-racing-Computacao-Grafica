@@ -61,6 +61,11 @@ export function verificarColisaoJump(posicaoVeiculo, raioVeiculo = 1.5, veiculo 
     return { ativado: false };
   }
 
+  // Se está em cooldown, não verifica colisão
+  if (veiculo && veiculo.dadosSalto && veiculo.dadosSalto.cooldownRestante > 0) {
+    return { ativado: false };
+  }
+
   for (let jump of jumpsAtuais) {
     if (!jump || !jump.mesh) continue;
 
@@ -71,8 +76,8 @@ export function verificarColisaoJump(posicaoVeiculo, raioVeiculo = 1.5, veiculo 
     const dz = posicaoVeiculo.z - posJump.z;
     const distancia = Math.sqrt(dx * dx + dz * dz);
 
-    // Raio de ativação do jump (área da rampa)
-    const raioAtivacao = 2.5;
+    // Raio de ativação do jump AUMENTADO para detectar melhor
+    const raioAtivacao = 4.0;  // ← MUDOU DE 2.5 PARA 4.0
 
     // Se está próximo o suficiente, ativou o jump
     if (distancia < raioAtivacao) {
@@ -118,7 +123,7 @@ export function aplicarEfeitoJump(veiculo, velocidadeAtual) {
 
   // Calcula velocidade horizontal baseada na velocidade atual do veículo
   // A velocidade mínima garante que mesmo parado dê um pequeno salto
-  const velocidadeMinima = 15;
+  const velocidadeMinima = 20;
   const velocidadeHorizontal = Math.max(Math.abs(velocidadeAtual), velocidadeMinima);
   
   // Armazena a velocidade horizontal (mantém a direção e velocidade)
@@ -126,13 +131,13 @@ export function aplicarEfeitoJump(veiculo, velocidadeAtual) {
 
   // Velocidade vertical inicial (impulso para cima)
   // Ajustado para criar uma parábola adequada
-  const impulsoVertical = 18;
+  const impulsoVertical = 20;
   veiculo.dadosSalto.velocidadeVertical = impulsoVertical;
 
   // Marca que está no ar
   veiculo.dadosSalto.estaNoAr = true;
   veiculo.dadosSalto.tempoNoAr = 0;
-  veiculo.dadosSalto.cooldownRestante = 4; // Define cooldown de 4 segundos
+  veiculo.dadosSalto.cooldownRestante = 3; // Define cooldown de 4 segundos
   
   console.log(`🚀 JUMP ATIVADO!`);
   console.log(`   Velocidade horizontal: ${velocidadeHorizontal.toFixed(2)}`);
@@ -164,7 +169,7 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
     }
   }
 
-  const gravidade = -35; // Gravidade (negativa = puxa pra baixo)
+  const gravidade = -28; // Gravidade (negativa = puxa pra baixo)
   const alturaChao = 0.3; // Altura normal do veículo no chão
 
   // Se está no ar, aplica física parabólica
@@ -187,7 +192,7 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
     veiculo.position.copy(veiculo.group.position);
 
     // Pequena redução da velocidade horizontal (resistência do ar)
-    veiculo.dadosSalto.velocidadeHorizontal.multiplyScalar(0.99);
+    veiculo.dadosSalto.velocidadeHorizontal.multiplyScalar(0.995);
 
     // ========== VERIFICAR ATERRISSAGEM ==========
     if (veiculo.group.position.y <= alturaChao) {
