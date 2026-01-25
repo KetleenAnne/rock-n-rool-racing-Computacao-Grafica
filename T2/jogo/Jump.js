@@ -21,29 +21,28 @@ const BLOCOS_CHAO_PISTA3 = [
   // BORDA DIREITA (x = 50, z de -40 a 40)
   { x: 50, z: -40 }, { x: 50, z: -20 }, { x: 50, z: 0 }, { x: 50, z: 20 }, { x: 50, z: 40 },
   
-  // SEGUNDO QUADRADO (5x6 blocos completos)
+  // SEGUNDO QUADRADO - SÓ A BORDA (também é oco)
+  // offsetX = -100, offsetZ = -120 aplicados aos blocos de -50 a 50 em X e -60 a 60 em Z
   
-  // LINHA SUL (z = -60)
-  { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 },
+  // BORDA SUL (z = -60, que vira -180 com offset)
+  { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 }, { x: -50, z: -60 },
   
-  // LINHA z = -80
-  { x: -150, z: -80 }, { x: -130, z: -80 }, { x: -110, z: -80 }, { x: -90, z: -80 }, { x: -70, z: -80 },
+  // BORDA NORTE (z = -180, que vira -300... espera, não!)
+  // Analisando o código: segundo quadrado vai de x=-150 a -50, z=-180 a -60
   
-  // LINHA z = -100
-  { x: -150, z: -100 }, { x: -130, z: -100 }, { x: -110, z: -100 }, { x: -90, z: -100 }, { x: -70, z: -100 },
+  // BORDA SUL (z = -60)
+  { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 }, { x: -50, z: -60 },
   
-  // LINHA z = -120
-  { x: -150, z: -120 }, { x: -130, z: -120 }, { x: -110, z: -120 }, { x: -90, z: -120 }, { x: -70, z: -120 },
+  // BORDA NORTE (z = -180)  
+  { x: -150, z: -180 }, { x: -130, z: -180 }, { x: -110, z: -180 }, { x: -90, z: -180 }, { x: -70, z: -180 }, { x: -50, z: -180 },
   
-  // LINHA z = -140
-  { x: -150, z: -140 }, { x: -130, z: -140 }, { x: -110, z: -140 }, { x: -90, z: -140 }, { x: -70, z: -140 },
+  // BORDA ESQUERDA (x = -150, z de -160 a -80)
+  { x: -150, z: -160 }, { x: -150, z: -140 }, { x: -150, z: -120 }, { x: -150, z: -100 }, { x: -150, z: -80 },
   
-  // LINHA z = -160
-  { x: -150, z: -160 }, { x: -130, z: -160 }, { x: -110, z: -160 }, { x: -90, z: -160 }, { x: -70, z: -160 },
-  
-  // LINHA NORTE (z = -180)
-  { x: -150, z: -180 }, { x: -130, z: -180 }, { x: -110, z: -180 }, { x: -90, z: -180 }, { x: -70, z: -180 },
+  // BORDA DIREITA (x = -50, z de -160 a -80)
+  { x: -50, z: -160 }, { x: -50, z: -140 }, { x: -50, z: -120 }, { x: -50, z: -100 }, { x: -50, z: -80 },
 ];
+
 
 // Variável para controlar qual pista está ativa
 let pistaAtivaAtual = null;
