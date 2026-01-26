@@ -11,7 +11,7 @@ export function criarAguaPista2(group) {
     side: THREE.DoubleSide,
   });
 
-  // 64x32 segmentos para permitir a deformação da malha
+  
   const aguaGeometry = new THREE.PlaneGeometry(67, 20, 64, 32);
   const agua = new THREE.Mesh(aguaGeometry, materialAgua);
   

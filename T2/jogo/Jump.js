@@ -5,7 +5,7 @@ import { setDefaultMaterial } from "../../libs/util/util.js";
 let jumpsAtuais = [];
 
 // ========== BLOCOS DE CHÃO DA PISTA 3 ==========
-// Define exatamente onde estão os blocos de chão (cada bloco é 20x20)
+// Define exatamente onde estão os blocos de chão
 const BLOCOS_CHAO_PISTA3 = [
   // PRIMEIRO QUADRADO - SÓ A BORDA (forma um quadrado oco)
   
@@ -22,13 +22,11 @@ const BLOCOS_CHAO_PISTA3 = [
   { x: 50, z: -40 }, { x: 50, z: -20 }, { x: 50, z: 0 }, { x: 50, z: 20 }, { x: 50, z: 40 },
   
   // SEGUNDO QUADRADO - SÓ A BORDA (também é oco)
-  // offsetX = -100, offsetZ = -120 aplicados aos blocos de -50 a 50 em X e -60 a 60 em Z
   
   // BORDA SUL (z = -60, que vira -180 com offset)
   { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 }, { x: -50, z: -60 },
   
   // BORDA NORTE (z = -180, que vira -300... espera, não!)
-  // Analisando o código: segundo quadrado vai de x=-150 a -50, z=-180 a -60
   
   // BORDA SUL (z = -60)
   { x: -150, z: -60 }, { x: -130, z: -60 }, { x: -110, z: -60 }, { x: -90, z: -60 }, { x: -70, z: -60 }, { x: -50, z: -60 },
@@ -44,32 +42,27 @@ const BLOCOS_CHAO_PISTA3 = [
 ];
 
 
-// Variável para controlar qual pista está ativa
 let pistaAtivaAtual = null;
 
-// ========== DEFINIR PISTA ATIVA ==========
 export function setPistaAtiva(numeroPista) {
   pistaAtivaAtual = numeroPista;
   console.log(`🏁 Pista ativa definida: ${numeroPista}`);
 }
 
 const LIMITES_PISTA = {
-  minX: -160,  // Limite esquerdo (segundo quadrado)
-  maxX: 60,    // Limite direito (primeiro quadrado)
-  minZ: -190,  // Limite norte (segundo quadrado)
-  maxZ: 70     // Limite sul (primeiro quadrado)
+  minX: -160,  
+  maxX: 60,    
+  minZ: -190,  
+  maxZ: 70     
 };
 
-// ========== CRIAR JUMPS DA PISTA 3 ==========
 export function criarJumpsPista3(scene) {
   console.log("Criando jumps da Pista 3...");
   
-  // Limpa jumps anteriores antes de criar novos
   limparJumps(scene);
 
   const jumps = [];
 
-  // Geometria e material dos jumps (visual de rampa)
   const retanguloGeo = new THREE.PlaneGeometry(3, 6);
   const materialJump = new THREE.MeshLambertMaterial({ 
     color: 0xFFAA00, // Laranja para destacar
@@ -87,7 +80,7 @@ export function criarJumpsPista3(scene) {
     mesh: jump1,
     posicao: { x: -21.55, y: 0.1, z: -60 },
     nome: "jump1",
-    direcaoSalto: new THREE.Vector3(0, 0, -1) // Salto para norte (z negativo)
+    direcaoSalto: new THREE.Vector3(0, 0, -1)
   });
 
   // ========== JUMP 2 - Direito ==========
@@ -101,7 +94,7 @@ export function criarJumpsPista3(scene) {
     mesh: jump2,
     posicao: { x: 1.55, y: 0.1, z: -60 },
     nome: "jump2",
-    direcaoSalto: new THREE.Vector3(0, 0, -1) // Salto para norte (z negativo)
+    direcaoSalto: new THREE.Vector3(0, 0, -1)
   });
 
   jumpsAtuais = jumps;
@@ -110,7 +103,6 @@ export function criarJumpsPista3(scene) {
   return jumps;
 }
 
-// ========== VERIFICAR COLISÃO COM JUMP ==========
 export function verificarColisaoJump(posicaoVeiculo, raioVeiculo = 1.5, veiculo = null) {
   // Se o veículo está no ar, não ativa jump (evita ativar ao cair)
   if (veiculo && veiculo.dadosSalto && veiculo.dadosSalto.estaNoAr) {
@@ -132,10 +124,9 @@ export function verificarColisaoJump(posicaoVeiculo, raioVeiculo = 1.5, veiculo 
     const dz = posicaoVeiculo.z - posJump.z;
     const distancia = Math.sqrt(dx * dx + dz * dz);
 
-    // Raio de ativação do jump AUMENTADO para detectar melhor
-    const raioAtivacao = 4.0;  // ← MUDOU DE 2.5 PARA 4.0
+    // Raio de ativação do jump
+    const raioAtivacao = 4.0;
 
-    // Se está próximo o suficiente, ativou o jump
     if (distancia < raioAtivacao) {
       return {
         ativado: true,
@@ -148,11 +139,9 @@ export function verificarColisaoJump(posicaoVeiculo, raioVeiculo = 1.5, veiculo 
   return { ativado: false };
 }
 
-// ========== APLICAR EFEITO DE JUMP COM FÍSICA PARABÓLICA ==========
 export function aplicarEfeitoJump(veiculo, velocidadeAtual) {
   if (!veiculo || !veiculo.group) return;
 
-  // Inicializa propriedades de salto se não existirem
   if (!veiculo.dadosSalto) {
     veiculo.dadosSalto = {
       velocidadeVertical: 0,
@@ -201,11 +190,9 @@ export function aplicarEfeitoJump(veiculo, velocidadeAtual) {
   console.log(`   Direção: (${direcaoVeiculo.x.toFixed(2)}, ${direcaoVeiculo.z.toFixed(2)})`);
 }
 
-// ========== ATUALIZAR FÍSICA DO JUMP - MOVIMENTO PARABÓLICO ==========
 export function atualizarFisicaJump(veiculo, deltaTime) {
   if (!veiculo || !veiculo.group) return;
 
-  // Inicializa dadosSalto se não existir
   if (!veiculo.dadosSalto) {
     veiculo.dadosSalto = {
       velocidadeVertical: 0,
@@ -228,11 +215,9 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
   const gravidade = -28; // Gravidade (negativa = puxa pra baixo)
   const alturaChao = 0.3; // Altura normal do veículo no chão
 
-  // Se está no ar, aplica física parabólica
   if (veiculo.dadosSalto.estaNoAr) {
     veiculo.dadosSalto.tempoNoAr += deltaTime;
 
-    // ========== MOVIMENTO VERTICAL (eixo Y) - Parábola ==========
     // Aplica gravidade à velocidade vertical
     veiculo.dadosSalto.velocidadeVertical += gravidade * deltaTime;
     
@@ -240,23 +225,18 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
     veiculo.group.position.y += veiculo.dadosSalto.velocidadeVertical * deltaTime;
     veiculo.position.y = veiculo.group.position.y;
 
-    // ========== MOVIMENTO HORIZONTAL (eixos X e Z) - Mantém velocidade ==========
     // Move o veículo na direção horizontal com a velocidade armazenada
     const deslocamentoHorizontal = veiculo.dadosSalto.velocidadeHorizontal.clone().multiplyScalar(deltaTime);
     veiculo.group.position.x += deslocamentoHorizontal.x;
     veiculo.group.position.z += deslocamentoHorizontal.z;
     veiculo.position.copy(veiculo.group.position);
 
-    // --- CORREÇÃO AQUI: RESISTÊNCIA DO AR INDEPENDENTE DE FRAME RATE ---
-    // Em vez de multiplyScalar(0.995) fixo, usamos Math.pow para ajustar ao tempo decorrido.
     // 0.95 significa que o carro mantém 95% da velocidade após 1 segundo no ar.
     const resistenciaPorSegundo = 0.95; 
     const fatorFrame = Math.pow(resistenciaPorSegundo, deltaTime);
     veiculo.dadosSalto.velocidadeHorizontal.multiplyScalar(fatorFrame);
 
-    // ========== VERIFICAR ATERRISSAGEM ==========
     if (veiculo.group.position.y <= alturaChao) {
-      // Aterrissou!
       veiculo.group.position.y = alturaChao;
       veiculo.position.y = alturaChao;
       veiculo.dadosSalto.velocidadeVertical = 0;
@@ -274,13 +254,11 @@ export function atualizarFisicaJump(veiculo, deltaTime) {
   }
 }
 
-// ========== VERIFICAR SE VEÍCULO ESTÁ NO AR ==========
 export function estaNoAr(veiculo) {
   if (!veiculo || !veiculo.dadosSalto) return false;
   return veiculo.dadosSalto.estaNoAr;
 }
 
-// ========== LIMPAR JUMPS ==========
 export function limparJumps(scene) {
   for (let jump of jumpsAtuais) {
     if (jump && jump.mesh) {
@@ -292,7 +270,6 @@ export function limparJumps(scene) {
   jumpsAtuais = [];
 }
 
-// ========== GETTER PARA JUMPS ATUAIS ==========
 export function getJumps() {
   return jumpsAtuais;
 }
@@ -301,32 +278,28 @@ export function getJumps() {
 
 // Zona de queda (buraco na pista 3)
 const ZONA_QUEDA = {
-  x: -10,  // Centro X do buraco
-  z: -60,  // Centro Z do buraco
+  x: -10,  
+  z: -60,  
   raio: 10, // Raio de detecção (área do buraco)
   profundidadeRespawn: -19, // Y onde o veículo respawna
   posicaoRespawn: { x: -150, y: 0.3, z: -60 } // Posição de reaparecimento
 };
 
-// ========== VERIFICAR SE ESTÁ NA ZONA DE QUEDA ==========
 export function verificarZonaQueda(posicaoVeiculo) {
   if (pistaAtivaAtual !== 3) {
     return false; // Nas outras pistas, nunca ativa queda
   }
-  // Calcula distância do veículo ao centro do buraco (só X e Z)
+  // Calcula distância do veículo ao centro do buraco
   const dx = posicaoVeiculo.x - ZONA_QUEDA.x;
   const dz = posicaoVeiculo.z - ZONA_QUEDA.z;
   const distancia = Math.sqrt(dx * dx + dz * dz);
 
-  // Verifica se está dentro da área do buraco
   return !esChaoDaPista(posicaoVeiculo);
 }
 
-// ========== INICIAR QUEDA LIVRE ==========
 export function iniciarQuedaLivre(veiculo) {
   if (!veiculo || !veiculo.group) return;
 
-  // Inicializa dados de queda se não existirem
   if (!veiculo.dadosQueda) {
     veiculo.dadosQueda = {
       estaCaindo: false,
@@ -334,22 +307,18 @@ export function iniciarQuedaLivre(veiculo) {
     };
   }
 
-  // Se já está caindo ou no ar (jump), não inicia nova queda
   if (veiculo.dadosQueda.estaCaindo) return;
   if (veiculo.dadosSalto && veiculo.dadosSalto.estaNoAr) return;
 
-  // Inicia a queda
   veiculo.dadosQueda.estaCaindo = true;
   veiculo.dadosQueda.velocidadeQueda = 0;
 
   console.log(`💀 CAINDO NO BURACO! Veículo: ${veiculo.name || 'Desconhecido'}`);
 }
 
-// ========== ATUALIZAR FÍSICA DE QUEDA ==========
 export function atualizarQuedaLivre(veiculo, deltaTime) {
   if (!veiculo || !veiculo.group) return;
 
-  // Inicializa dadosQueda se não existir
   if (!veiculo.dadosQueda) {
     veiculo.dadosQueda = {
       estaCaindo: false,
@@ -358,16 +327,13 @@ export function atualizarQuedaLivre(veiculo, deltaTime) {
     return;
   }
 
-  // Se não está caindo, não faz nada
   if (!veiculo.dadosQueda.estaCaindo) return;
 
-  const gravidadeQueda = -25; // Gravidade da queda (negativa)
-  const velocidadeRotacao = 2.0; // Velocidade de rotação durante a queda
+  const gravidadeQueda = -25; 
+  const velocidadeRotacao = 2.0;
 
-  // Aplica gravidade à velocidade de queda
   veiculo.dadosQueda.velocidadeQueda += gravidadeQueda * deltaTime;
 
-  // Atualiza posição Y (cai)
   veiculo.group.position.y += veiculo.dadosQueda.velocidadeQueda * deltaTime;
   veiculo.position.y = veiculo.group.position.y;
 
@@ -377,20 +343,14 @@ export function atualizarQuedaLivre(veiculo, deltaTime) {
     //veiculo.group.rotation.z += velocidadeRotacao * 0.5 * deltaTime;
   //}
 
-  // ========== ROTAÇÃO PARA FRENTE (Mergulho) ==========
-  // Criamos um vetor que representa o eixo lateral (X local do veículo)
   const eixoLateral = new THREE.Vector3(1, 0, 0); 
-  // Aplicamos a rotação local para que ele sempre "mergulhe" de frente, 
-  // independente de para onde o carro estava virado.
   veiculo.group.rotateOnAxis(eixoLateral, velocidadeRotacao * deltaTime);
 
-  // ========== VERIFICAR RESPAWN ==========
   if (veiculo.group.position.y <= ZONA_QUEDA.profundidadeRespawn) {
     respawnarVeiculo(veiculo);
   }
 }
 
-// ========== RESPAWNAR VEÍCULO ==========
 function respawnarVeiculo(veiculo) {
   if (!veiculo || !veiculo.group) return;
 
@@ -404,18 +364,14 @@ function respawnarVeiculo(veiculo) {
   );
   veiculo.position.copy(veiculo.group.position);
 
-  // Reseta rotação - DIREÇÃO OPOSTA (Math.PI / 2 ao invés de -Math.PI / 2)
   veiculo.group.rotation.set(0, Math.PI / 2, 0);
   veiculo.rotation.set(0, Math.PI / 2, 0);
 
-  // ZERA A VELOCIDADE (importante para não bugar)
   veiculo.velocidadeAtual = 0;
   
-  // Reseta estado de queda
   veiculo.dadosQueda.estaCaindo = false;
   veiculo.dadosQueda.velocidadeQueda = 0;
 
-  // Reseta estado de salto (se existir)
   if (veiculo.dadosSalto) {
     veiculo.dadosSalto.estaNoAr = false;
     veiculo.dadosSalto.velocidadeVertical = 0;
@@ -425,30 +381,24 @@ function respawnarVeiculo(veiculo) {
   console.log(`✅ Veículo respawnado! Velocidade zerada.`);
 }
 
-// ========== VERIFICAR SE ESTÁ CAINDO ==========
 export function estaCaindo(veiculo) {
   if (!veiculo || !veiculo.dadosQueda) return false;
   return veiculo.dadosQueda.estaCaindo;
 }
 
-// ========== VERIFICAR SE É CHÃO DA PISTA ==========
 export function esChaoDaPista(posicaoVeiculo) {
-  // ⚠️ SÓ FUNCIONA NA PISTA 3
   if (pistaAtivaAtual !== 3) {
-    return true; // Nas outras pistas, sempre considera chão válido
+    return true;
   }
 
-  // Verifica se o veículo está em cima de algum bloco de chão
-  // Cada bloco tem 20x20, então verificamos se está a ±10 do centro
   for (let bloco of BLOCOS_CHAO_PISTA3) {
     const dentroBlocoX = Math.abs(posicaoVeiculo.x - bloco.x) <= 10;
     const dentroBlocoZ = Math.abs(posicaoVeiculo.z - bloco.z) <= 10;
     
     if (dentroBlocoX && dentroBlocoZ) {
-      return true; // Está em cima de um bloco = é chão válido
+      return true;
     }
   }
 
-  // Não está em cima de nenhum bloco = não é chão
   return false;
 }
