@@ -65,7 +65,7 @@ export class IAInimigo {
     // Verifica se está muito à frente do jogador
     const multiplicadorVelocidade = this.verificarDistanciaJogador(todosVeiculos);
 
-    // Sistema de desvio de obstáculos (SEM RAYCASTER)
+    // Sistema de desvio de obstáculos 
     const obstaculoDetectado = this.detectarObstaculos(todosVeiculos);
     
     if (obstaculoDetectado) {
@@ -154,7 +154,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // DETECTA OBSTÁCULOS À FRENTE (SEM RAYCASTER)
+  // DETECTA OBSTÁCULOS À FRENTE 
   // =====================================================
   detectarObstaculos(todosVeiculos) {
     const frente = this.veiculo.getDirecaoFrente();
@@ -163,17 +163,15 @@ export class IAInimigo {
     let obstaculoMaisProximo = null;
     let menorDistancia = Infinity;
 
-    // Verifica cada veículo
+    // ===== VERIFICA VEÍCULOS =====
     for (const outro of todosVeiculos) {
       if (!outro || outro === this.veiculo) continue;
       if (outro.corridaFinalizada) continue;
 
       const distancia = posicao.distanceTo(outro.position);
       
-      // Só considera se estiver próximo
       if (distancia > 15) continue;
 
-      // Verifica se está à frente
       const dirObstaculo = new THREE.Vector3()
         .subVectors(outro.position, posicao)
         .setY(0)
@@ -181,13 +179,10 @@ export class IAInimigo {
 
       const dot = frente.dot(dirObstaculo);
 
-      // Está à frente (dot > 0.3 significa ~70 graus de visão frontal)
       if (dot > 0.3) {
-        // Calcula distância lateral (perpendicular)
         const cross = new THREE.Vector3().crossVectors(frente, dirObstaculo);
         const distanciaLateral = Math.abs(cross.y) * distancia;
 
-        // Só considera se estiver na "faixa" de passagem (largura ~4 unidades)
         if (distanciaLateral < 4) {
           if (distancia < menorDistancia) {
             menorDistancia = distancia;
@@ -198,6 +193,43 @@ export class IAInimigo {
               dot: dot,
               distanciaLateral: distanciaLateral
             };
+          }
+        }
+      }
+    }
+
+    // ===== VERIFICA OBJETOS NA PISTA (pneus, cones, barris, etc) =====
+    if (window.objetosPista && Array.isArray(window.objetosPista)) {
+      for (const objInfo of window.objetosPista) {
+        if (!objInfo || !objInfo.mesh) continue;
+
+        const objPosicao = objInfo.mesh.position;
+        const distancia = posicao.distanceTo(objPosicao);
+
+        if (distancia > 15) continue;
+
+        const dirObstaculo = new THREE.Vector3()
+          .subVectors(objPosicao, posicao)
+          .setY(0)
+          .normalize();
+
+        const dot = frente.dot(dirObstaculo);
+
+        if (dot > 0.3) {
+          const cross = new THREE.Vector3().crossVectors(frente, dirObstaculo);
+          const distanciaLateral = Math.abs(cross.y) * distancia;
+
+          if (distanciaLateral < 3.5) { // Objetos têm área de detecção um pouco menor
+            if (distancia < menorDistancia) {
+              menorDistancia = distancia;
+              obstaculoMaisProximo = {
+                tipo: 'objeto',
+                objeto: objInfo.mesh,
+                distancia: distancia,
+                dot: dot,
+                distanciaLateral: distanciaLateral
+              };
+            }
           }
         }
       }
@@ -257,7 +289,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // SEGUIR CHECKPOINT (MOVIMENTO NORMAL)
+  // SEGUIR CHECKPOINT 
   // =====================================================
   seguirCheckpoint(deltaTime, multiplicadorVelocidade = 1.0) {
     const alvo = this.checkpoints[this.checkpointAtual];
@@ -291,7 +323,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // DISPAROS (INALTERADO)
+  // DISPAROS 
   // =====================================================
   tentarDisparar(deltaTime, todosVeiculos) {
     this.tempoUltimoDisparo += deltaTime;
