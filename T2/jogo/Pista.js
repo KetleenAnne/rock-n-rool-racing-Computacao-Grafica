@@ -278,7 +278,7 @@ export function criarPista3(scene) {
 
   try {
     // GRAMA (ALTERADO PARA PEDRA)
-    const texGrama = carregarTextura("assets/texturas/pista/pedra.jpg", 40, 40);
+    const texGrama = carregarTextura("assets/texturas/pista/hell.jpg", 40, 40);
     const grama = new THREE.Mesh(
       new THREE.PlaneGeometry(1000, 1000),
       new THREE.MeshLambertMaterial({ map: texGrama })

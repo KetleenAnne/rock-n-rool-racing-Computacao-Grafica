@@ -92,7 +92,7 @@ export function carregarObjetosPista2(group, arrayColisao) {
     [
       { x: -90, z: 70 },
       { x: 50, z: 70 },
-      { x: 10, z: 0 },
+      { x: 89, z: 0 },
     ],
     group,
     arrayColisao
@@ -101,11 +101,11 @@ export function carregarObjetosPista2(group, arrayColisao) {
   // Objeto 4: Barris
   carregarObjetoNaPista(
     "assets/texturas/objetos/barril.glb",
-    3.0,
+    1.5,
     [
       { x: -50, z: 70 },
       { x: 10, z: -80 },
-      { x: 50, z: 70 },
+      { x: 30, z: 70 },
     ],
     group,
     arrayColisao
@@ -117,7 +117,7 @@ export function carregarObjetosPista3(group, arrayColisao) {
   // Objeto 5: Rochas
   carregarObjetoNaPista(
     "assets/texturas/objetos/pedra.glb",
-    3.0,
+    1.5,
     [
       { x: -10, z: 60 }, // Reta Sul (no asfalto)
       { x: 50, z: 0 }, // Reta Leste (no asfalto)
