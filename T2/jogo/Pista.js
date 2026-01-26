@@ -255,7 +255,7 @@ export function criarPista2(scene) {
     criarArvoresPista2(group);
     criarAguaPista2(group);
 
-    // === ADICIONAR OBJETOS PISTA 2 (Palmeira e Barril) ===
+    // === ADICIONAR OBJETOS PISTA 2 (Bola e Barril) ===
     carregarObjetosPista2(group, muretasAtuais);
 
     scene.add(group);

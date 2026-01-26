@@ -83,16 +83,16 @@ export function carregarObjetosPista1(group, arrayColisao) {
   );
 }
 
-// ========== CONFIGURAÇÃO PISTA 2 (Palmeira e Barril) ==========
+// ========== CONFIGURAÇÃO PISTA 2 (Bolas e Barril) ==========
 export function carregarObjetosPista2(group, arrayColisao) {
-  // Objeto 3: Palmeiras
+  // Objeto 3: Bolas
   carregarObjetoNaPista(
-    "assets/texturas/objetos/palmeira.glb",
-    0.15,
+    "assets/texturas/objetos/ball.glb",
+    0.8,
     [
-      { x: -90, z: 70 },
-      { x: 50, z: 70 },
-      { x: 89, z: 0 },
+      { x: -90, y: 0.8, z: 70 },
+      { x: 50, y: 0.8, z: 70 },
+      { x: 89, y: 0.8, z: 0 },
     ],
     group,
     arrayColisao
