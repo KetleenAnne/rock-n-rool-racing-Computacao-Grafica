@@ -119,9 +119,9 @@ export function carregarObjetosPista3(group, arrayColisao) {
     "assets/texturas/objetos/pedra.glb",
     1.5,
     [
-      { x: -10, z: 60 },
-      { x: 50, z: 0 },
-      { x: 30, z: -60 },
+      { x: -10, y: 0.5, z: 60 },
+      { x: 50, y: 0.5, z: 0 },
+      { x: 30, y: 0.5, z: -60 },
     ],
     group,
     arrayColisao
