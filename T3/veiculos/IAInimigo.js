@@ -65,7 +65,7 @@ export class IAInimigo {
     // Verifica se está muito à frente do jogador
     const multiplicadorVelocidade = this.verificarDistanciaJogador(todosVeiculos);
 
-    // Sistema de desvio de obstáculos (SEM RAYCASTER)
+    // Sistema de desvio de obstáculos 
     const obstaculoDetectado = this.detectarObstaculos(todosVeiculos);
     
     if (obstaculoDetectado) {
@@ -154,7 +154,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // DETECTA OBSTÁCULOS À FRENTE (SEM RAYCASTER)
+  // DETECTA OBSTÁCULOS À FRENTE 
   // =====================================================
   detectarObstaculos(todosVeiculos) {
     const frente = this.veiculo.getDirecaoFrente();
@@ -289,7 +289,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // SEGUIR CHECKPOINT (MOVIMENTO NORMAL)
+  // SEGUIR CHECKPOINT 
   // =====================================================
   seguirCheckpoint(deltaTime, multiplicadorVelocidade = 1.0) {
     const alvo = this.checkpoints[this.checkpointAtual];
@@ -323,7 +323,7 @@ export class IAInimigo {
   }
 
   // =====================================================
-  // DISPAROS (INALTERADO)
+  // DISPAROS 
   // =====================================================
   tentarDisparar(deltaTime, todosVeiculos) {
     this.tempoUltimoDisparo += deltaTime;
