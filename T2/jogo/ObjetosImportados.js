@@ -119,9 +119,9 @@ export function carregarObjetosPista3(group, arrayColisao) {
     "assets/texturas/objetos/pedra.glb",
     1.5,
     [
-      { x: -10, z: 60 }, // Reta Sul (no asfalto)
-      { x: 50, z: 0 }, // Reta Leste (no asfalto)
-      { x: 30, z: -60 }, // Reta Norte (no asfalto)
+      { x: -10, z: 60 },
+      { x: 50, z: 0 },
+      { x: 30, z: -60 },
     ],
     group,
     arrayColisao
@@ -132,9 +132,9 @@ export function carregarObjetosPista3(group, arrayColisao) {
     "assets/texturas/objetos/caixa.glb",
     1.5,
     [
-      { x: -50, y: 0.1, z: 0 },
-      { x: 30, y: 0.1, z: 60 },
-      { x: -30, y: 0.1, z: -60 },
+      { x: -50, y: 0.5, z: 0 },
+      { x: 30, y: 0.5, z: 60 },
+      { x: -30, y: 0.5, z: -60 },
     ],
     group,
     arrayColisao
